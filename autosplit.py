@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
         if np.average(screen) <= blackscreen_threshold:
             blackscreen_counter += 1
-            # print("Blackscreen Count: " + str(blackscreen_counter)) # Enable for Debug
+            print("Blackscreen Count: " + str(blackscreen_counter)) # Enable for Debug
             if blackscreen_counter in splits:
                 keyboard.press(split_key)
                 keyboard.release(split_key)
