@@ -14,3 +14,4 @@ py -m pip install -U setuptools wheel
 py -m pip install -U numpy opencv-python pynput pillow python-time
 ```
 - Start autosplit.py
+- You can stop with CTRL+C while console is active
