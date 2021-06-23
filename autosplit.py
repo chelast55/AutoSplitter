@@ -14,7 +14,9 @@ splits = []                  # Blackscreen count values at which to split
 blackscreen_threshold: float # Threshold for average gray value for a screen to count as blackscreen (0 by default)
 max_capture_rate: int        # Times per second a capture is taken (NOTE: this is a maximum and possibly unreachable)
 after_split_delay: float     # Delay to prevent multiple splits per blackscreen in seconds
-decrement_key: Key          # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
+decrement_key: Key           # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
+increment_key: Key           # "Well, there's currently no cases where that's useful or important! ;)
+reset_key: Key               # Key to press to restart program without actually restarting
 
 
 if __name__ == '__main__':
@@ -23,6 +25,7 @@ if __name__ == '__main__':
     keyboard = KeyboardController()
     preview_coord_counter = 0
     blackscreen_counter = 0
+    reset_after_this_iteration = False
 
     def correct_coords():
         global video_preview_coords
@@ -52,6 +55,23 @@ if __name__ == '__main__':
             print("New Blackscreen Count: " + str(blackscreen_counter))
             time.sleep(after_split_delay)
 
+    def on_press_increment(key):
+        global blackscreen_counter
+        if key == increment_key:
+            blackscreen_counter += 1
+            print("Blackscreen counter was incremented")
+            print("New Blackscreen Count: " + str(blackscreen_counter))
+            time.sleep(after_split_delay)
+
+    def on_press_reset(key):
+        global reset_after_this_iteration
+        if key == reset_key:
+            reset_after_this_iteration = True
+            print("Reset!")
+            print("Wait for splitter to restart...")
+            time.sleep(after_split_delay)
+
+
     def on_press_set_split_key(key):
         global split_key
         split_key = key
@@ -62,6 +82,18 @@ if __name__ == '__main__':
         global decrement_key
         decrement_key = key
         print(repr(key) + " was set as your Decrement key!")
+        return False
+
+    def on_press_set_increment_key(key):
+        global increment_key
+        increment_key = key
+        print(repr(key) + " was set as your Increment key!")
+        return False
+
+    def on_press_set_reset_key(key):
+        global reset_key
+        reset_key = key
+        print(repr(key) + " was set as your Reset key!")
         return False
 
     def on_click_set_coords(x, y, button, pressed):
@@ -98,6 +130,14 @@ if __name__ == '__main__':
             decrement_key = eval(settings[6][1:].split(':')[0])
         else:
             decrement_key = eval(settings[6])
+        if settings[7][0] == '<':
+            increment_key = eval(settings[7][1:].split(':')[0])
+        else:
+            increment_key = eval(settings[7])
+        if settings[8][0] == '<':
+            reset_key = eval(settings[8][1:].split(':')[0])
+        else:
+            reset_key = eval(settings[8])
 
     # Setup
     if setup_at_start:
@@ -111,22 +151,30 @@ if __name__ == '__main__':
         with KeyboardListener(on_press=on_press_set_decrement_key) as keyboard_listener:
             keyboard_listener.join()
 
+        # Set Increment Key
+        print("Press the key you want to use for manually incrementing the blackscreen counter once:")
+        with KeyboardListener(on_press=on_press_set_increment_key) as keyboard_listener:
+            keyboard_listener.join()
+
+        # Set Reset Key
+        print("Press the key you want to use to reset the running program:")
+        with KeyboardListener(on_press=on_press_set_reset_key) as keyboard_listener:
+            keyboard_listener.join()
+
         # Set video preview coords
         print("Click to set video preview coords: (pick 2 diagonally opposed corners)")
         with MouseListener(on_click=on_click_set_coords) as mouse_listener:
             mouse_listener.join()
 
         # Set blackscreen threshold
-        user_input = int(
-            input("Set maximum grey value to still count as black: (0-255, black-white, 0 by default)\n"))
+        user_input = int(input("Set maximum grey value to still count as black: (0-255, black-white, 0 by default)\n"))
         if 0 <= user_input <= 255:
             blackscreen_threshold = user_input
         else:
             blackscreen_threshold = 0
 
         # Set after split delay
-        user_input = int(
-            input("Set minimum delay between splits to prevent repeated splitting on the same blackscreen: (time in seconds)\n"))
+        user_input = int(input("Set minimum delay between splits to prevent repeated splitting on the same blackscreen: (time in seconds)\n"))
         if user_input > 0:
             after_split_delay = user_input
         else:
@@ -149,36 +197,45 @@ if __name__ == '__main__':
             config_file.write(repr(blackscreen_threshold) + "\n")
             config_file.write(repr(max_capture_rate) + "\n")
             config_file.write(repr(after_split_delay) + "\n")
-            config_file.write(repr(decrement_key))
+            config_file.write(repr(decrement_key) + "\n")
+            config_file.write(repr(increment_key) + "\n")
+            config_file.write(repr(reset_key))
 
-    # Read splits
-    with open("splits.txt", 'r') as splits_file:
-        lines = splits_file.readlines()
-        for line in lines:
-            if line != "":
-                splits.append(int(line))
+        # Read splits
+        with open("splits.txt", 'r') as splits_file:
+            lines = splits_file.readlines()
+            for line in lines:
+                if line != "":
+                    splits.append(int(line))
 
-    # Enable Decrement Key
-    decrement_listener = KeyboardListener(on_press=on_press_decrement)
-    decrement_listener.start()
+        # Enable Keys (Decrement, Increment, Reset)
+        decrement_listener = KeyboardListener(on_press=on_press_decrement)
+        decrement_listener.start()
+        increment_listener = KeyboardListener(on_press=on_press_increment)
+        increment_listener.start()
+        reset_listener = KeyboardListener(on_press=on_press_reset)
+        reset_listener.start()
 
-    # Main loop
-    while True:
-        start_time = time.time()
+        # Main loop
+        while True:
+            blackscreen_counter = 0
+            reset_after_this_iteration = False
+            print("Splitter start!")
+            while not reset_after_this_iteration:
+                start_time = time.time()
 
-        screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
-        screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-        # print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
+                screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
+                screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+                # print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
 
-        if np.average(screen) <= blackscreen_threshold:
-            blackscreen_counter += 1
-            print("Blackscreen Count: " + str(blackscreen_counter))
-            if blackscreen_counter in splits:
-                keyboard.press(split_key)
-                keyboard.release(split_key)
-            time.sleep(after_split_delay)
+                if np.average(screen) <= blackscreen_threshold:
+                    blackscreen_counter += 1
+                    print("Blackscreen Count: " + str(blackscreen_counter))
+                    if blackscreen_counter in splits:
+                        keyboard.press(split_key)
+                        keyboard.release(split_key)
+                    time.sleep(after_split_delay)
 
-        # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
-        while (time.time() - start_time) < (1 / max_capture_rate):
-            time.sleep(0.01)
-
+                # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
+                while (time.time() - start_time) < (1 / max_capture_rate):
+                    time.sleep(0.01)
