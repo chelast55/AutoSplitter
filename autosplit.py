@@ -8,15 +8,15 @@ import time
 
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
 setup_at_start: bool         # Do setup at start?
-split_key: Key               # Key automatically pressed when valif blackscreen is detected
+split_key: str               # Key automatically pressed when valif blackscreen is detected
 video_preview_coords = []    # Corners of stream preview window
 splits = []                  # Blackscreen count values at which to split
 blackscreen_threshold: float # Threshold for average gray value for a screen to count as blackscreen (0 by default)
 max_capture_rate: int        # Times per second a capture is taken (NOTE: this is a maximum and possibly unreachable)
 after_split_delay: float     # Delay to prevent multiple splits per blackscreen in seconds
-decrement_key: Key           # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
-increment_key: Key           # "Well, there's currently no cases where that's useful or important! ;)
-reset_key: Key               # Key to press to restart program without actually restarting
+decrement_key: str           # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
+increment_key: str           # "Well, there's currently no cases where that's useful or important! ;)
+reset_key: str               # Key to press to restart program without actually restarting
 
 
 if __name__ == '__main__':
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     def on_press_decrement(key):
         global blackscreen_counter
-        if key == decrement_key:
+        if repr(key) == decrement_key:
             blackscreen_counter -= 1
             print("Blackscreen counter was decremented")
             print("New Blackscreen Count: " + str(blackscreen_counter))
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     def on_press_increment(key):
         global blackscreen_counter
-        if key == increment_key:
+        if repr(key) == increment_key:
             blackscreen_counter += 1
             print("Blackscreen counter was incremented")
             print("New Blackscreen Count: " + str(blackscreen_counter))
@@ -65,34 +65,33 @@ if __name__ == '__main__':
 
     def on_press_reset(key):
         global reset_after_this_iteration
-        if key == reset_key:
+        if repr(key) == reset_key:
             reset_after_this_iteration = True
             print("Reset!")
             print("Wait for splitter to restart...")
             time.sleep(after_split_delay)
 
-
     def on_press_set_split_key(key):
         global split_key
-        split_key = key
+        split_key = repr(key)
         print(repr(key) + " was set as your Split key!")
         return False
 
     def on_press_set_decrement_key(key):
         global decrement_key
-        decrement_key = key
+        decrement_key = repr(key)
         print(repr(key) + " was set as your Decrement key!")
         return False
 
     def on_press_set_increment_key(key):
         global increment_key
-        increment_key = key
+        increment_key = repr(key)
         print(repr(key) + " was set as your Increment key!")
         return False
 
     def on_press_set_reset_key(key):
         global reset_key
-        reset_key = key
+        reset_key = repr(key)
         print(repr(key) + " was set as your Reset key!")
         return False
 
@@ -117,27 +116,14 @@ if __name__ == '__main__':
     with open("config.cfg", 'r') as config_file:
         settings = config_file.readlines()
         setup_at_start = eval(settings[0])
-        # non-alphanumeric keys need to be handled differently
-        if settings[1][0] == '<':
-            split_key = eval(settings[1][1:].split(':')[0])
-        else:
-            split_key = eval(settings[1])
+        split_key = settings[1].split('\n')[0]
         video_preview_coords = eval(settings[2])
         blackscreen_threshold = eval(settings[3])
         max_capture_rate = eval(settings[4])
         after_split_delay = eval(settings[5])
-        if settings[6][0] == '<':
-            decrement_key = eval(settings[6][1:].split(':')[0])
-        else:
-            decrement_key = eval(settings[6])
-        if settings[7][0] == '<':
-            increment_key = eval(settings[7][1:].split(':')[0])
-        else:
-            increment_key = eval(settings[7])
-        if settings[8][0] == '<':
-            reset_key = eval(settings[8][1:].split(':')[0])
-        else:
-            reset_key = eval(settings[8])
+        decrement_key = settings[6].split('\n')[0]
+        increment_key = settings[7].split('\n')[0]
+        reset_key = settings[8].split('\n')[0]
 
     # Setup
     if setup_at_start:
@@ -192,50 +178,49 @@ if __name__ == '__main__':
         # Write changes to config.cfg
         with open("config.cfg", 'w') as config_file:
             config_file.write(repr(setup_at_start) + "\n")
-            config_file.write(repr(split_key) + "\n")
+            config_file.write(split_key + "\n")
             config_file.write(repr(video_preview_coords) + "\n")
             config_file.write(repr(blackscreen_threshold) + "\n")
             config_file.write(repr(max_capture_rate) + "\n")
             config_file.write(repr(after_split_delay) + "\n")
-            config_file.write(repr(decrement_key) + "\n")
-            config_file.write(repr(increment_key) + "\n")
-            config_file.write(repr(reset_key))
+            config_file.write(decrement_key + "\n")
+            config_file.write(increment_key + "\n")
+            config_file.write(reset_key)
 
-        # Read splits
-        with open("splits.txt", 'r') as splits_file:
-            lines = splits_file.readlines()
-            for line in lines:
-                if line != "":
-                    splits.append(int(line))
+    # Read splits
+    with open("splits.txt", 'r') as splits_file:
+        lines = splits_file.readlines()
+        for line in lines:
+            if line != "":
+                splits.append(int(line))
 
-        # Enable Keys (Decrement, Increment, Reset)
-        decrement_listener = KeyboardListener(on_press=on_press_decrement)
-        decrement_listener.start()
-        increment_listener = KeyboardListener(on_press=on_press_increment)
-        increment_listener.start()
-        reset_listener = KeyboardListener(on_press=on_press_reset)
-        reset_listener.start()
+    # Enable Keys (Decrement, Increment, Reset)
+    decrement_listener = KeyboardListener(on_press=on_press_decrement)
+    decrement_listener.start()
+    increment_listener = KeyboardListener(on_press=on_press_increment)
+    increment_listener.start()
+    reset_listener = KeyboardListener(on_press=on_press_reset)
+    reset_listener.start()
 
-        # Main loop
-        while True:
-            blackscreen_counter = 0
-            reset_after_this_iteration = False
-            print("Splitter start!")
-            while not reset_after_this_iteration:
-                start_time = time.time()
+    # Main loop
+    while True:
+        blackscreen_counter = 0
+        reset_after_this_iteration = False
+        print("Splitter start!")
+        while not reset_after_this_iteration:
+            start_time = time.time()
 
-                screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
-                screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-                # print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
+            screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
+            screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+            # print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
 
-                if np.average(screen) <= blackscreen_threshold:
-                    blackscreen_counter += 1
-                    print("Blackscreen Count: " + str(blackscreen_counter))
-                    if blackscreen_counter in splits:
-                        keyboard.press(split_key)
-                        keyboard.release(split_key)
-                    time.sleep(after_split_delay)
+            if np.average(screen) <= blackscreen_threshold:
+                blackscreen_counter += 1
+                print("Blackscreen Count: " + str(blackscreen_counter))
+                if blackscreen_counter in splits:
+                    keyboard.press(eval(split_key[1:].split(':')[0]))
+                time.sleep(after_split_delay)
 
-                # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
-                while (time.time() - start_time) < (1 / max_capture_rate):
-                    time.sleep(0.01)
+            # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
+            while (time.time() - start_time) < (1 / max_capture_rate):
+                time.sleep(0.01)
