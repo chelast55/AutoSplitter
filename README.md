@@ -7,7 +7,7 @@ For Speedrunning, allows to split automatically when detecting blackscreen
 - Install Python 3.8. Make sure **"Add Python 3.8 to PATH"** IS ticked!
 - Open Windows Command Line (Windows+R or Start Menu, enter "cmd")
 - Enter "py -help". If this does nothing, try restarting
-- Install necessary packages by executing the following lines one after another:
+- Install necessary packages by executing the following lines **one after another**:
 ```
 python -m pip install –-upgrade pip
 py -m pip install -U setuptools wheel
@@ -23,7 +23,7 @@ Enter your valid blackscreen count values one per line into [splits.txt](splits.
 3
 5
 ```
-This example would cause the program to split at the first, third and fifth blackscreen it encounters, but it will skip any other blackscreens.
+This example would cause the program to split at the first, third and fifth blackscreen it encounters, but it will skip any other blackscreens. This should resemble your exact route.
 
 ## How to use
 
