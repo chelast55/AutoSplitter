@@ -6,13 +6,15 @@ from PIL import ImageGrab
 import cv2
 import time
 
+# For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
 setup_at_start: bool         # Do setup at start?
-split_key: Key               # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
+split_key: Key               # Key automatically pressed when valif blackscreen is detected
 video_preview_coords = []    # Corners of stream preview window
 splits = []                  # Blackscreen count values at which to split
 blackscreen_threshold: float # Threshold for average gray value for a screen to count as blackscreen (0 by default)
 max_capture_rate: int        # Times per second a capture is taken (NOTE: this is a maximum and possibly unreachable)
 after_split_delay: float     # Delay to prevent multiple splits per blackscreen in seconds
+decrement_key: Key          # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
 
 
 if __name__ == '__main__':
@@ -42,10 +44,24 @@ if __name__ == '__main__':
         elif video_preview_coords[3] == video_preview_coords[1]:
             video_preview_coords[3] += 1
 
-    def on_press_split_key(key):
+    def on_press_decrement(key):
+        global blackscreen_counter
+        if key == decrement_key:
+            blackscreen_counter -= 1
+            print("Blackscreen counter was decremented")
+            print("New Blackscreen Count: " + str(blackscreen_counter))
+            time.sleep(after_split_delay)
+
+    def on_press_set_split_key(key):
         global split_key
         split_key = key
         print(repr(key) + " was set as your Split key!")
+        return False
+
+    def on_press_set_decrement_key(key):
+        global decrement_key
+        decrement_key = key
+        print(repr(key) + " was set as your Decrement key!")
         return False
 
     def on_click_set_coords(x, y, button, pressed):
@@ -71,20 +87,28 @@ if __name__ == '__main__':
         setup_at_start = eval(settings[0])
         # non-alphanumeric keys need to be handled differently
         if settings[1][0] == '<':
-            temp = eval(settings[1][1:].split(':')[0])
-            split_key = temp
+            split_key = eval(settings[1][1:].split(':')[0])
         else:
             split_key = eval(settings[1])
         video_preview_coords = eval(settings[2])
         blackscreen_threshold = eval(settings[3])
         max_capture_rate = eval(settings[4])
         after_split_delay = eval(settings[5])
+        if settings[6][0] == '<':
+            decrement_key = eval(settings[6][1:].split(':')[0])
+        else:
+            decrement_key = eval(settings[6])
 
     # Setup
     if setup_at_start:
         # Set Split Key
         print("Press the key you use for splitting:")
-        with KeyboardListener(on_press=on_press_split_key) as keyboard_listener:
+        with KeyboardListener(on_press=on_press_set_split_key) as keyboard_listener:
+            keyboard_listener.join()
+
+        # Set Decrement Key
+        print("Press the key you want to use for manually decrementing the blackscreen counter once:")
+        with KeyboardListener(on_press=on_press_set_decrement_key) as keyboard_listener:
             keyboard_listener.join()
 
         # Set video preview coords
@@ -124,7 +148,8 @@ if __name__ == '__main__':
             config_file.write(repr(video_preview_coords) + "\n")
             config_file.write(repr(blackscreen_threshold) + "\n")
             config_file.write(repr(max_capture_rate) + "\n")
-            config_file.write(repr(after_split_delay))
+            config_file.write(repr(after_split_delay) + "\n")
+            config_file.write(repr(decrement_key))
 
     # Read splits
     with open("splits.txt", 'r') as splits_file:
@@ -132,6 +157,10 @@ if __name__ == '__main__':
         for line in lines:
             if line != "":
                 splits.append(int(line))
+
+    # Enable Decrement Key
+    decrement_listener = KeyboardListener(on_press=on_press_decrement)
+    decrement_listener.start()
 
     # Main loop
     while True:
