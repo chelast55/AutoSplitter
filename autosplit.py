@@ -17,6 +17,7 @@ after_split_delay: float     # Delay to prevent multiple splits per blackscreen 
 decrement_key: str           # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
 increment_key: str           # "Well, there's currently no cases where that's useful or important! ;)
 reset_key: str               # Key to press to restart program without actually restarting
+after_key_press_delay: float # Delay after any key press to prevent multiple registrations
 
 
 if __name__ == '__main__':
@@ -53,7 +54,7 @@ if __name__ == '__main__':
             blackscreen_counter -= 1
             print("Blackscreen counter was decremented")
             print("New Blackscreen Count: " + str(blackscreen_counter))
-            time.sleep(after_split_delay)
+            time.sleep(after_key_press_delay)
 
     def on_press_increment(key):
         global blackscreen_counter
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             blackscreen_counter += 1
             print("Blackscreen counter was incremented")
             print("New Blackscreen Count: " + str(blackscreen_counter))
-            time.sleep(after_split_delay)
+            time.sleep(after_key_press_delay)
 
     def on_press_reset(key):
         global reset_after_this_iteration
@@ -69,7 +70,7 @@ if __name__ == '__main__':
             reset_after_this_iteration = True
             print("Reset!")
             print("Wait for splitter to restart...")
-            time.sleep(after_split_delay)
+            time.sleep(after_key_press_delay)
 
     def on_press_set_split_key(key):
         global split_key
@@ -124,6 +125,7 @@ if __name__ == '__main__':
         decrement_key = settings[6].split('\n')[0]
         increment_key = settings[7].split('\n')[0]
         reset_key = settings[8].split('\n')[0]
+        after_key_press_delay = eval(settings[9])
 
     # Setup
     if setup_at_start:
@@ -185,14 +187,15 @@ if __name__ == '__main__':
             config_file.write(repr(after_split_delay) + "\n")
             config_file.write(decrement_key + "\n")
             config_file.write(increment_key + "\n")
-            config_file.write(reset_key)
+            config_file.write(reset_key + "\n")
+            config_file.write(repr(after_key_press_delay))
 
     # Read splits
     with open("splits.txt", 'r') as splits_file:
         lines = splits_file.readlines()
         for line in lines:
-            if line != "":
-                splits.append(int(line))
+            if line != "" and line[0] != '#':
+                splits.append(int(line.split('#')[0]))
 
     # Enable Keys (Decrement, Increment, Reset)
     decrement_listener = KeyboardListener(on_press=on_press_decrement)

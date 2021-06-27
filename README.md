@@ -19,11 +19,12 @@ Because this program works by virtually pressing your Split Key every time a "va
 Internally, the program counts how many blackscreens it encountered so far and only presses the Split Key if the current black screen count is listed in [splits.txt](splits.txt).
 Enter your valid blackscreen count values one per line into [splits.txt](splits.txt) like this:
 ```
+# this is a comment
 1
 3
-5
+5 # you can also do inline comments
 ```
-This example would cause the program to split at the first, third and fifth blackscreen it encounters, but it will skip any other blackscreens. This should resemble your exact route.
+This example would cause the program to split at the first, third and fifth blackscreen it encounters, but it will skip any other blackscreens. This should resemble your exact route. Everything in a line after '#' is not read by the program, so you can use '#' to do comments.
 
 ## How to use
 
@@ -40,3 +41,6 @@ Make sure that the game you want to "auto split" is clearly visible on you **pri
   - **After Split Delay**: The program checks the selected area multiple times per second for a blackscreen. You should set this delay long enough (in seconds) to cover at least the entire duration of a blackscreen to prevent it from splitting multiple times at a single blackscreen.
 - At the end of the setup, you can enter "yes" if you don't want to redo this setup process the next time you start the program (your inputs are saved in [config.cfg](config.cfg), if you disabled the setup, but want to redo it anyway, change the first line of [config.cfg](config.cfg) from "False" to "True")
 - You can stop the program with CTRL+C while the console window is active or by just closing the window
+
+## The Archive
+This is supposed to become a place where split files of various speedrun routes could be stored
