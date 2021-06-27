@@ -18,6 +18,7 @@ decrement_key: str           # Key to press to decrement press counter after "ac
 increment_key: str           # "Well, there's currently no cases where that's useful or important! ;)
 reset_key: str               # Key to press to restart program without actually restarting
 after_key_press_delay: float # Delay after any key press to prevent multiple registrations
+pause_key: str               # Key to press once to pause and press again to unpause
 
 
 if __name__ == '__main__':
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     preview_coord_counter = 0
     blackscreen_counter = 0
     reset_after_this_iteration = False
+    currently_paused = False
 
     def correct_coords():
         global video_preview_coords
@@ -72,6 +74,17 @@ if __name__ == '__main__':
             print("Wait for splitter to restart...")
             time.sleep(after_key_press_delay)
 
+    def on_press_pause(key):
+        global currently_paused
+        if repr(key) == pause_key:
+            if currently_paused:
+                currently_paused = False
+                print("Unpaused!")
+            else:
+                currently_paused = True
+                print("Paused...")
+            time.sleep(after_key_press_delay)
+
     def on_press_set_split_key(key):
         global split_key
         split_key = repr(key)
@@ -94,6 +107,12 @@ if __name__ == '__main__':
         global reset_key
         reset_key = repr(key)
         print(repr(key) + " was set as your Reset key!")
+        return False
+
+    def on_press_set_pause_key(key):
+        global pause_key
+        pause_key = repr(key)
+        print(repr(key) + " was set as your Pause key!")
         return False
 
     def on_click_set_coords(x, y, button, pressed):
@@ -126,6 +145,7 @@ if __name__ == '__main__':
         increment_key = settings[7].split('\n')[0]
         reset_key = settings[8].split('\n')[0]
         after_key_press_delay = eval(settings[9])
+        pause_key = settings[10].split('\n')[0]
 
     # Setup
     if setup_at_start:
@@ -147,6 +167,11 @@ if __name__ == '__main__':
         # Set Reset Key
         print("Press the key you want to use to reset the running program:")
         with KeyboardListener(on_press=on_press_set_reset_key) as keyboard_listener:
+            keyboard_listener.join()
+
+        # Set Pause Key
+        print("Press the key you want to use to pause and unpause the running program:")
+        with KeyboardListener(on_press=on_press_set_pause_key) as keyboard_listener:
             keyboard_listener.join()
 
         # Set video preview coords
@@ -188,7 +213,8 @@ if __name__ == '__main__':
             config_file.write(decrement_key + "\n")
             config_file.write(increment_key + "\n")
             config_file.write(reset_key + "\n")
-            config_file.write(repr(after_key_press_delay))
+            config_file.write(repr(after_key_press_delay) + "\n")
+            config_file.write(pause_key)
 
     # Read splits
     with open("splits.txt", 'r') as splits_file:
@@ -197,13 +223,15 @@ if __name__ == '__main__':
             if line != "" and line[0] != '#':
                 splits.append(int(line.split('#')[0]))
 
-    # Enable Keys (Decrement, Increment, Reset)
+    # Enable Keys (Decrement, Increment, Reset, Pause)
     decrement_listener = KeyboardListener(on_press=on_press_decrement)
     decrement_listener.start()
     increment_listener = KeyboardListener(on_press=on_press_increment)
     increment_listener.start()
     reset_listener = KeyboardListener(on_press=on_press_reset)
     reset_listener.start()
+    pause_listener = KeyboardListener(on_press=on_press_pause)
+    pause_listener.start()
 
     # Main loop
     while True:
@@ -211,19 +239,20 @@ if __name__ == '__main__':
         reset_after_this_iteration = False
         print("Splitter start!")
         while not reset_after_this_iteration:
-            start_time = time.time()
+            while not currently_paused:
+                start_time = time.time()
 
-            screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
-            screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-            # print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
+                screen = np.array(ImageGrab.grab(bbox=video_preview_coords))
+                screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+                print("Average Grey Value: " + str(np.average(screen))) # Enable for Debug
 
-            if np.average(screen) <= blackscreen_threshold:
-                blackscreen_counter += 1
-                print("Blackscreen Count: " + str(blackscreen_counter))
-                if blackscreen_counter in splits:
-                    keyboard.press(eval(split_key[1:].split(':')[0]))
-                time.sleep(after_split_delay)
+                if np.average(screen) <= blackscreen_threshold:
+                    blackscreen_counter += 1
+                    print("Blackscreen Count: " + str(blackscreen_counter))
+                    if blackscreen_counter in splits:
+                        keyboard.press(eval(split_key[1:].split(':')[0]))
+                    time.sleep(after_split_delay)
 
-            # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
-            while (time.time() - start_time) < (1 / max_capture_rate):
-                time.sleep(0.01)
+                # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
+                while (time.time() - start_time) < (1 / max_capture_rate):
+                    time.sleep(0.01)
