@@ -254,5 +254,5 @@ if __name__ == '__main__':
                     time.sleep(after_split_delay)
 
                 # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
-                while (time.time() - start_time) < (1 / max_capture_rate):
-                    time.sleep(0.01)
+                if (time.time() - start_time) < (1 / max_capture_rate):
+                    time.sleep(time.time() - start_time)

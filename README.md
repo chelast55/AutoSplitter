@@ -10,8 +10,8 @@ For Speedrunning, allows to split automatically when detecting blackscreen
 - Install necessary packages by executing the following lines **one after another**:
 ```
 python -m pip install –-upgrade pip
-py -m pip install -U setuptools wheel
-py -m pip install -U numpy opencv-python pynput pillow python-time
+python -m pip install -U setuptools wheel
+python -m pip install -U numpy opencv-python pynput pillow python-time
 ```
 
 ### Configure Splits
