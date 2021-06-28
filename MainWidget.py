@@ -27,7 +27,6 @@ class MainWidget(QtWidgets.QWidget):
 
         self.button.clicked.connect(self.magic)
 
-    @QtCore.Slot()
     def magic(self):
         self.text.setText(random.choice(self.hello))
         worker = ScreenWatchWorker(SplitsProfile.load_from_file("splits.txt"))

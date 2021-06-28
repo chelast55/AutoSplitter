@@ -16,7 +16,7 @@ blackscreen_threshold: float    # Threshold for average gray value for a screen 
 max_capture_rate: int           # Times per second a capture is taken (NOTE: this is a maximum and possibly unreachable)
 after_split_delay: float        # Delay to prevent multiple splits per blackscreen in seconds
 decrement_key: str              # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
-increment_key: str              # "Well, there's currently no cases where that's useful or important! ;)
+increment_key: str              # "Well, there's currently no cases where that's useful or important" ;)
 reset_key: str                  # Key to press to restart program without actually restarting
 after_key_press_delay: float    # Delay after any key press to prevent multiple registrations
 pause_key: str                  # Key to press once to pause and press again to unpause

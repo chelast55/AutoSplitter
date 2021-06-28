@@ -21,7 +21,6 @@ class ScreenWatchWorker(QtCore.QRunnable):
         super(ScreenWatchWorker, self).__init__()
         self.splits_profile = _splits_profile
 
-    @QtCore.Slot()
     def run(self):
         def on_key_press(key):
             if repr(key) == Config.decrement_key:
@@ -69,7 +68,7 @@ class ScreenWatchWorker(QtCore.QRunnable):
 
                     if np.average(screen) <= Config.blackscreen_threshold:
                         self.blackscreen_counter += 1
-                        # print("Blackscreen Count: " + str(blackscreen_counter))
+                        print("Blackscreen Count: " + str(self.blackscreen_counter))
                         if self.blackscreen_counter in self.splits_profile.splits:
                             print("Pressing " + repr(Config.split_key))
                             self.keyboard.press(Config.split_key)
@@ -77,4 +76,4 @@ class ScreenWatchWorker(QtCore.QRunnable):
 
                     # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
                     if (time.time() - start_time) < (1 / Config.max_capture_rate):
-                        time.sleep(time.time() - start_time)
+                        time.sleep((1 / Config.max_capture_rate) - (time.time() - start_time))
