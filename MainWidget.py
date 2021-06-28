@@ -16,14 +16,20 @@ class MainWidget(QWidget):
     _btn_start_stop: QPushButton = None
     _btn_pause: QPushButton = None
     _lbl_worker_status: QLabel = None
+    _lbl_detailed_status: QLabel = None
 
     def __init__(self):
         super().__init__()
 
-        self._lbl_worker_status = QLabel("Waiting for you to start the screen watch worker.")
-
         self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self._lbl_worker_status)
+
+        main_layout = QHBoxLayout()
+        self._lbl_worker_status = QLabel("Waiting for you to start\nthe screen watch worker.")
+        main_layout.addWidget(self._lbl_worker_status)
+
+        self._lbl_detailed_status = QLabel("-")
+        main_layout.addWidget(self._lbl_detailed_status)
+        self.layout.addLayout(main_layout)
 
         buttons_layout = QHBoxLayout()
         self._btn_pause = QPushButton("Pause")
@@ -35,13 +41,30 @@ class MainWidget(QWidget):
         buttons_layout.addWidget(self._btn_start_stop)
         self.layout.addLayout(buttons_layout)
 
+    def _worker_on_blackscreen_counter_updated(self, blackscreen_counter: int):
+        if self._worker is None:
+            self._lbl_detailed_status.setText("-")
+            return
+
+        s: str = "Blackscreen Counter: " + str(blackscreen_counter)
+        s += "\n"
+        s += "Next Split: " + str(min(self._worker.get_splits_profile().splits,
+                                  key=lambda x: 999 if x <= blackscreen_counter else x))
+        self._lbl_detailed_status.setText(s)
+
     def _btn_pause_on_click(self):
         if self._worker.is_paused():
             self._worker.unpause()
             self._btn_pause.setText("Pause")
+            self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
+            self._lbl_worker_status.setText(
+                "Worker running with profile " + self._worker.get_splits_profile().name + ".")
         else:
             self._worker.pause()
             self._btn_pause.setText("Unpause")
+            self._lbl_worker_status.setStyleSheet("QLabel { color:orange; }")
+            self._lbl_worker_status.setText(
+                "Worker paused with profile\n" + self._worker.get_splits_profile().name + ".")
 
     def _btn_start_stop_on_click(self):
         # if worker is not started start it, otherwise stop it
@@ -58,7 +81,12 @@ class MainWidget(QWidget):
         self._worker.moveToThread(self._workerThread)
         self._workerThread.started.connect(self._worker.run)
         self._workerThread.start()
-        self._lbl_worker_status.setText("Worker running with profile " + self._worker.get_splits_profile().name + ".")
+
+        self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
+        self._lbl_worker_status.setText("Worker running with profile\n" + self._worker.get_splits_profile().name + ".")
+
+        self._worker.blackscreen_counter_updated.connect(self._worker_on_blackscreen_counter_updated)
+        self._worker_on_blackscreen_counter_updated(0)
 
     def _stop_worker(self):
         if self._worker is not None:
@@ -70,7 +98,11 @@ class MainWidget(QWidget):
             self._workerThread.wait()
         self._workerThread = None
 
+        self._lbl_detailed_status.setText("-")
+
+        self._lbl_worker_status.setStyleSheet("QLabel { color:red; }")
         self._lbl_worker_status.setText("Worker stopped.")
+        self._btn_pause.setText("Pause")
 
     def closeEvent(self, event: QCloseEvent):
         self._stop_worker()

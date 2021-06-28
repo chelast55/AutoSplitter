@@ -1,4 +1,6 @@
-from PySide6 import QtCore
+from typing import final, Final
+
+from PySide6.QtCore import QObject, Signal
 from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
 from pynput.mouse import Button, Controller as MouseController, Listener as MouseListener
 import numpy as np
@@ -9,14 +11,16 @@ import SplitsProfile
 import Config
 
 
-class ScreenWatchWorker(QtCore.QObject):
+class ScreenWatchWorker(QObject):
     _finished: bool = False
     _currently_paused: bool = False
     _mouse = MouseController()
     _keyboard = KeyboardController()
     _blackscreen_counter: int = 0
     _reset_after_this_iteration: bool = False
-    _splits_profile: SplitsProfile.SplitsProfile = None
+    _splits_profile: Final[SplitsProfile.SplitsProfile]
+    blackscreen_counter_updated: Final[Signal] = Signal(int)
+    avg_grey_value_updated: Final[Signal] = Signal(float)
 
     def __init__(self, _splits_profile):
         super(ScreenWatchWorker, self).__init__()
@@ -82,11 +86,15 @@ class ScreenWatchWorker(QtCore.QObject):
 
                 screen = np.array(ImageGrab.grab(bbox=Config.video_preview_coords))
                 screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+
+                self.avg_grey_value_updated.emit(np.average(screen))
                 print("Average Grey Value: " + str(np.average(screen)))  # Uncomment this line to output avg grey value
 
                 if np.average(screen) <= Config.blackscreen_threshold:
                     self._blackscreen_counter += 1
+                    self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                     print("Blackscreen Count: " + str(self._blackscreen_counter))
+
                     if self._blackscreen_counter in self._splits_profile.splits:
                         print("Pressing " + repr(Config.split_key))
                         self._keyboard.press(Config.split_key)

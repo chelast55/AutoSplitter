@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     app = QtWidgets.QApplication([])
     widget = MainWidget()
-    widget.resize(800, 600)
+    widget.resize(400, 150)
     widget.show()
 
     # exit when main window is closed
