@@ -1,4 +1,3 @@
-# NOTE: this tool is HEAVILY inspired by this video from Code Bullet: https://www.youtube.com/watch?v=wHRubMACen0
 from MainWidget import MainWidget
 from PySide6 import QtCore, QtWidgets
 import Config
@@ -141,7 +140,6 @@ if __name__ == '__main__':
         run_setup()
 
     app = QtWidgets.QApplication([])
-
     widget = MainWidget()
     widget.resize(800, 600)
     widget.show()

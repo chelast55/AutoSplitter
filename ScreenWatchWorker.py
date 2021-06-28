@@ -9,17 +9,25 @@ import SplitsProfile
 import Config
 
 
-class ScreenWatchWorker(QtCore.QRunnable):
+class ScreenWatchWorker(QtCore.QObject):
+    _finished: bool = False
     currently_paused: bool = False
     mouse = MouseController()
     keyboard = KeyboardController()
     blackscreen_counter: int = 0
     reset_after_this_iteration: bool = False
-    splits_profile: SplitsProfile.SplitsProfile = None
+    _splits_profile: SplitsProfile.SplitsProfile = None
 
     def __init__(self, _splits_profile):
         super(ScreenWatchWorker, self).__init__()
-        self.splits_profile = _splits_profile
+        self._splits_profile = _splits_profile
+
+    @property
+    def splits_profile(self):
+        return self._splits_profile
+
+    def finish(self):
+        self._finished = True
 
     def run(self):
         def on_key_press(key):
@@ -54,26 +62,28 @@ class ScreenWatchWorker(QtCore.QRunnable):
         key_press_listener.start()
 
         # Main loop
-        while True:
-            self.blackscreen_counter = 0
-            self.reset_after_this_iteration = False
-            print("Splitter start!")
-            while not self.reset_after_this_iteration:
-                while not self.currently_paused:
-                    start_time = time.time()
+        # NOTE: this tool is HEAVILY inspired by this video by Code Bullet: https://www.youtube.com/watch?v=wHRubMACen0
+        while not self._finished:
+            if not self.currently_paused:
+                start_time = time.time()
 
-                    screen = np.array(ImageGrab.grab(bbox=Config.video_preview_coords))
-                    screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-                    print("Average Grey Value: " + str(np.average(screen)))  # Enable for Debug
+                screen = np.array(ImageGrab.grab(bbox=Config.video_preview_coords))
+                screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+                print("Average Grey Value: " + str(np.average(screen)))  # Enable for Debug
 
-                    if np.average(screen) <= Config.blackscreen_threshold:
-                        self.blackscreen_counter += 1
-                        print("Blackscreen Count: " + str(self.blackscreen_counter))
-                        if self.blackscreen_counter in self.splits_profile.splits:
-                            print("Pressing " + repr(Config.split_key))
-                            self.keyboard.press(Config.split_key)
-                        time.sleep(Config.after_split_delay)
+                if np.average(screen) <= Config.blackscreen_threshold:
+                    self.blackscreen_counter += 1
+                    print("Blackscreen Count: " + str(self.blackscreen_counter))
+                    if self.blackscreen_counter in self._splits_profile.splits:
+                        print("Pressing " + repr(Config.split_key))
+                        self.keyboard.press(Config.split_key)
+                    time.sleep(Config.after_split_delay)
 
                     # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
                     if (time.time() - start_time) < (1 / Config.max_capture_rate):
                         time.sleep((1 / Config.max_capture_rate) - (time.time() - start_time))
+
+            if self.reset_after_this_iteration:
+                self.blackscreen_counter = 0
+                self.reset_after_this_iteration = False
+                print("Splitter reset!")
