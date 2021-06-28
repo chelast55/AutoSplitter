@@ -82,7 +82,7 @@ class ScreenWatchWorker(QtCore.QObject):
 
                 screen = np.array(ImageGrab.grab(bbox=Config.video_preview_coords))
                 screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-                print("Average Grey Value: " + str(np.average(screen)))  # Enable for Debug
+                print("Average Grey Value: " + str(np.average(screen)))  # Uncomment this line to output avg grey value
 
                 if np.average(screen) <= Config.blackscreen_threshold:
                     self._blackscreen_counter += 1
