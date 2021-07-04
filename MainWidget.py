@@ -7,19 +7,26 @@ from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLa
 
 import SplitsProfile
 from ScreenWatchWorker import ScreenWatchWorker
+from SetupWidget import SetupWidget
 
 
 class MainWidget(QWidget):
     _workerThread: Optional[QThread] = None
     _worker: Optional[ScreenWatchWorker] = None
 
+    _btn_settings: QPushButton = None
     _btn_start_stop: QPushButton = None
     _btn_pause: QPushButton = None
     _lbl_worker_status: QLabel = None
     _lbl_detailed_status: QLabel = None
+    _setup_widget: SetupWidget = None
 
     def __init__(self):
         super().__init__()
+
+        self.setWindowTitle("Blackscreen Autosplitter")
+
+        self._setup_widget = SetupWidget()
 
         self.layout = QVBoxLayout(self)
 
@@ -32,6 +39,10 @@ class MainWidget(QWidget):
         self.layout.addLayout(main_layout)
 
         buttons_layout = QHBoxLayout()
+        self._btn_settings = QPushButton("Settings")
+        self._btn_settings.clicked.connect(self._btn_settings_on_click)
+        buttons_layout.addWidget(self._btn_settings)
+
         self._btn_pause = QPushButton("Pause")
         self._btn_pause.clicked.connect(self._btn_pause_on_click)
         buttons_layout.addWidget(self._btn_pause)
@@ -52,7 +63,13 @@ class MainWidget(QWidget):
                                   key=lambda x: 999 if x <= blackscreen_counter else x))
         self._lbl_detailed_status.setText(s)
 
+    def _btn_settings_on_click(self):
+        self._setup_widget.show()
+
     def _btn_pause_on_click(self):
+        if self._worker is None:
+            return
+
         if self._worker.is_paused():
             self._worker.unpause()
             self._btn_pause.setText("Pause")

@@ -1,8 +1,14 @@
-from MainWidget import MainWidget
 from PySide6 import QtCore, QtWidgets
+
+# qt app needs to be constructed before we can do anything else with qt
+app = QtWidgets.QApplication([])
+
+from MainWidget import MainWidget
 import Config
 from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
 from pynput.mouse import Button, Controller as MouseController, Listener as MouseListener
+
+
 
 preview_coord_counter = 0
 mouse = MouseController()
@@ -135,11 +141,9 @@ def run_setup():
 
 
 if __name__ == '__main__':
-
     if Config.setup_at_start:
         run_setup()
 
-    app = QtWidgets.QApplication([])
     widget = MainWidget()
     widget.resize(400, 150)
     widget.show()
