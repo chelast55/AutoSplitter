@@ -11,22 +11,14 @@ from SetupWidget import SetupWidget
 
 
 class MainWidget(QWidget):
-    _workerThread: Optional[QThread] = None
-    _worker: Optional[ScreenWatchWorker] = None
-
-    _btn_settings: QPushButton = None
-    _btn_start_stop: QPushButton = None
-    _btn_pause: QPushButton = None
-    _lbl_worker_status: QLabel = None
-    _lbl_detailed_status: QLabel = None
-    _setup_widget: SetupWidget = None
 
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Blackscreen Autosplitter")
+        self._workerThread: Optional[QThread] = None
+        self._worker: Optional[ScreenWatchWorker] = None
 
-        self._setup_widget = SetupWidget()
+        self.setWindowTitle("Blackscreen Autosplitter")
 
         self.layout = QVBoxLayout(self)
 
@@ -64,6 +56,7 @@ class MainWidget(QWidget):
         self._lbl_detailed_status.setText(s)
 
     def _btn_settings_on_click(self):
+        self._setup_widget = SetupWidget()
         self._setup_widget.show()
 
     def _btn_pause_on_click(self):

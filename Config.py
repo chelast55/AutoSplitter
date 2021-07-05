@@ -10,16 +10,16 @@ def key_str_to_obj(s):
 
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
 setup_at_start: bool            # Do setup at start?
-split_key = None                # Key automatically pressed when valid blackscreen is detected
+split_key: Key = None           # Key automatically pressed when valid blackscreen is detected
 video_preview_coords = []       # Corners of stream preview window
 blackscreen_threshold: float    # Threshold for average gray value for a screen to count as blackscreen (0 by default)
 max_capture_rate: int           # Times per second a capture is taken (NOTE: this is a maximum and possibly unreachable)
 after_split_delay: float        # Delay to prevent multiple splits per blackscreen in seconds
-decrement_key: str              # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
-increment_key: str              # "Well, there's currently no cases where that's useful or important" ;)
-reset_key: str                  # Key to press to restart program without actually restarting
+decrement_key: Key = None       # Key to press to decrement press counter after "accidental" blackscreen (i. e. death)
+increment_key: Key = None       # "Well, there's currently no cases where that's useful or important" ;)
+reset_key: Key = None           # Key to press to restart program without actually restarting
 after_key_press_delay: float    # Delay after any key press to prevent multiple registrations
-pause_key: str                  # Key to press once to pause and press again to unpause
+pause_key: Key = None           # Key to press once to pause and press again to unpause
 
 with open("config.cfg", 'r') as config_file:
     print("Loading config.")
@@ -46,8 +46,8 @@ def write_config_to_file():
         config_file.write(repr(blackscreen_threshold) + "\n")
         config_file.write(repr(max_capture_rate) + "\n")
         config_file.write(repr(after_split_delay) + "\n")
-        config_file.write(decrement_key + "\n")
-        config_file.write(increment_key + "\n")
-        config_file.write(reset_key + "\n")
+        config_file.write(repr(decrement_key) + "\n")
+        config_file.write(repr(increment_key) + "\n")
+        config_file.write(repr(reset_key) + "\n")
         config_file.write(repr(after_key_press_delay) + "\n")
-        config_file.write(pause_key)
+        config_file.write(repr(pause_key))
