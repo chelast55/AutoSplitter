@@ -5,6 +5,7 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
+import Config
 import SplitsProfile
 from ScreenWatchWorker import ScreenWatchWorker
 from SetupWidget import SetupWidget
@@ -14,6 +15,11 @@ class MainWidget(QWidget):
 
     def __init__(self):
         super().__init__()
+
+        if Config.setup_at_start:
+            self._open_settings()
+            Config.setup_at_start = False
+            Config.write_config_to_file()
 
         self._workerThread: Optional[QThread] = None
         self._worker: Optional[ScreenWatchWorker] = None
@@ -56,6 +62,9 @@ class MainWidget(QWidget):
         self._lbl_detailed_status.setText(s)
 
     def _btn_settings_on_click(self):
+        self._open_settings()
+
+    def _open_settings(self):
         self._setup_widget = SetupWidget()
         self._setup_widget.show()
 
