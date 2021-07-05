@@ -15,6 +15,7 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory: QTreeView = QTreeView()
         self.layout.addWidget(self._tv_directory)
 
+        # TODO: Find a more robust way to get the splits_profiles directory
         splits_profiles_dir: str = os.path.join(os.getcwd(), "splits_profiles")
 
         self._directory_model: QFileSystemModel = QFileSystemModel()
