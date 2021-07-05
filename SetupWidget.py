@@ -22,6 +22,9 @@ class SetupWidget(QWidget):
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
         self._sb_blackscreen_threshold.setMinimum(0)
         self._sb_blackscreen_threshold.setMaximum(255)
+        self._sb_after_split_delay: QSpinBox = QSpinBox()
+        self._sb_after_split_delay.setMinimum(0)
+        self._sb_after_split_delay.setMaximum(999)
 
         self._key_picker_split.set_key(Config.split_key)
         self._key_picker_pause.set_key(Config.pause_key)
@@ -29,6 +32,7 @@ class SetupWidget(QWidget):
         self._key_picker_decrement.set_key(Config.decrement_key)
         self._key_picker_increment.set_key(Config.increment_key)
         self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
@@ -41,7 +45,8 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Reset Key:", self._key_picker_reset)
         button_settings_layout.addRow("Decrement Key:", self._key_picker_decrement)
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
-        button_settings_layout.addRow("Blackscreen Threshold:", self._sb_blackscreen_threshold)
+        button_settings_layout.addRow("Blackscreen Threshold (0-255):", self._sb_blackscreen_threshold)
+        button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
         settings_layout.addLayout(button_settings_layout)
 
         rect_select_layout = QVBoxLayout()
@@ -60,6 +65,7 @@ class SetupWidget(QWidget):
         Config.decrement_key = self._key_picker_decrement.key
         Config.increment_key = self._key_picker_increment.key
         Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
+        Config.after_split_delay = self._sb_after_split_delay.value()
         Config.write_config_to_file()
         self.close()
 

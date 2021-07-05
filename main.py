@@ -88,14 +88,6 @@ def run_setup():
     with MouseListener(on_click=on_click_set_coords) as mouse_listener:
         mouse_listener.join()
 
-    # Set after split delay
-    user_input = int(input("Set minimum delay between splits to prevent repeated "
-                           "splitting on the same blackscreen: (time in seconds)\n"))
-    if user_input > 0:
-        Config.after_split_delay = user_input
-    else:
-        Config.after_split_delay = 10
-
     # Enable/Disable setup on future program starts depending on user input
     print("Setup done!")
     print("Don't forget to enter your splits manually in splits.txt!")
