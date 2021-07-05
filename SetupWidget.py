@@ -5,7 +5,7 @@ from PIL.Image import Image
 from PIL import ImageDraw
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
     QGraphicsScene, QGraphicsPixmapItem, QLabel
 
@@ -102,3 +102,6 @@ class SetupWidget(QWidget):
 
     def _btn_box_rejected(self):
         self.close()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._tmr_preview_image.stop()
