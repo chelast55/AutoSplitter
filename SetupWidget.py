@@ -1,3 +1,5 @@
+from typing import List
+
 from PIL import ImageGrab
 from PIL.Image import Image
 from PIL import ImageDraw
@@ -10,6 +12,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QD
 import Config
 import ImageAnalyzer
 from KeyPickerWidget import KeyPickerWidget
+from QRectSelectGraphicsView import QRectSelectGraphicsView
 
 
 class SetupWidget(QWidget):
@@ -43,6 +46,7 @@ class SetupWidget(QWidget):
         self._key_picker_increment.set_key(Config.increment_key)
         self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
         self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._screen_rect: List[int] = Config.video_preview_coords
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
@@ -59,10 +63,13 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
         settings_layout.addLayout(button_settings_layout)
 
-        rect_select_layout = QVBoxLayout()
-        self._gv_preview_image = QGraphicsView()
+        rect_select_layout: QVBoxLayout = QVBoxLayout()
+        rect_select_layout.addWidget(QLabel("Drag on the preview image to select the region "
+                                            "of the screen that should be checked for blackscreens."))
+        self._gv_preview_image: QRectSelectGraphicsView = QRectSelectGraphicsView()
+        self._gv_preview_image.rect_set.connect(self._gv_preview_image_rect_set)
         rect_select_layout.addWidget(self._gv_preview_image)
-        self._lbl_gray_value = QLabel("Avg. Gray Value: -")
+        self._lbl_gray_value: QLabel = QLabel("Avg. Gray Value: -")
         rect_select_layout.addWidget(self._lbl_gray_value)
         settings_layout.addLayout(rect_select_layout)
 
@@ -72,14 +79,21 @@ class SetupWidget(QWidget):
         self._btn_box.rejected.connect(self._btn_box_rejected)
         self.layout.addWidget(self._btn_box)
 
+    def _gv_preview_image_rect_set(self):
+        self._screen_rect.clear()
+        self._screen_rect.append(min(self._gv_preview_image.pos1.x(), self._gv_preview_image.pos2.x()))
+        self._screen_rect.append(min(self._gv_preview_image.pos1.y(), self._gv_preview_image.pos2.y()))
+        self._screen_rect.append(max(self._gv_preview_image.pos1.x(), self._gv_preview_image.pos2.x()))
+        self._screen_rect.append(max(self._gv_preview_image.pos1.y(), self._gv_preview_image.pos2.y()))
+
     def _tmr_preview_image_on_timeout(self):
         img: Image = ImageGrab.grab()
         overlay: ImageDraw = ImageDraw.Draw(img, "RGBA")
         overlay.rectangle(
-            [(Config.video_preview_coords[0],
-              Config.video_preview_coords[1]),
-             (Config.video_preview_coords[2],
-              Config.video_preview_coords[3])],
+            [(self._screen_rect[0],
+              self._screen_rect[1]),
+             (self._screen_rect[2],
+              self._screen_rect[3])],
             None,
             "#FF0000FF",
             width=5
@@ -102,6 +116,7 @@ class SetupWidget(QWidget):
         Config.increment_key = self._key_picker_increment.key
         Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
         Config.after_split_delay = self._sb_after_split_delay.value()
+        Config.video_preview_coords = self._screen_rect
         Config.write_config_to_file()
         self.close()
 

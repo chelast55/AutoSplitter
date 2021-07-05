@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PySide6 import QtCore, QtGui
+from PySide6 import QtCore
 from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
