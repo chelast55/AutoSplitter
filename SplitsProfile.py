@@ -14,5 +14,7 @@ def load_from_file(path: str):
 
 
 class SplitsProfile:
-    name: str = "Unnamed Profile"
-    splits = []                  # Blackscreen count values at which to split
+    def __init__(self):
+        self.name: str = "Unnamed Profile"
+        # Blackscreen count values at which to split
+        self.splits = []
