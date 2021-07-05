@@ -1,7 +1,14 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox
+from PIL import ImageGrab
+from PIL.Image import Image
+from PIL import ImageDraw
+from PIL.ImageQt import ImageQt
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
+    QGraphicsScene, QGraphicsPixmapItem, QLabel
 
 import Config
+import ImageAnalyzer
 from KeyPickerWidget import KeyPickerWidget
 
 
@@ -10,10 +17,13 @@ class SetupWidget(QWidget):
     def __init__(self):
         super(SetupWidget, self).__init__()
 
-        self._btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.resize(1400, 600)
 
-        self.resize(250, 200)
+        self._tmr_preview_image: QTimer = QTimer(self)
+        self._tmr_preview_image.timeout.connect(self._tmr_preview_image_on_timeout)
+        self._tmr_preview_image.start(200)
 
+        self._btn_box: QDialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._key_picker_split: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_pause: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
@@ -50,6 +60,10 @@ class SetupWidget(QWidget):
         settings_layout.addLayout(button_settings_layout)
 
         rect_select_layout = QVBoxLayout()
+        self._gv_preview_image = QGraphicsView()
+        rect_select_layout.addWidget(self._gv_preview_image)
+        self._lbl_gray_value = QLabel("Avg. Gray Value: -")
+        rect_select_layout.addWidget(self._lbl_gray_value)
         settings_layout.addLayout(rect_select_layout)
 
         self.layout.addLayout(settings_layout)
@@ -57,6 +71,28 @@ class SetupWidget(QWidget):
         self._btn_box.accepted.connect(self._btn_box_accepted)
         self._btn_box.rejected.connect(self._btn_box_rejected)
         self.layout.addWidget(self._btn_box)
+
+    def _tmr_preview_image_on_timeout(self):
+        img: Image = ImageGrab.grab()
+        overlay: ImageDraw = ImageDraw.Draw(img, "RGBA")
+        overlay.rectangle(
+            [(Config.video_preview_coords[0],
+              Config.video_preview_coords[1]),
+             (Config.video_preview_coords[2],
+              Config.video_preview_coords[3])],
+            None,
+            "#FF0000FF",
+            width=5
+        )
+        pixmap: QPixmap = QPixmap.fromImage(ImageQt(img))
+        scene = QGraphicsScene()
+        scene.addItem(QGraphicsPixmapItem(pixmap))
+        self._gv_preview_image.setScene(scene)
+        self._gv_preview_image.fitInView(scene.sceneRect(), Qt.KeepAspectRatio)
+
+        cropped_img = img.crop(Config.video_preview_coords)
+        gray_value = ImageAnalyzer.average_black_value(cropped_img)
+        self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
 
     def _btn_box_accepted(self):
         Config.split_key = self._key_picker_split.key

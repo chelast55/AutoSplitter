@@ -7,6 +7,8 @@ import numpy as np
 from PIL import ImageGrab
 import cv2
 import time
+
+import ImageAnalyzer
 import SplitsProfile
 import Config
 
@@ -83,14 +85,14 @@ class ScreenWatchWorker(QObject):
         while not self._finished:
             if not self._currently_paused:
                 start_time = time.time()
+                img = ImageGrab.grab(bbox=Config.video_preview_coords)
 
-                screen = np.array(ImageGrab.grab(bbox=Config.video_preview_coords))
-                screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+                black_value = ImageAnalyzer.average_black_value(img)
 
-                self.avg_grey_value_updated.emit(np.average(screen))
-                print("Average Grey Value: " + str(np.average(screen)))  # Uncomment this line to output avg grey value
+                self.avg_grey_value_updated.emit(black_value)
+                print("Average Grey Value: " + str(black_value))  # Uncomment this line to output avg grey value
 
-                if np.average(screen) <= Config.blackscreen_threshold:
+                if black_value <= Config.blackscreen_threshold:
                     self._blackscreen_counter += 1
                     self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                     print("Blackscreen Count: " + str(self._blackscreen_counter))
