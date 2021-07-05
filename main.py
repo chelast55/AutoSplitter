@@ -83,42 +83,10 @@ def on_click_set_coords(x, y, button, pressed):
 
 
 def run_setup():
-    # Set Split Key
-    print("Press the key you use for splitting:")
-    with KeyboardListener(on_press=on_press_set_split_key) as keyboard_listener:
-        keyboard_listener.join()
-
-    # Set Decrement Key
-    print("Press the key you want to use for manually decrementing the blackscreen counter once:")
-    with KeyboardListener(on_press=on_press_set_decrement_key) as keyboard_listener:
-        keyboard_listener.join()
-
-    # Set Increment Key
-    print("Press the key you want to use for manually incrementing the blackscreen counter once:")
-    with KeyboardListener(on_press=on_press_set_increment_key) as keyboard_listener:
-        keyboard_listener.join()
-
-    # Set Reset Key
-    print("Press the key you want to use to reset the running program:")
-    with KeyboardListener(on_press=on_press_set_reset_key) as keyboard_listener:
-        keyboard_listener.join()
-
-    # Set Pause Key
-    print("Press the key you want to use to pause and unpause the running program:")
-    with KeyboardListener(on_press=on_press_set_pause_key) as keyboard_listener:
-        keyboard_listener.join()
-
     # Set video preview coords
     print("Click to set video preview coords: (pick 2 diagonally opposed corners)")
     with MouseListener(on_click=on_click_set_coords) as mouse_listener:
         mouse_listener.join()
-
-    # Set blackscreen threshold
-    user_input = int(input("Set maximum grey value to still count as black: (0-255, black-white, 0 by default)\n"))
-    if 0 <= user_input <= 255:
-        Config.blackscreen_threshold = user_input
-    else:
-        Config.blackscreen_threshold = 0
 
     # Set after split delay
     user_input = int(input("Set minimum delay between splits to prevent repeated "

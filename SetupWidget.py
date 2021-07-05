@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox
 
 import Config
 from KeyPickerWidget import KeyPickerWidget
@@ -19,12 +19,16 @@ class SetupWidget(QWidget):
         self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_decrement: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_increment: KeyPickerWidget = KeyPickerWidget()
+        self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
+        self._sb_blackscreen_threshold.setMinimum(0)
+        self._sb_blackscreen_threshold.setMaximum(255)
 
         self._key_picker_split.set_key(Config.split_key)
         self._key_picker_pause.set_key(Config.pause_key)
         self._key_picker_reset.set_key(Config.reset_key)
         self._key_picker_decrement.set_key(Config.decrement_key)
         self._key_picker_increment.set_key(Config.increment_key)
+        self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
@@ -37,6 +41,7 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Reset Key:", self._key_picker_reset)
         button_settings_layout.addRow("Decrement Key:", self._key_picker_decrement)
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
+        button_settings_layout.addRow("Blackscreen Threshold:", self._sb_blackscreen_threshold)
         settings_layout.addLayout(button_settings_layout)
 
         rect_select_layout = QVBoxLayout()
@@ -54,6 +59,7 @@ class SetupWidget(QWidget):
         Config.reset_key = self._key_picker_reset.key
         Config.decrement_key = self._key_picker_decrement.key
         Config.increment_key = self._key_picker_increment.key
+        Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
         Config.write_config_to_file()
         self.close()
 
