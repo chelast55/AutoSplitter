@@ -3,12 +3,13 @@ from typing import Optional
 from PySide6 import QtCore
 from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 
 import Config
 import SplitsProfile
 from ScreenWatchWorker import ScreenWatchWorker
 from SetupWidget import SetupWidget
+from SplitsProfileSelectorDialog import SplitsProfileSelectorDialog
 
 
 class MainWidget(QWidget):
@@ -36,6 +37,16 @@ class MainWidget(QWidget):
         main_layout.addWidget(self._lbl_detailed_status)
         self.layout.addLayout(main_layout)
 
+        splits_profiles_layout = QHBoxLayout()
+        self._lbl_current_splits_profile: QLabel = QLabel()
+        self._update_lbl_current_splits_profile()
+        splits_profiles_layout.addWidget(self._lbl_current_splits_profile)
+
+        self._btn_select_splits_profile: QPushButton = QPushButton("Select Splits Profile")
+        self._btn_select_splits_profile.clicked.connect(self._btn_select_splits_profile_on_click)
+        splits_profiles_layout.addWidget(self._btn_select_splits_profile)
+        self.layout.addLayout(splits_profiles_layout)
+
         buttons_layout = QHBoxLayout()
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.clicked.connect(self._btn_settings_on_click)
@@ -50,6 +61,14 @@ class MainWidget(QWidget):
         buttons_layout.addWidget(self._btn_start_stop)
         self.layout.addLayout(buttons_layout)
 
+    def _update_lbl_current_splits_profile(self):
+        splits_profile_text = "Current Splits Profile: "
+        if Config.path_to_current_splits_profile is None:
+            splits_profile_text += "-"
+        else:
+            splits_profile_text += SplitsProfile.load_from_file(Config.path_to_current_splits_profile).name
+        self._lbl_current_splits_profile.setText(splits_profile_text)
+
     def _worker_on_blackscreen_counter_updated(self, blackscreen_counter: int):
         if self._worker is None:
             self._lbl_detailed_status.setText("-")
@@ -60,6 +79,12 @@ class MainWidget(QWidget):
         s += "Next Split: " + str(min(self._worker.get_splits_profile().splits,
                                   key=lambda x: 999 if x <= blackscreen_counter else x))
         self._lbl_detailed_status.setText(s)
+
+    def _btn_select_splits_profile_on_click(self):
+        splits_profile_selector_dialog = SplitsProfileSelectorDialog()
+        splits_profile_selector_dialog.exec()
+        self._update_lbl_current_splits_profile()
+
 
     def _btn_settings_on_click(self):
         self._open_settings()
@@ -89,14 +114,19 @@ class MainWidget(QWidget):
         # if worker is not started start it, otherwise stop it
         if self._worker is None:
             self._start_worker()
-            self._btn_start_stop.setText("Stop")
         else:
             self._stop_worker()
-            self._btn_start_stop.setText("Start")
 
     def _start_worker(self):
+        if Config.path_to_current_splits_profile is None:
+            QMessageBox("Error", "You first have to select a splits profile before you can start the splitter!").show()
+            return
+
+        self._btn_select_splits_profile.setEnabled(False)
+        self._btn_start_stop.setText("Stop")
+
         self._workerThread = QtCore.QThread()
-        self._worker = ScreenWatchWorker(SplitsProfile.load_from_file("splits.txt"))
+        self._worker = ScreenWatchWorker(SplitsProfile.load_from_file(Config.path_to_current_splits_profile))
         self._worker.moveToThread(self._workerThread)
         self._workerThread.started.connect(self._worker.run)
         self._workerThread.start()
@@ -108,6 +138,9 @@ class MainWidget(QWidget):
         self._worker_on_blackscreen_counter_updated(0)
 
     def _stop_worker(self):
+        self._btn_select_splits_profile.setEnabled(True)
+        self._btn_start_stop.setText("Start")
+
         if self._worker is not None:
             self._worker.finish()
         self._worker = None

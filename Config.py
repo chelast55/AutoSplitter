@@ -20,6 +20,7 @@ increment_key: Key = None       # "Well, there's currently no cases where that's
 reset_key: Key = None           # Key to press to restart program without actually restarting
 after_key_press_delay: float    # Delay after any key press to prevent multiple registrations
 pause_key: Key = None           # Key to press once to pause and press again to unpause
+path_to_current_splits_profile: str = None  # Path to the currently selected splits profile config file
 
 with open("config.cfg", 'r') as config_file:
     print("Loading config.")
@@ -36,6 +37,10 @@ with open("config.cfg", 'r') as config_file:
     after_key_press_delay = eval(settings[9])
     pause_key = key_str_to_obj(settings[10])
 
+    # do this if block for backwards compatibility with older config files
+    if len(settings) >= 12:
+        path_to_current_splits_profile = settings[11]
+
 
 def write_config_to_file():
     # Write changes to config.cfg
@@ -50,4 +55,5 @@ def write_config_to_file():
         config_file.write(repr(increment_key) + "\n")
         config_file.write(repr(reset_key) + "\n")
         config_file.write(repr(after_key_press_delay) + "\n")
-        config_file.write(repr(pause_key))
+        config_file.write(repr(pause_key) + "\n")
+        config_file.write(path_to_current_splits_profile)
