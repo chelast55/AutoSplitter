@@ -82,7 +82,7 @@ class SetupWidget(QWidget):
         self.layout.addWidget(self._btn_box)
 
     def _tmr_preview_image_on_timeout(self):
-        img: Image = ImageGrab.grab()
+        img: Image = ImageGrab.grab(all_screens=True)
         self._gv_preview_image.set_image(img)
         cropped_img = img.crop(Config.video_preview_coords)
         gray_value = ImageAnalyzer.average_black_value(cropped_img)
