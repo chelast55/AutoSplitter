@@ -10,7 +10,6 @@ def key_str_to_obj(s):
         if s[1] == 'K':  # function key
             return eval(s[1:].split(':')[0])
         else:  # unrecognized scan code
-            print(KeyCode.from_vk(int(s[1:-2])))
             return KeyCode.from_vk(int(s[1:-2]))
     else:
         return eval(s)

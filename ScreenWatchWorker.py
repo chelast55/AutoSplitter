@@ -50,19 +50,17 @@ class ScreenWatchWorker(QObject):
 
     def run(self):
         def on_key_press(key):
-            print(key)
-            print(Config.decrement_key)
-            print(repr(key))
-            print(repr(Config.reset_key))
             if repr(key) == repr(Config.decrement_key):
                 self._blackscreen_counter -= 1
                 print("Blackscreen counter was decremented")
                 print("New Blackscreen Count: " + str(self._blackscreen_counter))
+                self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                 time.sleep(Config.after_key_press_delay)
             elif repr(key) == repr(Config.increment_key):
                 self._blackscreen_counter += 1
                 print("Blackscreen counter was incremented")
                 print("New Blackscreen Count: " + str(self._blackscreen_counter))
+                self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                 time.sleep(Config.after_key_press_delay)
             elif repr(key) == repr(Config.reset_key):
                 self._reset_after_this_iteration = True
@@ -118,6 +116,7 @@ class ScreenWatchWorker(QObject):
 
             if self._reset_after_this_iteration:
                 self._blackscreen_counter = 0
+                self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                 self._reset_after_this_iteration = False
                 print("Splitter reset!")
 
