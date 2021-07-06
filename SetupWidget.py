@@ -21,6 +21,7 @@ class SetupWidget(QWidget):
     def __init__(self):
         super(SetupWidget, self).__init__()
 
+        self.setWindowTitle("Settings")
         self.resize(1400, 600)
 
         self._tmr_preview_image: QTimer = QTimer(self)

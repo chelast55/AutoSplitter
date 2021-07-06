@@ -10,6 +10,7 @@ class KeyPickerDialog(QDialog):
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle("Set Key")
         self.selected_key: Key = None
 
         self._keyboard = KeyboardController()
