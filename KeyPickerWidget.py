@@ -2,6 +2,7 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QDialogButtonBox, \
     QSizePolicy
 from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
+import StringHelper
 
 
 class KeyPickerDialog(QDialog):
@@ -53,4 +54,4 @@ class KeyPickerWidget(QWidget):
 
     def set_key(self, key):
         self.key = key
-        self._lbl.setText(repr(key))
+        self._lbl.setText(StringHelper.format_key_name(repr(key)))
