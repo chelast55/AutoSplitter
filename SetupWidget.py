@@ -1,19 +1,14 @@
-from typing import List
-
 from PIL import ImageGrab
 from PIL.Image import Image
-from PIL import ImageDraw
-from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
-    QGraphicsScene, QGraphicsPixmapItem, QLabel
+    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox
 
 import Config
 import ImageAnalyzer
 from KeyPickerWidget import KeyPickerWidget
 from QRectSelectGraphicsView import QRectSelectGraphicsView
-import StringHelper
 
 
 class SetupWidget(QWidget):
@@ -41,6 +36,19 @@ class SetupWidget(QWidget):
         self._sb_after_split_delay: QSpinBox = QSpinBox()
         self._sb_after_split_delay.setMinimum(0)
         self._sb_after_split_delay.setMaximum(999)
+        self._cb_advanced_settings: QCheckBox = QCheckBox()
+        self._lbl_max_capture_rate: QLabel = QLabel()
+        self._sb_max_capture_rate: QSpinBox = QSpinBox()
+        self._sb_max_capture_rate.setMinimum(1)
+        self._sb_max_capture_rate.setMaximum(999)
+        self._lbl_after_key_press_delay: QLabel = QLabel()
+        self._sb_after_key_press_delay: QSpinBox = QSpinBox()
+        self._sb_after_key_press_delay.setMinimum(0)
+        self._sb_after_key_press_delay.setMaximum(999)
+        self._lbl_automatic_threshold_overhead: QLabel = QLabel()
+        self._sb_automatic_threshold_overhead: QSpinBox = QSpinBox()
+        self._sb_automatic_threshold_overhead.setMinimum(0)
+        self._sb_automatic_threshold_overhead.setMaximum(999)
 
         self._key_picker_split.set_key(Config.split_key)
         self._key_picker_pause.set_key(Config.pause_key)
@@ -49,6 +57,12 @@ class SetupWidget(QWidget):
         self._key_picker_increment.set_key(Config.increment_key)
         self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
         self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._lbl_max_capture_rate.setText("Max Capture Rate (1/s):")
+        self._sb_max_capture_rate.setValue(Config.max_capture_rate)
+        self._lbl_after_key_press_delay.setText("After Key Press Delay (s):")
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (s):")
+        self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
         self._gv_preview_image.set_rect(Config.video_preview_coords[0],
                                         Config.video_preview_coords[1],
                                         Config.video_preview_coords[2],
@@ -67,7 +81,18 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
         button_settings_layout.addRow("Blackscreen Threshold (0-255):", self._sb_blackscreen_threshold)
         button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
+        button_settings_layout.addRow("Show Advanced Settings", self._cb_advanced_settings)
+        button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
+        button_settings_layout.addRow(self._lbl_after_key_press_delay, self._sb_after_key_press_delay)
+        button_settings_layout.addRow(self._lbl_automatic_threshold_overhead, self._sb_automatic_threshold_overhead)
         settings_layout.addLayout(button_settings_layout)
+
+        self._lbl_max_capture_rate.setVisible(False)
+        self._sb_max_capture_rate.setVisible(False)
+        self._lbl_after_key_press_delay.setVisible(False)
+        self._sb_after_key_press_delay.setVisible(False)
+        self._lbl_automatic_threshold_overhead.setVisible(False)
+        self._sb_automatic_threshold_overhead.setVisible(False)
 
         rect_select_layout: QVBoxLayout = QVBoxLayout()
         rect_select_layout.addWidget(QLabel("Drag on the preview image to select the region "
@@ -79,6 +104,8 @@ class SetupWidget(QWidget):
 
         self.layout.addLayout(settings_layout)
 
+        self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
+
         self._btn_box.accepted.connect(self._btn_box_accepted)
         self._btn_box.rejected.connect(self._btn_box_rejected)
         self.layout.addWidget(self._btn_box)
@@ -87,8 +114,16 @@ class SetupWidget(QWidget):
         img: Image = ImageGrab.grab(all_screens=True)
         self._gv_preview_image.set_image(img)
         cropped_img = img.crop(Config.video_preview_coords)
-        gray_value = ImageAnalyzer.average_black_value(cropped_img)  # TODO: add some kind of tolerance variable
+        gray_value = ImageAnalyzer.average_black_value(cropped_img)
         self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
+
+    def _cb_advanced_settings_state_changed(self):
+        self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
+        self._lbl_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._lbl_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
 
     def _btn_box_accepted(self):
         Config.split_key = self._key_picker_split.key
@@ -99,6 +134,9 @@ class SetupWidget(QWidget):
         Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
         Config.after_split_delay = self._sb_after_split_delay.value()
         Config.video_preview_coords = self._gv_preview_image.get_rect()
+        Config.max_capture_rate = self._sb_max_capture_rate.value()
+        Config.after_key_press_delay = self._sb_after_key_press_delay.value()
+        Config.automatic_threshold_overhead = self._sb_automatic_threshold_overhead.value()
         Config.write_config_to_file()
         self.close()
 
