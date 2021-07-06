@@ -85,7 +85,13 @@ class ScreenWatchWorker(QObject):
         while not self._finished:
             if not self._currently_paused:
                 start_time = time.time()
-                img = ImageGrab.grab(bbox=Config.video_preview_coords, all_screens=True)
+
+                # TODO: Only capture the part of the screen which we actually need using bbox="" property.
+                # From the Pillow docs:
+                # bbox – What region to copy. Default is the entire screen. Note that on Windows OS,
+                # the top-left point may be negative if all_screens=True is used.
+                img = ImageGrab.grab(all_screens=True)
+                img = img.crop(Config.video_preview_coords)
 
                 black_value = ImageAnalyzer.average_black_value(img)
 
