@@ -119,7 +119,10 @@ class MainWidget(QWidget):
 
     def _start_worker(self):
         if Config.path_to_current_splits_profile is None:
-            QMessageBox("Error", "You first have to select a splits profile before you can start the splitter!").show()
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText("You first have to select a splits profile before you can start the splitter!")
+            msg.exec()
             return
 
         self._btn_select_splits_profile.setEnabled(False)
