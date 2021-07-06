@@ -13,6 +13,7 @@ import Config
 import ImageAnalyzer
 from KeyPickerWidget import KeyPickerWidget
 from QRectSelectGraphicsView import QRectSelectGraphicsView
+import StringHelper
 
 
 class SetupWidget(QWidget):
@@ -85,7 +86,7 @@ class SetupWidget(QWidget):
         img: Image = ImageGrab.grab(all_screens=True)
         self._gv_preview_image.set_image(img)
         cropped_img = img.crop(Config.video_preview_coords)
-        gray_value = ImageAnalyzer.average_black_value(cropped_img)
+        gray_value = ImageAnalyzer.average_black_value(cropped_img) # TODO: add some kind of tolerance variable
         self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
 
     def _btn_box_accepted(self):

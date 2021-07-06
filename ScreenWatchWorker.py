@@ -90,7 +90,7 @@ class ScreenWatchWorker(QObject):
                 black_value = ImageAnalyzer.average_black_value(img)
 
                 self.avg_grey_value_updated.emit(black_value)
-                print("Average Grey Value: " + str(black_value))  # Uncomment this line to output avg grey value
+                # print("Average Grey Value: " + str(black_value))  # Uncomment this line to output avg grey value
 
                 if black_value <= Config.blackscreen_threshold:
                     self._blackscreen_counter += 1
