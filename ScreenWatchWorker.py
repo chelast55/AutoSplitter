@@ -95,7 +95,7 @@ class ScreenWatchWorker(QObject):
                 img = ImageGrab.grab(all_screens=True)
                 img = img.crop(Config.video_preview_coords)
 
-                black_value = ImageAnalyzer.average_black_value(img)
+                black_value = ImageAnalyzer.average_gray_value(img)
 
                 self.avg_grey_value_updated.emit(black_value)
                 # print("Average Grey Value: " + str(black_value))  # Uncomment this line to output avg grey value

@@ -63,7 +63,7 @@ class MainWidget(QWidget):
 
     def _update_lbl_current_splits_profile(self):
         splits_profile_text = "Current Splits Profile: "
-        if Config.path_to_current_splits_profile is None:
+        if Config.path_to_current_splits_profile == "":
             splits_profile_text += "-"
         else:
             splits_profile_text += SplitsProfile.load_from_file(Config.path_to_current_splits_profile).name
@@ -84,7 +84,6 @@ class MainWidget(QWidget):
         splits_profile_selector_dialog = SplitsProfileSelectorDialog()
         splits_profile_selector_dialog.exec()
         self._update_lbl_current_splits_profile()
-
 
     def _btn_settings_on_click(self):
         self._open_settings()
@@ -118,7 +117,7 @@ class MainWidget(QWidget):
             self._stop_worker()
 
     def _start_worker(self):
-        if Config.path_to_current_splits_profile is None:
+        if Config.path_to_current_splits_profile == "":
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setText("You first have to select a splits profile before you can start the splitter!")

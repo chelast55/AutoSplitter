@@ -15,6 +15,7 @@ class SetupWidget(QWidget):
 
     def __init__(self):
         super(SetupWidget, self).__init__()
+        self.setAttribute(Qt.WA_AlwaysShowToolTips, True)
 
         self.setWindowTitle("Settings")
         self.resize(1400, 600)
@@ -68,6 +69,18 @@ class SetupWidget(QWidget):
                                         Config.video_preview_coords[2],
                                         Config.video_preview_coords[3])
 
+        self._key_picker_split.setToolTip("Key automatically pressed when a blackscreen is detected")
+        self._key_picker_pause.setToolTip("Key to pause/unpause the blackscreen detection")
+        self._key_picker_reset.setToolTip("Key to reset the blackscreen counter")
+        self._key_picker_decrement.setToolTip("Key to subtract 1 from the blackscreen counter")
+        self._key_picker_increment.setToolTip("Key to add 1 to the blackscreen counter")
+        self._sb_blackscreen_threshold.setToolTip("Maximum Avg. Gray Value the selected area can have to still be considered a \"blackscreen\"")
+        self._sb_after_split_delay.setToolTip("Delay after a blackscreen was successfully detected to prevent multiple splits per blackscreen")
+        self._cb_advanced_settings.setToolTip("The default values for these should work in most cases")
+        self._sb_max_capture_rate.setToolTip("Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)")
+        self._sb_after_key_press_delay.setToolTip("Delay after any key press to prevent multiple registrations")
+        self._sb_automatic_threshold_overhead.setToolTip("Value added to automatically calculated threshold for better tolerance")
+
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
 
@@ -114,7 +127,7 @@ class SetupWidget(QWidget):
         img: Image = ImageGrab.grab(all_screens=True)
         self._gv_preview_image.set_image(img)
         cropped_img = img.crop(Config.video_preview_coords)
-        gray_value = ImageAnalyzer.average_black_value(cropped_img)
+        gray_value = ImageAnalyzer.average_gray_value(cropped_img)
         self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
 
     def _cb_advanced_settings_state_changed(self):
