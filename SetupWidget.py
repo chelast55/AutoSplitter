@@ -136,8 +136,7 @@ class SetupWidget(QWidget):
         gray_value = ImageAnalyzer.average_gray_value(cropped_img)
         self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
         if self._cb_automatic_threshold.isChecked():
-            self._sb_blackscreen_threshold.setValue(
-                math.ceil(float(self._lbl_gray_value.text()[17:])) + Config.automatic_threshold_overhead)
+            self._sb_blackscreen_threshold.setValue(math.ceil(gray_value + Config.automatic_threshold_overhead))
 
     def _cb_automatic_threshold_state_changed(self):
         self._sb_blackscreen_threshold.setDisabled(self._cb_automatic_threshold.isChecked())
