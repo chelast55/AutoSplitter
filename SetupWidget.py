@@ -1,3 +1,5 @@
+import math
+
 from PIL import ImageGrab
 from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer
@@ -32,8 +34,9 @@ class SetupWidget(QWidget):
         self._key_picker_decrement: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_increment: KeyPickerWidget = KeyPickerWidget()
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
-        self._sb_blackscreen_threshold.setMinimum(0)
-        self._sb_blackscreen_threshold.setMaximum(255)
+        self._cb_automatic_threshold: QCheckBox = QCheckBox()
+        self._sb_blackscreen_threshold.setMinimum(0.0)
+        self._sb_blackscreen_threshold.setMaximum(255.0)
         self._sb_after_split_delay: QSpinBox = QSpinBox()
         self._sb_after_split_delay.setMinimum(0)
         self._sb_after_split_delay.setMaximum(999)
@@ -92,6 +95,7 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Reset Key:", self._key_picker_reset)
         button_settings_layout.addRow("Decrement Key:", self._key_picker_decrement)
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
+        button_settings_layout.addRow("Automatic Blackscreen Threshold:", self._cb_automatic_threshold)
         button_settings_layout.addRow("Blackscreen Threshold (0-255):", self._sb_blackscreen_threshold)
         button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
         button_settings_layout.addRow("Show Advanced Settings", self._cb_advanced_settings)
@@ -117,6 +121,8 @@ class SetupWidget(QWidget):
 
         self.layout.addLayout(settings_layout)
 
+        self._cb_automatic_threshold.stateChanged.connect(self._cb_automatic_threshold_state_changed)
+        self._cb_automatic_threshold.setChecked(True)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
 
         self._btn_box.accepted.connect(self._btn_box_accepted)
@@ -129,6 +135,12 @@ class SetupWidget(QWidget):
         cropped_img = img.crop(Config.video_preview_coords)
         gray_value = ImageAnalyzer.average_gray_value(cropped_img)
         self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
+        if self._cb_automatic_threshold.isChecked():
+            self._sb_blackscreen_threshold.setValue(
+                math.ceil(float(self._lbl_gray_value.text()[17:])) + Config.automatic_threshold_overhead)
+
+    def _cb_automatic_threshold_state_changed(self):
+        self._sb_blackscreen_threshold.setDisabled(self._cb_automatic_threshold.isChecked())
 
     def _cb_advanced_settings_state_changed(self):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
