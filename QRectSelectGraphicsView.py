@@ -32,6 +32,9 @@ class QRectSelectGraphicsView(QGraphicsView):
                 max(self._pos1.x(), self._pos2.x()),
                 max(self._pos1.y(), self._pos2.y())]
 
+    def has_area(self):
+        return self._pos1.x() - self._pos2.x() >= 1 or self._pos1.y() - self._pos2.y() >= 1
+
     def set_image(self, img: Image):
         self.img = img
         self._draw_overlay()
