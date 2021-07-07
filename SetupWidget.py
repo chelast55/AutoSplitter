@@ -132,11 +132,12 @@ class SetupWidget(QWidget):
     def _tmr_preview_image_on_timeout(self):
         img: Image = ImageGrab.grab(all_screens=True)
         self._gv_preview_image.set_image(img)
-        cropped_img = img.crop(Config.video_preview_coords)
-        gray_value = ImageAnalyzer.average_gray_value(cropped_img)
-        self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
-        if self._cb_automatic_threshold.isChecked():
-            self._sb_blackscreen_threshold.setValue(math.ceil(gray_value + Config.automatic_threshold_overhead))
+        cropped_img = img.crop(self._gv_preview_image.get_rect())
+        if self._gv_preview_image.has_area():
+            gray_value = ImageAnalyzer.average_gray_value(cropped_img)
+            self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
+            if self._cb_automatic_threshold.isChecked():
+                self._sb_blackscreen_threshold.setValue(math.ceil(gray_value + Config.automatic_threshold_overhead))
 
     def _cb_automatic_threshold_state_changed(self):
         self._sb_blackscreen_threshold.setDisabled(self._cb_automatic_threshold.isChecked())
