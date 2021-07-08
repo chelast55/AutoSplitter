@@ -15,8 +15,9 @@ python -m pip install -r requirements.txt
 
 ### Configure Splits
 Because this program works by virtually pressing your Split Key every time a "valid" blackscreen is detected, you somehow have to tell it, which blackscreens are considered "valid".
-Internally, the program counts how many blackscreens it encountered so far and only presses the Split Key if the current black screen count is listed in [splits.txt](splits.txt).
-Enter your valid blackscreen count values one per line into [splits.txt](splits.txt) like this:
+Internally, the program counts how many blackscreens it encountered so far and only presses the Split Key if the current black screen count is listed in [example.txt](splits_profiles/example.txt).
+But before you start creating your own splits file, you should give [the split profile archive](https://github.com/chelast55/AutoSplitter/tree/develop/splits_profiles) a visit. There is a certain possibility that someone already submitted a split file for the exact route you're planning to do.
+if this is not the case, enter your valid blackscreen count values one per line into a text file in the following format:
 ```
 # this is a comment
 1
@@ -27,22 +28,19 @@ This example would cause the program to split at the first, third and fifth blac
 
 ## How to use
 
-**TODO:** Edit this section for use with GUI
-
-Make sure that the game you want to "auto split" is clearly visible on you **primary screen** (known issue for Windows, not tested on other OS yet). It doesn't matter of you play the game on that screen or if you use the preview window of your capture/streaming software (OBS, Game Capture HD, ...) for this purpose.
-
-- Start [main.py](main.py)
-- On first start you are asked to give certain inputs to configure the program
+Make sure that the game you want to "auto split" is clearly visible on any of your screens. It doesn't matter if you play the game on that screen or if you use the preview window of your capture/streaming software (OBS, Game Capture HD, ...) for this purpose. After you start [main.py](main.py) you are greeted with a little window offering you the following options:
+- **Select Splits Profile**: Select the split file for your route. You can't start the program if you didn't do this first.
+- **Start**: Start the program. While started and not paused, it will monitor the area you selected and automatically press the **Split Key** you selected when detecting a blackscreen. This will change to **Stop** while the program is running.
+- **Pause**: Pause the program (same as the **Pause Key**). While paused, the program doesn't check for blackscreens. You can, however, still press buttons. Changes to **Unpause** while paused.
+- **Settings**:
+  - First of all, you will notice an area that displays a preview of your screen(s). As the instruction on top says, use your mouse to drag a rectangle on the preview window. This rectangle should include the area you want the program to watch for blackscreens. You should choose this as big as possible, but it doesn't have to cover your whole screen. It is recommended that you select your area in a way that excludes random/not predictably occuring events (donation alerts, progress bars, facecam, ...).
   - **Split Key**: Press the key you use to split in your preferred splitting tool (LiveSplit, ...)
-  - **Decrement Key**: Press the key you want to use to manually decrement the internal blackscreen counter. This is for occasions like an accidental death that would cause a blackscreen you haven't accounted for when configuring your splits in [splits.txt](splits.txt). **Wait for blackscreen to fully disappear** before pressing!
-  - **Increment Key**: Same as Decrement Key, but the blackscreen counter gets incremented instead. Well, there's currently no cases where that's useful or important ;)
-  - **Reset Key**: Set key for resetting the program. Acts like restarting the program, but without closing and opening it again. It will however **NOT** read in the config again.
   - **Pause Key**: Set key to press once to pause and again to unpause the program. While paused, the program does not check for blackscreens.
-  - **Video Preview Coordinates**: Select the area you want to monitor for blackscreens by clicking 2 points on your screen. These points act as corners of a rectangle and the rectangle they form is monitored. 
-  - **Blackscreen Threshold**: The program detects blackscreens by taking a screenshots of the area you selected, converting it to greyscale and calculating the average grey value (value between 0 and 255, 0 is pure black and 255 pure white). What you recognize as black might not actually be black (i. e. grey value of 0), so this value should match the average grey value your selected area becomes when a "blackscreen" occurs. Don't set this too high, it could lead to the program detecting a blackscreen when in actuality the colors are only fairly dark at a certain moment in the game. For now, you can remove the "# " at the start of the line towards the end of [ScreenWatchWorker.py](ScreenWatchWorker.py) that is marked with to monitor the average grey value in your selected area. There will likely be a better way in a future version of this program.
+  - **Reset Key**: Set key for resetting the program. Acts like restarting the program, but without closing and opening it again. It will however **NOT** read in the config again.
+  - **Decrement Key**: Press the key you want to use to manually decrement the internal blackscreen counter. This is for occasions like an accidental death that would cause a blackscreen you haven't accounted for when configuring your splits. **Wait for blackscreen to fully disappear** before pressing!
+  - **Increment Key**: Same as Decrement Key, but the blackscreen counter gets incremented instead. Well, there's currently no cases where that's useful or important ;)
+  - **Automatic Blackscreen Threshold**: If you *really* don't care about what this "Blackscreen Threshold"-thing is, just leave this option ckecked, select your preview area and you're good to go
+  - **Blackscreen Threshold**: The program detects blackscreens by taking a screenshot of the area you selected, converting it to greyscale and calculating the average grey value (value between 0 and 255, 0 is pure black and 255 pure white). What you recognize as black might not actually be black (i. e. grey value of 0), so this value should match the average grey value your selected area becomes when a "blackscreen" occurs. Don't set this too high, it could lead to the program detecting a blackscreen when in actuality the colors are only fairly dark at a certain moment in the game. If you need assistance for deciding on the perfect threshold value to fit your needs, the average grey value of the area you selected is displayed below the preview. The threshold you choose should at least be as high as this value and preferrably a bit higher. Again: If you don't care, just let the program do it automatically, it is highly likely that this will work for you.
   - **After Split Delay**: The program checks the selected area multiple times per second for a blackscreen. You should set this delay long enough (in seconds) to cover at least the entire duration of a blackscreen to prevent it from splitting multiple times at a single blackscreen.
-- At the end of the setup, you can enter "yes" if you don't want to redo this setup process the next time you start the program (your inputs are saved in [config.cfg](config.cfg), if you disabled the setup, but want to redo it anyway, change the first line of [config.cfg](config.cfg) from "False" to "True")
-- You can stop the program with CTRL+C while the console window is active or by just closing the window
-
-## The Archive
-This is supposed to become a place where split files of various speedrun routes could be stored
+- On the left side, you can see the current status of the program (stopped, running, paused).
+- On the right side, while the program is running, you can see the current blackscreen count and the number of blackscreens required for the next split to happen (this follows the split file you selected, which is also displayed below).
