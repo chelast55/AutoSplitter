@@ -1,4 +1,7 @@
 # Made by SchirmCrafter https://www.twitch.tv/schirmcrafter
+# Follows the current (as of July 8 2021) world record by Nivadra https://www.youtube.com/watch?v=0Wa5CN2zL0o
+# This splits file was created with an after split delay of 7 seconds in mind, some short blackscreens in quick succession (i. e. cutscenes) will deliberately be counted as one
+# The final split must be done manually, because the run does not end on a blackscreen
 1 	#1-1
 4	  #1-2
 10	#1-Blooper
@@ -17,4 +20,3 @@
 61 	#8-2
 63 	#8-3
 66 	#8-elevator
-# The final split must be done manually, because the run does not end on a blackscreen
