@@ -5,7 +5,7 @@ from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
-    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox
+    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton
 
 import Config
 import ImageAnalyzer
@@ -34,7 +34,8 @@ class SetupWidget(QWidget):
         self._key_picker_decrement: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_increment: KeyPickerWidget = KeyPickerWidget()
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
-        self._cb_automatic_threshold: QCheckBox = QCheckBox()
+        self._btn_automatic_threshold: QPushButton = QPushButton("Start Automatic Threshold Detection")
+        self._btn_automatic_threshold.setCheckable(True)
         self._sb_blackscreen_threshold.setMinimum(0.0)
         self._sb_blackscreen_threshold.setMaximum(255.0)
         self._sb_after_split_delay: QSpinBox = QSpinBox()
@@ -95,8 +96,8 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Reset Key:", self._key_picker_reset)
         button_settings_layout.addRow("Decrement Key:", self._key_picker_decrement)
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
-        button_settings_layout.addRow("Automatic Blackscreen Threshold:", self._cb_automatic_threshold)
         button_settings_layout.addRow("Blackscreen Threshold (0-255):", self._sb_blackscreen_threshold)
+        button_settings_layout.addWidget(self._btn_automatic_threshold)
         button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
         button_settings_layout.addRow("Show Advanced Settings", self._cb_advanced_settings)
         button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
@@ -121,8 +122,7 @@ class SetupWidget(QWidget):
 
         self.layout.addLayout(settings_layout)
 
-        self._cb_automatic_threshold.stateChanged.connect(self._cb_automatic_threshold_state_changed)
-        self._cb_automatic_threshold.setChecked(True)
+        self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
 
         self._btn_box.accepted.connect(self._btn_box_accepted)
@@ -136,11 +136,16 @@ class SetupWidget(QWidget):
         if self._gv_preview_image.has_area():
             gray_value = ImageAnalyzer.average_gray_value(cropped_img)
             self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
-            if self._cb_automatic_threshold.isChecked():
+            if self._btn_automatic_threshold.isChecked():
                 self._sb_blackscreen_threshold.setValue(math.ceil(gray_value + Config.automatic_threshold_overhead))
 
-    def _cb_automatic_threshold_state_changed(self):
-        self._sb_blackscreen_threshold.setDisabled(self._cb_automatic_threshold.isChecked())
+    def _btn_automatic_threshold_on_toggle(self):
+        self._btn_box.button(QDialogButtonBox.Ok).setEnabled(not self._btn_automatic_threshold.isChecked)
+
+        if self._btn_automatic_threshold.isChecked():
+            self._btn_automatic_threshold.setText("Stop Automatic Threshold Detection")
+        else:
+            self._btn_automatic_threshold.setText("Start Automatic Threshold Detection")
 
     def _cb_advanced_settings_state_changed(self):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
