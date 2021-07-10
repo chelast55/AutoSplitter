@@ -143,19 +143,23 @@ class SetupWidget(QWidget):
             self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
             if self._btn_automatic_threshold.isChecked():
                 new_gray_threshold = math.ceil(gray_value + Config.automatic_threshold_overhead)
-                if new_gray_threshold < self._sb_blackscreen_threshold.value():
+                if new_gray_threshold < self._sb_blackscreen_threshold.value() + Config.automatic_threshold_overhead:
                     self._sb_blackscreen_threshold.setValue(new_gray_threshold)
 
     def _preview_on_image_captured(self, img: Image):
         self._gv_preview_image.set_image(img)
+        self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
+
 
     def _btn_automatic_threshold_on_toggle(self):
         if self._btn_automatic_threshold.isChecked():
             self._btn_automatic_threshold.setText("Stop Automatic Threshold Detection")
             self._btn_box.button(QDialogButtonBox.Ok).setEnabled(False)
+            self._sb_blackscreen_threshold.setEnabled(False)
             self._sb_blackscreen_threshold.setValue(255)
         else:
             self._btn_box.button(QDialogButtonBox.Ok).setEnabled(True)
+            self._sb_blackscreen_threshold.setEnabled(True)
             self._btn_automatic_threshold.setText("Start Automatic Threshold Detection")
 
     def _cb_advanced_settings_state_changed(self):
