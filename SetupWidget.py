@@ -2,7 +2,7 @@ import math
 
 from PIL import ImageGrab
 from PIL.Image import Image
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
     QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton
@@ -11,6 +11,7 @@ import Config
 import ImageAnalyzer
 from KeyPickerWidget import KeyPickerWidget
 from QRectSelectGraphicsView import QRectSelectGraphicsView
+from SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
 
 class SetupWidget(QWidget):
@@ -23,8 +24,16 @@ class SetupWidget(QWidget):
         self.resize(1400, 600)
 
         self._tmr_preview_image: QTimer = QTimer(self)
-        self._tmr_preview_image.timeout.connect(self._tmr_preview_image_on_timeout)
-        self._tmr_preview_image.start(200)
+        self._tmr_preview_image.setInterval(200)
+        self._video_preview_thread: QThread = QThread()
+        self._video_preview_worker: SettingsVideoPreviewWorker = SettingsVideoPreviewWorker()
+        self._video_preview_worker.moveToThread(self._video_preview_thread)
+        self._tmr_preview_image.moveToThread(self._video_preview_thread)
+        self._tmr_preview_image.timeout.connect(self._video_preview_worker.run)
+        self._video_preview_thread.started.connect(self._tmr_preview_image.start)
+        self._video_preview_worker.gray_value_updated.connect(self._preview_on_gray_value_updated)
+        self._video_preview_worker.image_captured.connect(self._preview_on_image_captured)
+        self._video_preview_thread.start()
 
         self._gv_preview_image: QRectSelectGraphicsView = QRectSelectGraphicsView()
         self._btn_box: QDialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -129,22 +138,24 @@ class SetupWidget(QWidget):
         self._btn_box.rejected.connect(self._btn_box_rejected)
         self.layout.addWidget(self._btn_box)
 
-    def _tmr_preview_image_on_timeout(self):
-        img: Image = ImageGrab.grab(all_screens=True)
-        self._gv_preview_image.set_image(img)
-        cropped_img = img.crop(self._gv_preview_image.get_rect())
+    def _preview_on_gray_value_updated(self, gray_value: float):
         if self._gv_preview_image.has_area():
-            gray_value = ImageAnalyzer.average_gray_value(cropped_img)
             self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
             if self._btn_automatic_threshold.isChecked():
-                self._sb_blackscreen_threshold.setValue(math.ceil(gray_value + Config.automatic_threshold_overhead))
+                new_gray_threshold = math.ceil(gray_value + Config.automatic_threshold_overhead)
+                if new_gray_threshold < self._sb_blackscreen_threshold.value():
+                    self._sb_blackscreen_threshold.setValue(new_gray_threshold)
+
+    def _preview_on_image_captured(self, img: Image):
+        self._gv_preview_image.set_image(img)
 
     def _btn_automatic_threshold_on_toggle(self):
-        self._btn_box.button(QDialogButtonBox.Ok).setEnabled(not self._btn_automatic_threshold.isChecked)
-
         if self._btn_automatic_threshold.isChecked():
             self._btn_automatic_threshold.setText("Stop Automatic Threshold Detection")
+            self._btn_box.button(QDialogButtonBox.Ok).setEnabled(False)
+            self._sb_blackscreen_threshold.setValue(255)
         else:
+            self._btn_box.button(QDialogButtonBox.Ok).setEnabled(True)
             self._btn_automatic_threshold.setText("Start Automatic Threshold Detection")
 
     def _cb_advanced_settings_state_changed(self):
