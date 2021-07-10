@@ -55,3 +55,6 @@ class KeyPickerWidget(QWidget):
     def set_key(self, key):
         self.key = key
         self._lbl.setText(StringHelper.format_key_name(repr(key)))
+
+    def get_button(self):
+        return self._btn
