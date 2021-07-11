@@ -5,7 +5,7 @@ from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
-    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton, QScrollArea
+    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton, QScrollArea, QGroupBox
 
 import Config
 import ImageAnalyzer
@@ -69,6 +69,10 @@ class SetupWidget(QWidget):
         self._sb_automatic_threshold_overhead.setMaximum(999)
         self._lbl_info: QLabel = QLabel()
         self._lbl_info.setWordWrap(True)
+        self._info_box: QVBoxLayout = QVBoxLayout()
+        self._gb_info_highlight: QGroupBox = QGroupBox("Info:")
+        self._gb_info_highlight.setLayout(self._info_box)
+        self._info_box.addWidget(self._lbl_info)
 
         self._key_picker_split.set_key(Config.split_key)
         self._key_picker_pause.set_key(Config.pause_key)
@@ -93,6 +97,7 @@ class SetupWidget(QWidget):
 
         settings_layout = QHBoxLayout()
 
+        settings_and_info_layout = QVBoxLayout()
         button_settings_layout = QFormLayout()
         button_settings_layout.addRow("Split Key:", self._key_picker_split)
         button_settings_layout.addRow("Pause Key:", self._key_picker_pause)
@@ -106,8 +111,10 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
         button_settings_layout.addRow(self._lbl_after_key_press_delay, self._sb_after_key_press_delay)
         button_settings_layout.addRow(self._lbl_automatic_threshold_overhead, self._sb_automatic_threshold_overhead)
-        button_settings_layout.addRow(self._lbl_info)
-        settings_layout.addLayout(button_settings_layout)
+        settings_and_info_layout.addLayout(button_settings_layout)
+        settings_and_info_layout.addStretch()
+        settings_and_info_layout.addWidget(self._gb_info_highlight)
+        settings_layout.addLayout(settings_and_info_layout)
 
         self._lbl_max_capture_rate.setVisible(False)
         self._sb_max_capture_rate.setVisible(False)
