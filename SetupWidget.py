@@ -41,6 +41,7 @@ class SetupWidget(QWidget):
 
         self._gv_preview_image: QRectSelectGraphicsView = QRectSelectGraphicsView()
         self._btn_box: QDialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self._btn_restore_defaults: QPushButton = QPushButton("Restore Default Settings")
         self._key_picker_split: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_pause: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
@@ -98,6 +99,7 @@ class SetupWidget(QWidget):
         settings_layout = QHBoxLayout()
 
         settings_and_info_layout = QVBoxLayout()
+        settings_and_info_layout.addWidget(self._btn_restore_defaults)
         button_settings_layout = QFormLayout()
         button_settings_layout.addRow("Split Key:", self._key_picker_split)
         button_settings_layout.addRow("Pause Key:", self._key_picker_pause)
@@ -133,6 +135,7 @@ class SetupWidget(QWidget):
 
         self.layout.addLayout(settings_layout)
 
+        self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
         self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
 
@@ -141,7 +144,9 @@ class SetupWidget(QWidget):
         self.layout.addWidget(self._btn_box)
 
     def _on_info_timeout(self):
-        if self._key_picker_split.get_button().underMouse():
+        if self._btn_restore_defaults.underMouse():
+            self._lbl_info.setText("Restore default settings.\nNOTE: Key bindings are NOT affected by this.")
+        elif self._key_picker_split.get_button().underMouse():
             self._lbl_info.setText("Key automatically pressed when a blackscreen is detected")
             self._append_automatic_instructions()
         elif self._key_picker_pause.get_button().underMouse():
@@ -196,6 +201,14 @@ class SetupWidget(QWidget):
     def _preview_on_image_captured(self, img: Image):
         self._gv_preview_image.set_image(img)
         self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
+
+    def _btn_restore_defaults_on_click(self):
+        Config.restore_defaults()
+        self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._sb_max_capture_rate.setValue(Config.max_capture_rate)
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
 
     def _btn_automatic_threshold_on_toggle(self):
         if self._btn_automatic_threshold.isChecked():

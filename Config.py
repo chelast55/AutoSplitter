@@ -54,7 +54,7 @@ def read_config_from_file():
 def restore_defaults():
     global blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
-    blackscreen_threshold = 0
+    blackscreen_threshold = 9
     after_split_delay = 7
     max_capture_rate = 60
     after_key_press_delay = 3
