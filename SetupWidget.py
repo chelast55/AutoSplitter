@@ -18,6 +18,7 @@ class SetupWidget(QWidget):
 
     def __init__(self):
         super(SetupWidget, self).__init__()
+
         self.setAttribute(Qt.WA_AlwaysShowToolTips, True)
 
         self.setWindowTitle("Settings")
@@ -88,10 +89,12 @@ class SetupWidget(QWidget):
         self._sb_after_split_delay.setValue(Config.after_split_delay)
         self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (s):")
         self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
-        self._gv_preview_image.set_rect(Config.video_preview_coords[0],
-                                        Config.video_preview_coords[1],
-                                        Config.video_preview_coords[2],
-                                        Config.video_preview_coords[3])
+
+        if len(Config.video_preview_coords) == 4:
+            self._gv_preview_image.set_rect(Config.video_preview_coords[0],
+                                            Config.video_preview_coords[1],
+                                            Config.video_preview_coords[2],
+                                            Config.video_preview_coords[3])
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
@@ -200,7 +203,8 @@ class SetupWidget(QWidget):
 
     def _preview_on_image_captured(self, img: Image):
         self._gv_preview_image.set_image(img)
-        self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
+        if self._gv_preview_image.has_area():
+            self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
 
     def _btn_restore_defaults_on_click(self):
         Config.restore_defaults()
@@ -249,3 +253,9 @@ class SetupWidget(QWidget):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._tmr_preview_image.stop()
+        self._tmr_preview_image.stop()
+        self._tmr_info.stop()
+
+        self._video_preview_thread.quit()
+        self._video_preview_thread.wait()
+        self._video_preview_thread = None

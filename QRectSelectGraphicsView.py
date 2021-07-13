@@ -33,6 +33,9 @@ class QRectSelectGraphicsView(QGraphicsView):
                 max(self._pos1.y(), self._pos2.y())]
 
     def has_area(self):
+        if self._pos1 is None or self._pos2 is None:
+            return False
+
         rect = self.get_rect()
         return rect[2] - rect[1] >= 1 and rect[3] - rect[1] >= 1
 
