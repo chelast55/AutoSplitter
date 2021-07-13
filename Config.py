@@ -48,12 +48,14 @@ def read_config_from_file():
         max_capture_rate = eval(settings[8])
         after_key_press_delay = eval(settings[9])
         automatic_threshold_overhead = eval(settings[10])
-        path_to_current_splits_profile = settings[11]
+        path_to_current_splits_profile = settings[11].split('\n')[0]
 
 
 def restore_defaults():
+    global video_preview_coords
     global blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
+    video_preview_coords = [1.0, 1.0, 100.0, 100.0]
     blackscreen_threshold = 9
     after_split_delay = 7
     max_capture_rate = 60
@@ -82,4 +84,4 @@ def write_config_to_file():
         config_file.write(repr(max_capture_rate) + "\n")
         config_file.write(repr(after_key_press_delay) + "\n")
         config_file.write(repr(automatic_threshold_overhead) + "\n")
-        config_file.write(path_to_current_splits_profile)
+        config_file.write(path_to_current_splits_profile + "\n")
