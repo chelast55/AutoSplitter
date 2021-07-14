@@ -3,7 +3,7 @@ For Speedrunning, allows to split automatically when detecting blackscreen
 
 ## How to install: Windows
 
-- Download python 3.8 (https://www.python.org/ftp/python/3.8.0/python-3.8.0-amd64.exe)
+- Download [Python 3.8](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe)
 - Install Python 3.8. Make sure **"Add Python 3.8 to PATH"** IS ticked!
 - Open Windows Command Line (Windows+R or Start Menu, enter "cmd")
 - Enter "py -help". If this does nothing, try restarting
@@ -35,6 +35,7 @@ Make sure that the game you want to "auto split" is clearly visible on any of yo
 - **Settings**:
   - First of all, you will notice an area that displays a preview of your screen(s). As the instruction on top says, use your mouse to drag a rectangle on the preview window. This rectangle should include the area you want the program to watch for blackscreens. You should choose this as big as possible, but it doesn't have to cover your whole screen. It is recommended that you select your area in a way that excludes random/not predictably occuring events (donation alerts, progress bars, facecam, ...).
   - **Restore Default Settings**: Does exactly what it says. This will **NOT** affect your key bindings. If you hit this button by accident and don't want to lose any of your previous settings, close the *Settings* menu without hitting *OK*.
+  - Short note on any of the keys: Hold the key you want to set until the pop-up disappeard and the name of the key is successfully displayed next to the *Set* button.
   - **Split Key**: Press the key you use to split in your preferred splitting tool (LiveSplit, ...)
   - **Pause Key**: Set key to press once to pause and again to unpause the program. While paused, the program does not check for blackscreens.
   - **Reset Key**: Set key for resetting the program. Acts like restarting the program, but without closing and opening it again. It will however **NOT** read in the config again.
