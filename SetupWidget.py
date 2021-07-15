@@ -5,7 +5,7 @@ from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QPixmap, QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
-    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton, QScrollArea
+    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton, QScrollArea, QGroupBox
 
 import Config
 import ImageAnalyzer
@@ -18,6 +18,7 @@ class SetupWidget(QWidget):
 
     def __init__(self):
         super(SetupWidget, self).__init__()
+
         self.setAttribute(Qt.WA_AlwaysShowToolTips, True)
 
         self.setWindowTitle("Settings")
@@ -41,6 +42,7 @@ class SetupWidget(QWidget):
 
         self._gv_preview_image: QRectSelectGraphicsView = QRectSelectGraphicsView()
         self._btn_box: QDialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self._btn_restore_defaults: QPushButton = QPushButton("Restore Default Settings")
         self._key_picker_split: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_pause: KeyPickerWidget = KeyPickerWidget()
         self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
@@ -68,6 +70,11 @@ class SetupWidget(QWidget):
         self._sb_automatic_threshold_overhead.setMinimum(0)
         self._sb_automatic_threshold_overhead.setMaximum(999)
         self._lbl_info: QLabel = QLabel()
+        self._lbl_info.setWordWrap(True)
+        self._info_box: QVBoxLayout = QVBoxLayout()
+        self._gb_info_highlight: QGroupBox = QGroupBox("Info:")
+        self._gb_info_highlight.setLayout(self._info_box)
+        self._info_box.addWidget(self._lbl_info)
 
         self._key_picker_split.set_key(Config.split_key)
         self._key_picker_pause.set_key(Config.pause_key)
@@ -82,16 +89,20 @@ class SetupWidget(QWidget):
         self._sb_after_split_delay.setValue(Config.after_split_delay)
         self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (s):")
         self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
-        self._gv_preview_image.set_rect(Config.video_preview_coords[0],
-                                        Config.video_preview_coords[1],
-                                        Config.video_preview_coords[2],
-                                        Config.video_preview_coords[3])
+
+        if len(Config.video_preview_coords) == 4:
+            self._gv_preview_image.set_rect(Config.video_preview_coords[0],
+                                            Config.video_preview_coords[1],
+                                            Config.video_preview_coords[2],
+                                            Config.video_preview_coords[3])
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
 
         settings_layout = QHBoxLayout()
 
+        settings_and_info_layout = QVBoxLayout()
+        settings_and_info_layout.addWidget(self._btn_restore_defaults)
         button_settings_layout = QFormLayout()
         button_settings_layout.addRow("Split Key:", self._key_picker_split)
         button_settings_layout.addRow("Pause Key:", self._key_picker_pause)
@@ -105,8 +116,10 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
         button_settings_layout.addRow(self._lbl_after_key_press_delay, self._sb_after_key_press_delay)
         button_settings_layout.addRow(self._lbl_automatic_threshold_overhead, self._sb_automatic_threshold_overhead)
-        button_settings_layout.addRow(self._lbl_info)
-        settings_layout.addLayout(button_settings_layout)
+        settings_and_info_layout.addLayout(button_settings_layout)
+        settings_and_info_layout.addStretch()
+        settings_and_info_layout.addWidget(self._gb_info_highlight)
+        settings_layout.addLayout(settings_and_info_layout)
 
         self._lbl_max_capture_rate.setVisible(False)
         self._sb_max_capture_rate.setVisible(False)
@@ -125,6 +138,7 @@ class SetupWidget(QWidget):
 
         self.layout.addLayout(settings_layout)
 
+        self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
         self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
 
@@ -133,35 +147,51 @@ class SetupWidget(QWidget):
         self.layout.addWidget(self._btn_box)
 
     def _on_info_timeout(self):
+        if self._btn_restore_defaults.underMouse():
+            self._lbl_info.setText("Restore default settings.\nNOTE: Key bindings are NOT affected by this.")
+        elif self._key_picker_split.get_button().underMouse():
+            self._lbl_info.setText("Key automatically pressed when a blackscreen is detected")
+            self._append_automatic_instructions()
+        elif self._key_picker_pause.get_button().underMouse():
+            self._lbl_info.setText("Key to pause/unpause the blackscreen detection")
+            self._append_automatic_instructions()
+        elif self._key_picker_reset.get_button().underMouse():
+            self._lbl_info.setText("Key to reset the blackscreen counter")
+            self._append_automatic_instructions()
+        elif self._key_picker_decrement.get_button().underMouse():
+            self._lbl_info.setText("Key to subtract 1 from the blackscreen counter")
+            self._append_automatic_instructions()
+        elif self._key_picker_increment.get_button().underMouse():
+            self._lbl_info.setText("Key to add 1 to the blackscreen counter")
+            self._append_automatic_instructions()
+        elif self._btn_automatic_threshold.underMouse():
+            self._lbl_info.setText("Enter automatic blackscreen detection mode.")
+            self._append_automatic_instructions()
+        elif self._sb_blackscreen_threshold.underMouse():
+            self._lbl_info.setText("Maximum Avg. Gray Value the selected area can have to still be\nconsidered a "
+                                   "\"blackscreen\"")
+            self._append_automatic_instructions()
+        elif self._sb_after_split_delay.underMouse():
+            self._lbl_info.setText("Delay after a blackscreen was successfully detected to\nprevent multiple splits "
+                                   "per blackscreen")
+            self._append_automatic_instructions()
+        elif self._cb_advanced_settings.underMouse():
+            self._lbl_info.setText("The default values for these should work in most cases")
+            self._append_automatic_instructions()
+        elif self._sb_max_capture_rate.underMouse():
+            self._lbl_info.setText("Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)")
+            self._append_automatic_instructions()
+        elif self._sb_after_key_press_delay.underMouse():
+            self._lbl_info.setText("Delay after any key press to prevent multiple registrations")
+            self._append_automatic_instructions()
+        elif self._sb_automatic_threshold_overhead.underMouse():
+            self._lbl_info.setText("Value added to automatically calculated threshold for better tolerance")
+            self._append_automatic_instructions()
+
+    def _append_automatic_instructions(self):
         if self._btn_automatic_threshold.isChecked():
-            self._lbl_info.setText("Select preview area, wait for a blackscreen to occur, disable automatic mode again")
-        else:
-            if self._key_picker_split.get_button().underMouse():
-                self._lbl_info.setText("Key automatically pressed when a blackscreen is detected")
-            elif self._key_picker_pause.get_button().underMouse():
-                self._lbl_info.setText("Key to pause/unpause the blackscreen detection")
-            elif self._key_picker_reset.get_button().underMouse():
-                self._lbl_info.setText("Key to reset the blackscreen counter")
-            elif self._key_picker_decrement.get_button().underMouse():
-                self._lbl_info.setText("Key to subtract 1 from the blackscreen counter")
-            elif self._key_picker_increment.get_button().underMouse():
-                self._lbl_info.setText("Key to add 1 to the blackscreen counter")
-            elif self._btn_automatic_threshold.underMouse():
-                self._lbl_info.setText("Enter automatic blackscreen detection mode.")
-            elif self._sb_blackscreen_threshold.underMouse():
-                self._lbl_info.setText("Maximum Avg. Gray Value the selected area can have to still be considered a "
-                                       "\"blackscreen\"")
-            elif self._sb_after_split_delay.underMouse():
-                self._lbl_info.setText("Delay after a blackscreen was successfully detected to prevent multiple splits "
-                                       "per blackscreen")
-            elif self._cb_advanced_settings.underMouse():
-                self._lbl_info.setText("The default values for these should work in most cases")
-            elif self._sb_max_capture_rate.underMouse():
-                self._lbl_info.setText("Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)")
-            elif self._sb_after_key_press_delay.underMouse():
-                self._lbl_info.setText("Delay after any key press to prevent multiple registrations")
-            elif self._sb_automatic_threshold_overhead.underMouse():
-                self._lbl_info.setText("Value added to automatically calculated threshold for better tolerance")
+            self._lbl_info.setText("Select preview area, wait for a blackscreen to occur, disable automatic\nmode "
+                                   "again\n\n" + self._lbl_info.text())
 
     def _preview_on_gray_value_updated(self, gray_value: float):
         if self._gv_preview_image.has_area():
@@ -173,7 +203,16 @@ class SetupWidget(QWidget):
 
     def _preview_on_image_captured(self, img: Image):
         self._gv_preview_image.set_image(img)
-        self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
+        if self._gv_preview_image.has_area():
+            self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
+
+    def _btn_restore_defaults_on_click(self):
+        Config.restore_defaults()
+        self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._sb_max_capture_rate.setValue(Config.max_capture_rate)
+        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
 
     def _btn_automatic_threshold_on_toggle(self):
         if self._btn_automatic_threshold.isChecked():
@@ -214,3 +253,9 @@ class SetupWidget(QWidget):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._tmr_preview_image.stop()
+        self._tmr_preview_image.stop()
+        self._tmr_info.stop()
+
+        self._video_preview_thread.quit()
+        self._video_preview_thread.wait()
+        self._video_preview_thread = None

@@ -17,11 +17,6 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        if Config.setup_at_start:
-            self._open_settings()
-            Config.setup_at_start = False
-            Config.write_config_to_file()
-
         self._workerThread: Optional[QThread] = None
         self._worker: Optional[ScreenWatchWorker] = None
 
