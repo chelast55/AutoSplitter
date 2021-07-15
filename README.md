@@ -1,17 +1,12 @@
 # AutoSplitter
-For Speedrunning, allows to split automatically when detecting blackscreen
+For Speedrunning. Allows to split automatically when detecting blackscreen. Works in conjucntion with readily available split tools (LiveSplit, ...).
 
 ## How to install: Windows
 
-- Download python 3.8 (https://www.python.org/ftp/python/3.8.0/python-3.8.0-amd64.exe)
+- Download [Python 3.8](https://www.python.org/ftp/python/3.8.0/python-3.8.0-amd64.exe)
 - Install Python 3.8. Make sure **"Add Python 3.8 to PATH"** IS ticked!
-- Open Windows Command Line (Windows+R or Start Menu, enter "cmd")
-- Enter "py -help". If this does nothing, try restarting
-- Install necessary packages by executing the following lines **one after another**:
-```
-python -m pip install –-upgrade pip
-python -m pip install -r requirements.txt
-```
+- Restart your computer
+- Run [INSTALL.bat](INSTALL.bat)
 
 ### Configure Splits
 Because this program works by virtually pressing your Split Key every time a "valid" blackscreen is detected, you somehow have to tell it, which blackscreens are considered "valid".
