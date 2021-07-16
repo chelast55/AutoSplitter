@@ -3,8 +3,8 @@ from typing import Optional
 from PIL import ImageDraw
 from PIL.Image import Image
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import QPointF, Signal, QObject
-from PySide6.QtGui import QMouseEvent, Qt, QPaintEvent, QPainter, QPixmap
+from PySide6.QtCore import QPointF, Signal
+from PySide6.QtGui import QMouseEvent, Qt, QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
 

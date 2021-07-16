@@ -4,7 +4,7 @@ from PIL import ImageGrab
 from PIL.Image import Image
 from PySide6.QtCore import QObject, Signal
 
-import ImageAnalyzer
+from src import ImageAnalyzer
 
 
 class SettingsVideoPreviewWorker(QObject):

@@ -1,17 +1,15 @@
 import math
 
-from PIL import ImageGrab
 from PIL.Image import Image
-from PySide6.QtCore import Qt, QTimer, QThread, Signal
-from PySide6.QtGui import QPixmap, QCloseEvent
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QGraphicsView, \
-    QGraphicsScene, QGraphicsPixmapItem, QLabel, QCheckBox, QPushButton, QScrollArea, QGroupBox
+from PySide6.QtCore import Qt, QTimer, QThread
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QLabel, QCheckBox, QPushButton, \
+    QGroupBox
 
-import Config
-import ImageAnalyzer
-from KeyPickerWidget import KeyPickerWidget
-from QRectSelectGraphicsView import QRectSelectGraphicsView
-from SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
+from src import Config
+from src.KeyPickerWidget import KeyPickerWidget
+from src.QRectSelectGraphicsView import QRectSelectGraphicsView
+from src.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
 
 class SetupWidget(QWidget):

@@ -2,8 +2,6 @@ import os.path
 
 from pynput.keyboard import Key, KeyCode
 
-import Config
-
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
 video_preview_coords = []       # Corners of stream preview window
 split_key: Key = None           # Key automatically pressed when valid blackscreen is detected

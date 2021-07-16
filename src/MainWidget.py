@@ -5,11 +5,11 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 
-import Config
-import SplitsProfile
-from ScreenWatchWorker import ScreenWatchWorker
-from SetupWidget import SetupWidget
-from SplitsProfileSelectorDialog import SplitsProfileSelectorDialog
+from src import Config
+from src import SplitsProfile
+from src.ScreenWatchWorker import ScreenWatchWorker
+from src.SetupWidget import SetupWidget
+from src.SplitsProfileSelectorDialog import SplitsProfileSelectorDialog
 
 
 class MainWidget(QWidget):

@@ -1,16 +1,13 @@
-from typing import final, Final
+from typing import Final
 
 from PySide6.QtCore import QObject, Signal
-from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
-from pynput.mouse import Button, Controller as MouseController, Listener as MouseListener
-import numpy as np
+from pynput.keyboard import Controller as KeyboardController, Listener as KeyboardListener
+from pynput.mouse import Controller as MouseController
 from PIL import ImageGrab
-import cv2
 import time
 
-import ImageAnalyzer
-import SplitsProfile
-import Config
+from src import SplitsProfile
+from src import Config, ImageAnalyzer
 
 
 class ScreenWatchWorker(QObject):

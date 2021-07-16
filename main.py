@@ -1,12 +1,12 @@
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 
 # qt app needs to be constructed before we can do anything else with qt
 app = QtWidgets.QApplication([])
 
-from MainWidget import MainWidget
-import Config
-from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
-from pynput.mouse import Button, Controller as MouseController, Listener as MouseListener
+from src.MainWidget import MainWidget
+from src import Config
+from pynput.keyboard import Key, Controller as KeyboardController
+from pynput.mouse import Controller as MouseController
 
 mouse = MouseController()
 keyboard = KeyboardController()

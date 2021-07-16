@@ -1,8 +1,6 @@
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QDialogButtonBox, \
-    QSizePolicy
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QSizePolicy
 from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
-import StringHelper
+from src import StringHelper
 
 
 class KeyPickerDialog(QDialog):

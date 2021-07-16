@@ -1,11 +1,11 @@
 from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
-from PySide6.QtWidgets import QWidget, QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit
+from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit
 import os
-import Config
+from src import Config
 
 
 class SplitsSyntaxHighlighter(QSyntaxHighlighter):
-    def highlightBlock(self, text:str) -> None:
+    def highlightBlock(self, text: str) -> None:
         # loop through the characters in the line
         for i in range(len(text)):
             # if we find a # the rest of the line is a comment. Format it with the comment style and return; we don't
@@ -47,7 +47,7 @@ class SplitsProfileSelectorDialog(QDialog):
         main_layout = QHBoxLayout()
         self._tv_directory: QTreeView = QTreeView()
         main_layout.addWidget(self._tv_directory)
-        # TODO: Find a more robust way to get the splits_profiles directory
+        # TODO: Find a more robust way to get the splits_profiles directory (seriously, do that!)
         splits_profiles_dir: str = os.path.join(os.getcwd(), "splits_profiles")
         self._directory_model: QFileSystemModel = QFileSystemModel()
         self._directory_model.setRootPath(splits_profiles_dir)
@@ -76,6 +76,6 @@ class SplitsProfileSelectorDialog(QDialog):
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
         path = self._directory_model.filePath(selected_index)
-        Config.path_to_current_splits_profile = path
+        Config.path_to_current_splits_profile = "/splits_profiles/" + path.split("/splits_profiles/")[1]
         Config.write_config_to_file()
         self.close()
