@@ -76,6 +76,6 @@ class SplitsProfileSelectorDialog(QDialog):
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
         path = self._directory_model.filePath(selected_index)
-        Config.path_to_current_splits_profile = "/splits_profiles/" + path.split("/splits_profiles/")[1]
+        Config.path_to_current_splits_profile = "splits_profiles/" + path.split("/splits_profiles/")[1]
         Config.write_config_to_file()
         self.close()

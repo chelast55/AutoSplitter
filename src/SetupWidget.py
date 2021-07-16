@@ -84,7 +84,7 @@ class SetupWidget(QWidget):
         self._lbl_max_capture_rate.setText("Max Capture Rate (1/s):")
         self._sb_max_capture_rate.setValue(Config.max_capture_rate)
         self._lbl_after_key_press_delay.setText("After Key Press Delay (s):")
-        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._sb_after_key_press_delay.setValue(Config.after_key_press_delay)
         self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (s):")
         self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
 

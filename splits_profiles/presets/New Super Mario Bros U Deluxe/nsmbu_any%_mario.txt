@@ -3,7 +3,7 @@
 # This splits file was created with an after split delay of 7 seconds in mind, some short blackscreens in quick succession (i. e. cutscenes) will deliberately be counted as one
 # The final split must be done manually, because the run does not end on a blackscreen
 1 	#1-1
-4	  #1-2
+4	#1-2
 10	#1-Blooper
 12 	#5-1
 16 	#5-2
