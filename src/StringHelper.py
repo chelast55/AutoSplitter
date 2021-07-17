@@ -4,10 +4,11 @@ key_name_format_dictionary = {}  # TODO: use this for replacing inconvenient str
 
 
 def format_key_name(key_repr: str):
-    """Reformats string representation of keys to something more ideal for a users understandings
+    """
+    Reformats string representation of keys to something more ideal for a users understandings
 
-    :param: key_repr: (str) string representation of a key on the keyboard
-    :return: (str) formatted string
+    :param key_repr: (str) string representation of a key on the keyboard
+    :returns: (str) formatted string
     """
     if key_repr[0] == '<':
         if key_repr[1] == 'K':  # function key

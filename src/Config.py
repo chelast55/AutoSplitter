@@ -1,23 +1,49 @@
+"""
+Handles reading from and writing to the config file (config.cfg).
+Stores configuration parameters internally and publicly accessible.
+"""
+
 import os.path
 
 from pynput.keyboard import Key, KeyCode
 
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
-video_preview_coords = []       # Corners of stream preview window
-split_key: Key = None           # Key automatically pressed when valid blackscreen is detected
-pause_key: Key = None           # Key to press once to pause and press again to unpause
-reset_key: Key = None           # Key to press to restart program without actually restarting
-decrement_key: Key = None       # Key to press to decrement counter after "accidental" blackscreen (i. e. death)
-increment_key: Key = None       # "Well, there's currently no cases where that's useful or important" ;)
-blackscreen_threshold: float    # Threshold for average gray value for a screen to count as blackscreen (default 15)
-after_split_delay: float        # Delay to prevent multiple splits per blackscreen in seconds
-max_capture_rate: int           # Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)
-after_key_press_delay: float                # Delay after any key press to prevent multiple registrations
-automatic_threshold_overhead: float         # Value added to automatically calculated threshold for better tolerance
-path_to_current_splits_profile: str = ""    # Path to the currently selected splits profile config file
+video_preview_coords = []
+"""Corners of stream preview window"""
+split_key: Key = None
+"""Key automatically pressed when valid blackscreen is detected"""
+pause_key: Key = None
+"""Key to press once to pause and press again to unpause"""
+reset_key: Key = None
+"""Key to press to restart program without actually restarting"""
+decrement_key: Key = None
+"""Key to press to decrement counter after "accidental" blackscreen (i. e. death)"""
+increment_key: Key = None
+""""Well, there's currently no cases where that's useful or important" ;)"""
+blackscreen_threshold: float
+"""Threshold for average gray value for a screen to count as blackscreen (default 15)"""
+after_split_delay: float
+"""Delay to prevent multiple splits per blackscreen in seconds"""
+max_capture_rate: int
+"""Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)"""
+after_key_press_delay: float
+"""Delay after any key press to prevent multiple registrations"""
+automatic_threshold_overhead: float
+"""Value added to automatically calculated threshold for better tolerance"""
+path_to_current_splits_profile: str = ""
+"""Path to the currently selected splits profile config file"""
 
 
 def key_str_to_obj(s):
+    """
+    Get key object from string representation.
+
+    Note, that this is NOT its string representation obtainable via repr(). Simply using repr() would not work,
+    because repr() of function keys (which intern are enum states) do not translate to key objects by themself.
+
+    :param s: (str) "string representation"
+    :return: (key) key object
+    """
     if s.startswith('<'):
         if s[1] == 'K':  # function key
             return eval(s[1:].split(':')[0])
@@ -28,6 +54,11 @@ def key_str_to_obj(s):
 
 
 def read_config_from_file():
+    """
+    Read all config parameters from file (config.cfg) and store them internally.
+
+    Whenever a new config paramter is introduced, a new line for it should be added to the end of this method.
+    """
     global video_preview_coords
     global split_key, pause_key, reset_key, decrement_key, increment_key, blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
@@ -50,6 +81,11 @@ def read_config_from_file():
 
 
 def restore_defaults():
+    """
+    Overwrite currently stored config parameters with their default values without updating config.cfg
+
+    This method serves as baseline for what is considered "default".
+    """
     global video_preview_coords
     global blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
@@ -69,7 +105,11 @@ else:
 
 
 def write_config_to_file():
-    # Write changes to config.cfg
+    """
+    Write all internally stored config parameters to file (config.cfg).
+
+    Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
+    """
     with open("config.cfg", 'w') as config_file:
         config_file.write(repr(video_preview_coords) + "\n")
         config_file.write(repr(split_key) + "\n")
