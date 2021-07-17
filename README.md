@@ -42,3 +42,11 @@ Make sure that the game you want to "auto split" is clearly visible on any of yo
   - **Advanced Settings**: If you don't know, what you're doing, ignore this option. It is unlikely, you will break anything, but it is highly likely that everything works fine for you without touching anything here. If, however, you do want to know more about this, you will find what you're looking  for in [advanced.md](advanced.md).
 - On the left side, you can see the current status of the program (stopped, running, paused).
 - On the right side, while the program is running, you can see the current blackscreen count and the number of blackscreens required for the next split to happen (this follows the split file you selected, which is also displayed below).
+
+## Contribution
+
+### Splits File Submissions
+TODO: figure this out somehow
+
+### Source Code
+If, for whatever reason, you ever felt the urge to contribute to the code side of this project, feel free to send pull requests. If you execute [update_docs.bat](update_docs.bat), an up-to-date version of the documentation should open in your default browser. Please remember to annotate everything you add to the code to allow the documentation to stay up-to-date.
