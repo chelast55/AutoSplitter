@@ -16,14 +16,14 @@ from src import Config, ImageAnalyzer
 
 class ScreenWatchWorker(QObject):
     """
-    A class
+    TODO: further improve this
 
-    :param _splits_profile: (SplitsProfile) h
+    :param _splits_profile: (SplitsProfile) splits profile to save internally
     """
     blackscreen_counter_updated: Final[Signal] = Signal(int)
-    # """Signal that emit blackscreen count whenever it changes"""
+    """Signal that emit blackscreen count whenever it changes"""
     avg_grey_value_updated: Final[Signal] = Signal(float)
-    # """Signal that emits average gray value whenever it is re-calculated"""
+    """Signal that emits average gray value whenever it is re-calculated"""
     _finished: bool = False
     _currently_paused: bool = False
     _mouse = MouseController()
@@ -33,9 +33,6 @@ class ScreenWatchWorker(QObject):
     _splits_profile: Final[SplitsProfile]
 
     def __init__(self, _splits_profile: SplitsProfile):
-        """
-        Constructor method
-        """
         super(ScreenWatchWorker, self).__init__()
         self._splits_profile = _splits_profile
 
