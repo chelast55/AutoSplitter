@@ -1,3 +1,7 @@
+"""
+Contains ScreenWatchWorker class
+"""
+
 from typing import Final
 
 from PySide6.QtCore import QObject, Signal
@@ -6,22 +10,32 @@ from pynput.mouse import Controller as MouseController
 from PIL import ImageGrab
 import time
 
-from src import SplitsProfile
+from src.SplitsProfile import SplitsProfile
 from src import Config, ImageAnalyzer
 
 
 class ScreenWatchWorker(QObject):
+    """
+    A class
+
+    :param _splits_profile: (SplitsProfile) h
+    """
+    blackscreen_counter_updated: Final[Signal] = Signal(int)
+    # """Signal that emit blackscreen count whenever it changes"""
+    avg_grey_value_updated: Final[Signal] = Signal(float)
+    # """Signal that emits average gray value whenever it is re-calculated"""
     _finished: bool = False
     _currently_paused: bool = False
     _mouse = MouseController()
     _keyboard = KeyboardController()
     _blackscreen_counter: int = 0
     _reset_after_this_iteration: bool = False
-    _splits_profile: Final[SplitsProfile.SplitsProfile]
-    blackscreen_counter_updated: Final[Signal] = Signal(int)
-    avg_grey_value_updated: Final[Signal] = Signal(float)
+    _splits_profile: Final[SplitsProfile]
 
-    def __init__(self, _splits_profile):
+    def __init__(self, _splits_profile: SplitsProfile):
+        """
+        Constructor method
+        """
         super(ScreenWatchWorker, self).__init__()
         self._splits_profile = _splits_profile
 
@@ -92,12 +106,12 @@ class ScreenWatchWorker(QObject):
                 img = ImageGrab.grab(all_screens=True)
                 img = img.crop(Config.video_preview_coords)
 
-                black_value = ImageAnalyzer.average_gray_value(img)
+                current_average_gray_value = ImageAnalyzer.average_gray_value(img)
 
-                self.avg_grey_value_updated.emit(black_value)
+                self.avg_grey_value_updated.emit(current_average_gray_value)
                 # print("Average Grey Value: " + str(black_value))  # Uncomment this line to output avg grey value
 
-                if black_value <= Config.blackscreen_threshold:
+                if current_average_gray_value <= Config.blackscreen_threshold:
                     self._blackscreen_counter += 1
                     self.blackscreen_counter_updated.emit(self._blackscreen_counter)
                     print("Blackscreen Count: " + str(self._blackscreen_counter))
@@ -117,4 +131,4 @@ class ScreenWatchWorker(QObject):
                 self._reset_after_this_iteration = False
                 print("Splitter reset!")
 
-    print("Worker stopped.")
+        print("Worker stopped.")
