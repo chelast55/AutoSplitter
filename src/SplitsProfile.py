@@ -5,7 +5,7 @@ def load_from_file(path: str):
     sp = SplitsProfile()
     sp.name = os.path.basename(path)
 
-    if os.path.exists(path):
+    if os.path.exists(path) and os.path.isfile(path):
         with open(path, 'r') as splits_file:
             lines = splits_file.readlines()
             for line in lines:
