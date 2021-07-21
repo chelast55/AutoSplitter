@@ -24,6 +24,8 @@ class ScreenWatchWorker(QObject):
     """Signal that emit blackscreen count whenever it changes"""
     avg_grey_value_updated: Final[Signal] = Signal(float)
     """Signal that emits average gray value whenever it is re-calculated"""
+    pause_status_updated: Final[Signal] = Signal(bool)
+    """Signal that emits current pause status whenever it changes"""
     _finished: bool = False
     _currently_paused: bool = False
     _mouse = MouseController()
@@ -76,12 +78,7 @@ class ScreenWatchWorker(QObject):
                 print("Wait for splitter to restart...")
                 time.sleep(Config.after_key_press_delay)
             elif repr(key) == repr(Config.pause_key):
-                if self._currently_paused:
-                    self._currently_paused = False
-                    print("Unpaused!")
-                else:
-                    self._currently_paused = True
-                    print("Paused...")
+                self.pause_status_updated.emit(self._currently_paused)
                 time.sleep(Config.after_key_press_delay)
 
         print("Starting splitter worker for profile " + self._splits_profile.name)
@@ -128,4 +125,4 @@ class ScreenWatchWorker(QObject):
                 self._reset_after_this_iteration = False
                 print("Splitter reset!")
 
-        print("Worker stopped.")
+    print("Worker stopped.")

@@ -48,7 +48,7 @@ class MainWidget(QWidget):
         buttons_layout.addWidget(self._btn_settings)
 
         self._btn_pause = QPushButton("Pause")
-        self._btn_pause.clicked.connect(self._btn_pause_on_click)
+        self._btn_pause.clicked.connect(self._worker_on_pause_status_updated)
         buttons_layout.addWidget(self._btn_pause)
 
         self._btn_start_stop = QPushButton("Start")
@@ -75,6 +75,23 @@ class MainWidget(QWidget):
                                   key=lambda x: 999 if x <= blackscreen_counter else x))
         self._lbl_detailed_status.setText(s)
 
+    def _worker_on_pause_status_updated(self):
+        if self._worker is None:
+            return
+
+        if self._worker.is_paused():
+            self._worker.unpause()
+            self._btn_pause.setText("Pause")
+            self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
+            self._lbl_worker_status.setText(
+                "Worker running with profile\n" + self._worker.get_splits_profile().name + ".")
+        else:
+            self._worker.pause()
+            self._btn_pause.setText("Unpause")
+            self._lbl_worker_status.setStyleSheet("QLabel { color:orange; }")
+            self._lbl_worker_status.setText(
+                "Worker paused with profile\n" + self._worker.get_splits_profile().name + ".")
+
     def _btn_select_splits_profile_on_click(self):
         splits_profile_selector_dialog = SplitsProfileSelectorDialog()
         splits_profile_selector_dialog.exec()
@@ -86,23 +103,6 @@ class MainWidget(QWidget):
     def _open_settings(self):
         self._setup_widget = SetupWidget()
         self._setup_widget.show()
-
-    def _btn_pause_on_click(self):
-        if self._worker is None:
-            return
-
-        if self._worker.is_paused():
-            self._worker.unpause()
-            self._btn_pause.setText("Pause")
-            self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
-            self._lbl_worker_status.setText(
-                "Worker running with profile " + self._worker.get_splits_profile().name + ".")
-        else:
-            self._worker.pause()
-            self._btn_pause.setText("Unpause")
-            self._lbl_worker_status.setStyleSheet("QLabel { color:orange; }")
-            self._lbl_worker_status.setText(
-                "Worker paused with profile\n" + self._worker.get_splits_profile().name + ".")
 
     def _btn_start_stop_on_click(self):
         # if worker is not started start it, otherwise stop it
@@ -133,6 +133,7 @@ class MainWidget(QWidget):
 
         self._worker.blackscreen_counter_updated.connect(self._worker_on_blackscreen_counter_updated)
         self._worker_on_blackscreen_counter_updated(0)
+        self._worker.pause_status_updated.connect(self._worker_on_pause_status_updated)
 
     def _stop_worker(self):
         self._btn_select_splits_profile.setEnabled(True)
