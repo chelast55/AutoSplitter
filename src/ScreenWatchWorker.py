@@ -24,7 +24,7 @@ class ScreenWatchWorker(QObject):
     """Signal that emit blackscreen count whenever it changes"""
     avg_grey_value_updated: Final[Signal] = Signal(float)
     """Signal that emits average gray value whenever it is re-calculated"""
-    pause_status_updated: Final[Signal] = Signal(bool)
+    pause_status_updated: Final[Signal] = Signal()
     """Signal that emits current pause status whenever it changes"""
     _finished: bool = False
     _currently_paused: bool = False
@@ -33,10 +33,12 @@ class ScreenWatchWorker(QObject):
     _blackscreen_counter: int = 0
     _reset_after_this_iteration: bool = False
     _splits_profile: Final[SplitsProfile]
+    _key_press_listener : Final[KeyboardListener]
 
     def __init__(self, _splits_profile: SplitsProfile):
         super(ScreenWatchWorker, self).__init__()
         self._splits_profile = _splits_profile
+        self._key_press_listener = KeyboardListener(on_press=self.on_key_press)
 
     def get_splits_profile(self):
         return self._splits_profile
@@ -55,37 +57,33 @@ class ScreenWatchWorker(QObject):
         print("Worker unpaused.")
         self._currently_paused = False
 
-    def finish(self):
-        self._finished = True
+    def on_key_press(self, key):
+        if repr(key) == repr(Config.decrement_key):
+            self._blackscreen_counter -= 1
+            print("Blackscreen counter was decremented")
+            print("New Blackscreen Count: " + str(self._blackscreen_counter))
+            self.blackscreen_counter_updated.emit(self._blackscreen_counter)
+            time.sleep(Config.after_key_press_delay)
+        elif repr(key) == repr(Config.increment_key):
+            self._blackscreen_counter += 1
+            print("Blackscreen counter was incremented")
+            print("New Blackscreen Count: " + str(self._blackscreen_counter))
+            self.blackscreen_counter_updated.emit(self._blackscreen_counter)
+            time.sleep(Config.after_key_press_delay)
+        elif repr(key) == repr(Config.reset_key):
+            self._reset_after_this_iteration = True
+            print("Reset!")
+            print("Wait for splitter to restart...")
+            time.sleep(Config.after_key_press_delay)
+        elif repr(key) == repr(Config.pause_key):
+            self.pause_status_updated.emit()
+            time.sleep(Config.after_key_press_delay)
 
     def run(self):
-        def on_key_press(key):
-            if repr(key) == repr(Config.decrement_key):
-                self._blackscreen_counter -= 1
-                print("Blackscreen counter was decremented")
-                print("New Blackscreen Count: " + str(self._blackscreen_counter))
-                self.blackscreen_counter_updated.emit(self._blackscreen_counter)
-                time.sleep(Config.after_key_press_delay)
-            elif repr(key) == repr(Config.increment_key):
-                self._blackscreen_counter += 1
-                print("Blackscreen counter was incremented")
-                print("New Blackscreen Count: " + str(self._blackscreen_counter))
-                self.blackscreen_counter_updated.emit(self._blackscreen_counter)
-                time.sleep(Config.after_key_press_delay)
-            elif repr(key) == repr(Config.reset_key):
-                self._reset_after_this_iteration = True
-                print("Reset!")
-                print("Wait for splitter to restart...")
-                time.sleep(Config.after_key_press_delay)
-            elif repr(key) == repr(Config.pause_key):
-                self.pause_status_updated.emit(self._currently_paused)
-                time.sleep(Config.after_key_press_delay)
-
         print("Starting splitter worker for profile " + self._splits_profile.name)
 
         # Enable Keys (Decrement, Increment, Reset, Pause)
-        key_press_listener = KeyboardListener(on_press=on_key_press)
-        key_press_listener.start()
+        self._key_press_listener.start()
 
         # Main loop
         # NOTE: this tool is HEAVILY inspired by this video by Code Bullet: https://www.youtube.com/watch?v=wHRubMACen0
@@ -125,4 +123,7 @@ class ScreenWatchWorker(QObject):
                 self._reset_after_this_iteration = False
                 print("Splitter reset!")
 
-    print("Worker stopped.")
+    def finish(self):
+        print("Worker stopped.")
+        self._key_press_listener.stop()
+        self._finished = True
