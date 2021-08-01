@@ -1,3 +1,5 @@
+"""(GUI) Graphical Settings Menu for setting coordinates for area to observe and various other config parameters"""
+
 import math
 
 from PIL.Image import Image

@@ -1,7 +1,18 @@
+"""Contains class representation of splits files and methods surrounding it"""
+
 import os
 
 
 def load_from_file(path: str):
+    """
+    Read content of splits file and load them into splits profile object.
+    Each valid (non-comment) line in the file is turned into an element of the splits list in the generated splits profile object.
+
+    If the path is invalid, the splits profile turns out empty.
+
+    :param path: (str) file path to splits file
+    :return: (SplitsProfile) object representation of read in splits file
+    """
     sp = SplitsProfile()
     sp.name = os.path.basename(path)
 
@@ -15,7 +26,9 @@ def load_from_file(path: str):
 
 
 class SplitsProfile:
+    """Class representation of splits file"""
     def __init__(self):
         self.name: str = "Unnamed Profile"
-        # Blackscreen count values at which to split
+        """Name of the splits profile"""
         self.splits = []
+        """List of all blackscreen count values where an automatic split is supposed to happen"""

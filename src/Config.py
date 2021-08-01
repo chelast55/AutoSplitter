@@ -9,7 +9,7 @@ from pynput.keyboard import Key, KeyCode
 
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
 video_preview_coords = []
-"""Corners of stream preview window"""
+"""Corners of area of the screen the program observes for blackscreens"""
 split_key: Key = None
 """Key automatically pressed when valid blackscreen is detected"""
 pause_key: Key = None
@@ -93,7 +93,7 @@ def restore_defaults():
     blackscreen_threshold = 9
     after_split_delay = 7
     max_capture_rate = 60
-    after_key_press_delay = 3
+    after_key_press_delay = 1
     automatic_threshold_overhead = 3
 
 
