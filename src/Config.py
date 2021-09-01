@@ -4,6 +4,7 @@ Stores configuration parameters internally and publicly accessible.
 """
 
 import os.path
+import json
 
 from pynput.keyboard import Key, KeyCode
 
@@ -63,21 +64,20 @@ def read_config_from_file():
     global split_key, pause_key, reset_key, decrement_key, increment_key, blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
     global path_to_current_splits_profile
-    with open("config.cfg", 'r') as config_file:
-        print("Loading config.")
-        settings = config_file.readlines()
-        video_preview_coords = eval(settings[0])
-        split_key = key_str_to_obj(settings[1])
-        pause_key = key_str_to_obj(settings[2])
-        reset_key = key_str_to_obj(settings[3])
-        decrement_key = key_str_to_obj(settings[4])
-        increment_key = key_str_to_obj(settings[5])
-        blackscreen_threshold = eval(settings[6])
-        after_split_delay = eval(settings[7])
-        max_capture_rate = eval(settings[8])
-        after_key_press_delay = eval(settings[9])
-        automatic_threshold_overhead = eval(settings[10])
-        path_to_current_splits_profile = settings[11].split('\n')[0]
+    with open("config.json", 'r') as config_file:
+        settings = json.load(config_file).get("global")[0]
+        video_preview_coords = settings.get("video_preview_coords")
+        split_key = key_str_to_obj(settings.get("split_key"))
+        pause_key = key_str_to_obj(settings.get("pause_key"))
+        reset_key = key_str_to_obj(settings.get("reset_key"))
+        decrement_key = key_str_to_obj(settings.get("decrement_key"))
+        increment_key = key_str_to_obj(settings.get("increment_key"))
+        blackscreen_threshold = settings.get("blackscreen_threshold")
+        after_split_delay = settings.get("after_split_delay")
+        max_capture_rate = settings.get("max_capture_rate")
+        after_key_press_delay = settings.get("after_key_press_delay")
+        automatic_threshold_overhead = settings.get("automatic_threshold_overhead")
+        path_to_current_splits_profile = settings.get("path_to_current_splits_profile")
 
 
 def restore_defaults():
@@ -110,16 +110,19 @@ def write_config_to_file():
 
     Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
     """
-    with open("config.cfg", 'w') as config_file:
-        config_file.write(repr(video_preview_coords) + "\n")
-        config_file.write(repr(split_key) + "\n")
-        config_file.write(repr(pause_key) + "\n")
-        config_file.write(repr(reset_key) + "\n")
-        config_file.write(repr(decrement_key) + "\n")
-        config_file.write(repr(increment_key) + "\n")
-        config_file.write(repr(blackscreen_threshold) + "\n")
-        config_file.write(repr(after_split_delay) + "\n")
-        config_file.write(repr(max_capture_rate) + "\n")
-        config_file.write(repr(after_key_press_delay) + "\n")
-        config_file.write(repr(automatic_threshold_overhead) + "\n")
-        config_file.write(path_to_current_splits_profile + "\n")
+    with open("config.json", 'w') as config_file:
+        settings = {"global": []}
+        settings["global"].append({
+            "video_preview_coords": video_preview_coords,
+            "split_key": repr(split_key),
+            "pause_key": repr(pause_key),
+            "reset_key": repr(reset_key),
+            "decrement_key": repr(decrement_key),
+            "increment_key": repr(increment_key),
+            "blackscreen_threshold": blackscreen_threshold,
+            "after_split_delay": after_split_delay,
+            "max_capture_rate": max_capture_rate,
+            "after_key_press_delay": after_key_press_delay,
+            "automatic_threshold_overhead": automatic_threshold_overhead,
+            "path_to_current_splits_profile": path_to_current_splits_profile})
+        json.dump(settings, config_file, indent=4)
