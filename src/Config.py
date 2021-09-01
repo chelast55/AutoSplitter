@@ -1,5 +1,5 @@
 """
-Handles reading from and writing to the config file (config.cfg).
+Handles reading from and writing to the config file (config.json).
 Stores configuration parameters internally and publicly accessible.
 """
 
@@ -56,7 +56,7 @@ def key_str_to_obj(s):
 
 def read_config_from_file():
     """
-    Read all config parameters from file (config.cfg) and store them internally.
+    Read all config parameters from file (config.json) and store them internally.
 
     Whenever a new config paramter is introduced, a new line for it should be added to the end of this method.
     """
@@ -82,7 +82,7 @@ def read_config_from_file():
 
 def restore_defaults():
     """
-    Overwrite currently stored config parameters with their default values without updating config.cfg
+    Overwrite currently stored config parameters with their default values without updating config.json
 
     This method serves as baseline for what is considered "default".
     """
@@ -98,7 +98,7 @@ def restore_defaults():
 
 
 # Executed when importing
-if os.path.isfile("config.cfg"):
+if os.path.isfile("config.json"):
     read_config_from_file()
 else:
     restore_defaults()
@@ -106,7 +106,7 @@ else:
 
 def write_config_to_file():
     """
-    Write all internally stored config parameters to file (config.cfg).
+    Write all internally stored config parameters to file (config.json).
 
     Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
     """
