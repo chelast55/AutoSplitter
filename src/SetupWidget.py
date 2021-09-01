@@ -13,6 +13,7 @@ from src.KeyPickerWidget import KeyPickerWidget
 from src.QRectSelectGraphicsView import QRectSelectGraphicsView
 from src.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
+# TODO: Allow to somehow change between setting something globally and on a splits profile basis
 
 class SetupWidget(QWidget):
 

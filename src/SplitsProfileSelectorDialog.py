@@ -1,8 +1,14 @@
 from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
-from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit
+from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton
 import os
 from src import Config
+from src.NewFileDialog import NewFileDialog
 
+# TODO: Change simple text layout to editor with different fields for "title", "game", "author" etc.
+# TODO: Save splits to new .json format
+# TODO: Columns for split and split name
+# TODO: Add Save button instead of live editing splits
+# TODO: Consider sorting in directories automatically based on game tag
 
 class SplitsSyntaxHighlighter(QSyntaxHighlighter):
     def highlightBlock(self, text: str) -> None:
@@ -60,12 +66,20 @@ class SplitsProfileSelectorDialog(QDialog):
         self._te_split.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
         SplitsSyntaxHighlighter(self._te_split.document())
 
+        self._btn_new_file: QPushButton = QPushButton("New Splits File")
+        self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
+
         main_layout.addWidget(self._te_split)
         self.layout.addLayout(main_layout)
+        self.layout.addWidget(self._btn_new_file)
 
         # hide all columns except for "name"
         for i in range(1, self._directory_model.columnCount()):
             self._tv_directory.hideColumn(i)
+
+    def _btn_new_file_on_click(self):
+        new_file_dialog = NewFileDialog()
+        new_file_dialog.exec()
 
     def _tv_directory_on_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
