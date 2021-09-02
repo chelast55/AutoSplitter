@@ -9,6 +9,8 @@ from src.NewFileDialog import NewFileDialog
 # TODO: Columns for split and split name
 # TODO: Add Save button instead of live editing splits
 # TODO: Consider sorting in directories automatically based on game tag
+from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
+
 
 class SplitsSyntaxHighlighter(QSyntaxHighlighter):
     def highlightBlock(self, text: str) -> None:
@@ -62,14 +64,17 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory.clicked.connect(self._tv_directory_on_click)
         self._tv_directory.doubleClicked.connect(self._tv_directory_on_double_click)
 
-        self._te_split: QTextEdit = QTextEdit()
-        self._te_split.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
-        SplitsSyntaxHighlighter(self._te_split.document())
+        # self._te_split: QTextEdit = QTextEdit()
+        # self._te_split.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        # SplitsSyntaxHighlighter(self._te_split.document())
+        self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
+        self._splits_profile_editor.get_splits_edit().setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        SplitsSyntaxHighlighter(self._splits_profile_editor.get_splits_edit().document())
 
         self._btn_new_file: QPushButton = QPushButton("New Splits File")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
 
-        main_layout.addWidget(self._te_split)
+        main_layout.addWidget(self._splits_profile_editor)
         self.layout.addLayout(main_layout)
         self.layout.addWidget(self._btn_new_file)
 
@@ -86,7 +91,7 @@ class SplitsProfileSelectorDialog(QDialog):
         path = self._directory_model.filePath(selected_index)
 
         if os.path.exists(path) and os.path.isfile(path):
-            self._te_split.setText(open(path, "r").read())
+            self._splits_profile_editor.get_splits_edit().setText(open(path, "r").read())
 
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
