@@ -5,13 +5,15 @@ import math
 from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QLabel, QCheckBox, QPushButton, \
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QLabel, \
+    QCheckBox, QPushButton, \
     QGroupBox
 
 from src import Config
 from src.KeyPickerWidget import KeyPickerWidget
 from src.QRectSelectGraphicsView import QRectSelectGraphicsView
 from src.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
+
 
 # TODO: Allow to somehow change between setting something globally and on a splits profile basis
 

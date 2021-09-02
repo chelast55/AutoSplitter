@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>src package &#8212; AutoSplitter 0.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
@@ -31,14 +30,14 @@
 
           <div class="body" role="main">
             
-  <section id="src-package">
+  <div class="section" id="src-package">
 <h1>src package<a class="headerlink" href="#src-package" title="Permalink to this headline">¶</a></h1>
-<section id="submodules">
+<div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</section>
-<section id="module-src.Config">
+</div>
+<div class="section" id="module-src.Config">
 <span id="src-config-module"></span><h2>src.Config module<a class="headerlink" href="#module-src.Config" title="Permalink to this headline">¶</a></h2>
-<p>Handles reading from and writing to the config file (config.cfg).
+<p>Handles reading from and writing to the config file (config.json).
 Stores configuration parameters internally and publicly accessible.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.Config.key_str_to_obj">
@@ -59,21 +58,21 @@ because repr() of function keys (which intern are enum states) do not translate 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.Config.read_config_from_file">
 <span class="sig-prename descclassname"><span class="pre">src.Config.</span></span><span class="sig-name descname"><span class="pre">read_config_from_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Config.read_config_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read all config parameters from file (config.cfg) and store them internally.</p>
+<dd><p>Read all config parameters from file (config.json) and store them internally.</p>
 <p>Whenever a new config paramter is introduced, a new line for it should be added to the end of this method.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.Config.restore_defaults">
 <span class="sig-prename descclassname"><span class="pre">src.Config.</span></span><span class="sig-name descname"><span class="pre">restore_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Config.restore_defaults" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite currently stored config parameters with their default values without updating config.cfg</p>
+<dd><p>Overwrite currently stored config parameters with their default values without updating config.json</p>
 <p>This method serves as baseline for what is considered “default”.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.Config.write_config_to_file">
 <span class="sig-prename descclassname"><span class="pre">src.Config.</span></span><span class="sig-name descname"><span class="pre">write_config_to_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Config.write_config_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write all internally stored config parameters to file (config.cfg).</p>
+<dd><p>Write all internally stored config parameters to file (config.json).</p>
 <p>Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.</p>
 </dd></dl>
 
@@ -149,8 +148,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 <dd><p>Corners of area of the screen the program observes for blackscreens</p>
 </dd></dl>
 
-</section>
-<section id="module-src.ImageAnalyzer">
+</div>
+<div class="section" id="module-src.ImageAnalyzer">
 <span id="src-imageanalyzer-module"></span><h2>src.ImageAnalyzer module<a class="headerlink" href="#module-src.ImageAnalyzer" title="Permalink to this headline">¶</a></h2>
 <p>Contains method(s) for analyzing images.</p>
 <dl class="py function">
@@ -168,8 +167,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-src.KeyPickerWidget">
+</div>
+<div class="section" id="module-src.KeyPickerWidget">
 <span id="src-keypickerwidget-module"></span><h2>src.KeyPickerWidget module<a class="headerlink" href="#module-src.KeyPickerWidget" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.KeyPickerWidget.KeyPickerDialog">
@@ -203,8 +202,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.MainWidget">
+</div>
+<div class="section" id="module-src.MainWidget">
 <span id="src-mainwidget-module"></span><h2>src.MainWidget module<a class="headerlink" href="#module-src.MainWidget" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.MainWidget.MainWidget">
@@ -222,8 +221,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.QRectSelectGraphicsView">
+</div>
+<div class="section" id="module-src.QRectSelectGraphicsView">
 <span id="src-qrectselectgraphicsview-module"></span><h2>src.QRectSelectGraphicsView module<a class="headerlink" href="#module-src.QRectSelectGraphicsView" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.QRectSelectGraphicsView.QRectSelectGraphicsView">
@@ -276,8 +275,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.ScreenWatchWorker">
+</div>
+<div class="section" id="module-src.ScreenWatchWorker">
 <span id="src-screenwatchworker-module"></span><h2>src.ScreenWatchWorker module<a class="headerlink" href="#module-src.ScreenWatchWorker" title="Permalink to this headline">¶</a></h2>
 <p>Contains ScreenWatchWorker class</p>
 <dl class="py class">
@@ -355,8 +354,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.SettingsVideoPreviewWorker">
+</div>
+<div class="section" id="module-src.SettingsVideoPreviewWorker">
 <span id="src-settingsvideopreviewworker-module"></span><h2>src.SettingsVideoPreviewWorker module<a class="headerlink" href="#module-src.SettingsVideoPreviewWorker" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.SettingsVideoPreviewWorker.SettingsVideoPreviewWorker">
@@ -389,8 +388,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.SetupWidget">
+</div>
+<div class="section" id="module-src.SetupWidget">
 <span id="src-setupwidget-module"></span><h2>src.SetupWidget module<a class="headerlink" href="#module-src.SetupWidget" title="Permalink to this headline">¶</a></h2>
 <p>(GUI) Graphical Settings Menu for setting coordinates for area to observe and various other config parameters</p>
 <dl class="py class">
@@ -409,8 +408,8 @@ because repr() of function keys (which intern are enum states) do not translate 
 
 </dd></dl>
 
-</section>
-<section id="module-src.SplitsProfile">
+</div>
+<div class="section" id="module-src.SplitsProfile">
 <span id="src-splitsprofile-module"></span><h2>src.SplitsProfile module<a class="headerlink" href="#module-src.SplitsProfile" title="Permalink to this headline">¶</a></h2>
 <p>Contains class representation of splits files and methods surrounding it</p>
 <dl class="py class">
@@ -448,8 +447,8 @@ Each valid (non-comment) line in the file is turned into an element of the split
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-src.SplitsProfileSelectorDialog">
+</div>
+<div class="section" id="module-src.SplitsProfileSelectorDialog">
 <span id="src-splitsprofileselectordialog-module"></span><h2>src.SplitsProfileSelectorDialog module<a class="headerlink" href="#module-src.SplitsProfileSelectorDialog" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.SplitsProfileSelectorDialog.SplitsProfileSelectorDialog">
@@ -478,8 +477,8 @@ Each valid (non-comment) line in the file is turned into an element of the split
 
 </dd></dl>
 
-</section>
-<section id="module-src.StringHelper">
+</div>
+<div class="section" id="module-src.StringHelper">
 <span id="src-stringhelper-module"></span><h2>src.StringHelper module<a class="headerlink" href="#module-src.StringHelper" title="Permalink to this headline">¶</a></h2>
 <p>Helper class with methods for (re)formatting strings</p>
 <dl class="py function">
@@ -502,11 +501,11 @@ Each valid (non-comment) line in the file is turned into an element of the split
 <dd><p>For reformatting string representations of certain key codes deemed unclear for the user to somethign more readable.</p>
 </dd></dl>
 
-</section>
-<section id="module-src">
+</div>
+<div class="section" id="module-src">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src" title="Permalink to this headline">¶</a></h2>
-</section>
-</section>
+</div>
+</div>
 
 
           </div>

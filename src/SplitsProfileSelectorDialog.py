@@ -1,13 +1,15 @@
+"""(GUI) Graphical Menu for selecting, creating and editing splits profiles."""
+
 from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
 from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton
 import os
 from src import Config
 from src.NewFileDialog import NewFileDialog
 
-# TODO: Change simple text layout to editor with different fields for "title", "game", "author" etc.
 # TODO: Save splits to new .json format
 # TODO: Columns for split and split name
 # TODO: Add Save button instead of live editing splits
+# TODO: Incorporate "creator comments" (maybe switch between splits and comment
 # TODO: Consider sorting in directories automatically based on game tag
 from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
 
@@ -49,10 +51,11 @@ class SplitsProfileSelectorDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.resize(700, 400)
+        self.setWindowTitle("Splits Profile")
+        self.resize(720, 480)
 
-        self.layout = QVBoxLayout(self)
-        main_layout = QHBoxLayout()
+        self.layout = QHBoxLayout(self)
+        main_layout = QVBoxLayout()
         self._tv_directory: QTreeView = QTreeView()
         main_layout.addWidget(self._tv_directory)
         # TODO: Find a more robust way to get the splits_profiles directory (seriously, do that!)
@@ -64,19 +67,20 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory.clicked.connect(self._tv_directory_on_click)
         self._tv_directory.doubleClicked.connect(self._tv_directory_on_double_click)
 
-        # self._te_split: QTextEdit = QTextEdit()
-        # self._te_split.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
-        # SplitsSyntaxHighlighter(self._te_split.document())
         self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
         self._splits_profile_editor.get_splits_edit().setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
         SplitsSyntaxHighlighter(self._splits_profile_editor.get_splits_edit().document())
 
-        self._btn_new_file: QPushButton = QPushButton("New Splits File")
+        self._btn_new_file: QPushButton = QPushButton("New Splits Profile")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
+        self._btn_save_file: QPushButton = QPushButton("Save Splits Profile")
 
-        main_layout.addWidget(self._splits_profile_editor)
+        file_button_layout = QHBoxLayout()
+        file_button_layout.addWidget(self._btn_new_file)
+        file_button_layout.addWidget(self._btn_save_file)
+        main_layout.addLayout(file_button_layout)
         self.layout.addLayout(main_layout)
-        self.layout.addWidget(self._btn_new_file)
+        self.layout.addWidget(self._splits_profile_editor)
 
         # hide all columns except for "name"
         for i in range(1, self._directory_model.columnCount()):
