@@ -108,7 +108,7 @@ def write_config_to_file():
     """
     Write all internally stored config parameters to file (config.json).
 
-    Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
+    Whenever a new config parameter is introduced, a new line for it should be added to the end of settings.
     """
     with open("config.json", 'w') as config_file:
         settings = {"global": []}

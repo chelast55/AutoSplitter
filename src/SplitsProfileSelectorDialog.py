@@ -5,13 +5,14 @@ from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog,
 import os
 from src import Config
 from src.NewFileDialog import NewFileDialog
+from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
+import json
 
 # TODO: Save splits to new .json format
 # TODO: Columns for split and split name
 # TODO: Add Save button instead of live editing splits
 # TODO: Incorporate "creator comments" (maybe switch between splits and comment
 # TODO: Consider sorting in directories automatically based on game tag
-from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
 
 
 class SplitsSyntaxHighlighter(QSyntaxHighlighter):
@@ -74,6 +75,7 @@ class SplitsProfileSelectorDialog(QDialog):
         self._btn_new_file: QPushButton = QPushButton("New Splits Profile")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
         self._btn_save_file: QPushButton = QPushButton("Save Splits Profile")
+        self._btn_save_file.clicked.connect(self._btn_save_file_on_click)
 
         file_button_layout = QHBoxLayout()
         file_button_layout.addWidget(self._btn_new_file)
@@ -89,6 +91,10 @@ class SplitsProfileSelectorDialog(QDialog):
     def _btn_new_file_on_click(self):
         new_file_dialog = NewFileDialog()
         new_file_dialog.exec()
+
+    def _btn_save_file_on_click(self):
+        # TODO: save contents of SplitsProfileEditorWidget to corresponding .json file
+        pass
 
     def _tv_directory_on_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
