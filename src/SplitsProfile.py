@@ -1,6 +1,7 @@
 """Contains class representation of splits files and methods surrounding it"""
-
+import json
 import os
+
 
 # TODO:  rework this to .json format
 
@@ -15,21 +16,36 @@ def load_from_file(path: str):
     :return: (SplitsProfile) object representation of read in splits file
     """
     sp = SplitsProfile()
-    sp.name = os.path.basename(path)
+    sp.name = os.path.basename(path)[:-5]
 
     if os.path.exists(path) and os.path.isfile(path):
         with open(path, 'r') as splits_file:
-            lines = splits_file.readlines()
+            file_content = json.load(splits_file)
+            lines = file_content.get(sp.name + "_splits")[0].get("splits")
             for line in lines:
-                if line != "" and line[0] != '#':
-                    sp.splits.append(int(line.split('#')[0]))
+                sp.splits.append((int(line[0]), str(line[1])))
     return sp
 
 
 class SplitsProfile:
     """Class representation of splits file"""
+
     def __init__(self):
         self.name: str = "Unnamed Profile"
         """Name of the splits profile"""
         self.splits = []
-        """List of all blackscreen count values where an automatic split is supposed to happen"""
+        """List of splits consisting of touples of (index, split name)"""
+
+    def get_split_indices(self):
+        """Get list of blackscreen count values where an automatic split is supposed to happen"""
+        indices = []
+        for split in self.splits:
+            indices.append(split[0])
+        return indices
+
+    def get_split_names(self):
+        """Get list of names of all valid blackscreen counts"""
+        names = []
+        for split in self.splits:
+            names.append(split[1])
+        return names

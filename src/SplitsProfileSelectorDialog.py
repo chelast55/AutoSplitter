@@ -11,7 +11,7 @@ import json
 # TODO: Save splits to new .json format
 # TODO: Columns for split and split name
 # TODO: Add Save button instead of live editing splits
-# TODO: Incorporate "creator comments" (maybe switch between splits and comment
+# TODO: Incorporate "creator comments" (maybe switch between splits and comment)
 # TODO: Consider sorting in directories automatically based on game tag
 
 
@@ -69,8 +69,8 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory.doubleClicked.connect(self._tv_directory_on_double_click)
 
         self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
-        self._splits_profile_editor.get_splits_edit().setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
-        SplitsSyntaxHighlighter(self._splits_profile_editor.get_splits_edit().document())
+        self._splits_profile_editor.te_splits.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        SplitsSyntaxHighlighter(self._splits_profile_editor.te_splits.document())
 
         self._btn_new_file: QPushButton = QPushButton("New Splits Profile")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
@@ -94,14 +94,38 @@ class SplitsProfileSelectorDialog(QDialog):
 
     def _btn_save_file_on_click(self):
         # TODO: save contents of SplitsProfileEditorWidget to corresponding .json file
+        # TODO: change to currently selected filepath or auto-sort to fitting filepath
+        profile_file_name = "yee"  # TODO: figure this out
+        with open(profile_file_name + ".json", 'w') as config_file:
+            settings = {profile_file_name + "_splits": [], profile_file_name + "_settings_override": []}
+            settings[profile_file_name + "_splits"].append({
+                "game": self._splits_profile_editor.get_game(),
+                "category": self._splits_profile_editor.get_category(),
+                "author": self._splits_profile_editor.get_author(),
+                "video": self._splits_profile_editor.get_video(),
+                "comment": "",  # TODO: Add when comment feature is implemented in EditorWidget
+                "splits": [(1, "very funny split name"),
+                           (3, "next split has no name"),
+                           (5, "")]})  # TODO: figure out how to do it properly
+            json.dump(settings, config_file, indent=4)
         pass
 
     def _tv_directory_on_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
         path = self._directory_model.filePath(selected_index)
+        profile_name = os.path.basename(path)[:-5]
 
         if os.path.exists(path) and os.path.isfile(path):
-            self._splits_profile_editor.get_splits_edit().setText(open(path, "r").read())
+            with open(path, 'r') as splits_file:
+                file_content = json.load(splits_file)
+                self._splits_profile_editor.le_game.setText(file_content.get(profile_name + "_splits")[0].get("game"))
+                self._splits_profile_editor.le_category.setText(file_content.get(profile_name + "_splits")[0].get("category"))
+                self._splits_profile_editor.le_author.setText(file_content.get(profile_name + "_splits")[0].get("author"))
+                self._splits_profile_editor.le_video.setText(file_content.get(profile_name + "_splits")[0].get("video"))
+                # TODO: add part for comment when implemented
+                # TODO: change when split editor is properly implemented
+                splits_list = file_content.get(profile_name + "_splits")[0].get("splits")
+                self._splits_profile_editor.te_splits.setText(str(splits_list))
 
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]

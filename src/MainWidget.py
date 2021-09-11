@@ -71,7 +71,7 @@ class MainWidget(QWidget):
 
         s: str = "Blackscreen Counter: " + str(blackscreen_counter)
         s += "\n"
-        s += "Next Split: " + str(min(self._worker.get_splits_profile().splits,
+        s += "Next Split: " + str(min(self._worker.get_splits_profile().get_split_indices(),
                                   key=lambda x: 999 if x <= blackscreen_counter else x))
         self._lbl_detailed_status.setText(s)
 

@@ -10,7 +10,7 @@ For Speedrunning. Allows to split automatically when detecting blackscreen. Work
 
 ### Configure Splits
 Because this program works by virtually pressing your Split Key every time a "valid" blackscreen is detected, you somehow have to tell it, which blackscreens are considered "valid".
-Internally, the program counts how many blackscreens it encountered so far and only presses the Split Key if the current black screen count is listed in [example.txt](splits_profiles/example.txt).
+Internally, the program counts how many blackscreens it encountered so far and only presses the Split Key if the current black screen count is listed in [example.txt](splits_profiles/example.json).
 But before you start creating your own splits file, you should give [the split profile archive](https://github.com/chelast55/AutoSplitter/tree/develop/splits_profiles) a visit. There is a certain possibility that someone already submitted a split file for the exact route you're planning to do.
 if this is not the case, enter your valid blackscreen count values one per line into a text file in the following format:
 ```
