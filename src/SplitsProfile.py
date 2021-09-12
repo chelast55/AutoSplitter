@@ -23,7 +23,7 @@ def load_from_file(path: str):
             file_content = json.load(splits_file)
             lines = file_content.get(sp.name + "_splits")[0].get("splits")
             for line in lines:
-                sp.splits.append((int(line[0]), str(line[1])))
+                sp.splits[int(line[0])] = str(line[1])
     return sp
 
 
@@ -33,19 +33,26 @@ class SplitsProfile:
     def __init__(self):
         self.name: str = "Unnamed Profile"
         """Name of the splits profile"""
-        self.splits = []
+        self.splits = {}
         """List of splits consisting of touples of (index, split name)"""
 
     def get_split_indices(self):
-        """Get list of blackscreen count values where an automatic split is supposed to happen"""
+        """:return: Get list of blackscreen count values where an automatic split is supposed to happen"""
         indices = []
         for split in self.splits:
-            indices.append(split[0])
+            indices.append(split)
         return indices
 
     def get_split_names(self):
-        """Get list of names of all valid blackscreen counts"""
+        """:return: Get list of names of all valid blackscreen counts"""
         names = []
         for split in self.splits:
-            names.append(split[1])
+            names.append(self.splits.get(split))
         return names
+
+    def name_of_split(self, c: int):
+        """
+        :param c: (int) blackscreen count of split
+        :return: name of split corresponding to c
+        """
+        return self.splits.get(c)

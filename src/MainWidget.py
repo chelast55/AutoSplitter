@@ -69,10 +69,17 @@ class MainWidget(QWidget):
             self._lbl_detailed_status.setText("-")
             return
 
+        # figure out blackscreen count of next split
+        next_split_index = blackscreen_counter + 1
+        final_split_index = max(self._worker.get_splits_profile().get_split_indices())
+        while (next_split_index <= final_split_index) and (next_split_index not in self._worker.get_splits_profile().splits):
+            next_split_index += 1
+
         s: str = "Blackscreen Counter: " + str(blackscreen_counter)
         s += "\n"
-        s += "Next Split: " + str(min(self._worker.get_splits_profile().get_split_indices(),
-                                  key=lambda x: 999 if x <= blackscreen_counter else x))
+        s += "Next Split: " + str(min(next_split_index, final_split_index))
+        s += " - "
+        s += self._worker.get_splits_profile().name_of_split(min(next_split_index, final_split_index))
         self._lbl_detailed_status.setText(s)
 
     def _worker_on_pause_status_updated(self):
