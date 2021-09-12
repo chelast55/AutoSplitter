@@ -103,7 +103,7 @@ class SplitsProfileSelectorDialog(QDialog):
                 "category": self._splits_profile_editor.get_category(),
                 "author": self._splits_profile_editor.get_author(),
                 "video": self._splits_profile_editor.get_video(),
-                "comment": "",  # TODO: Add when comment feature is implemented in EditorWidget
+                "comment": self._splits_profile_editor.get_comment(),
                 "splits": [(1, "very funny split name"),
                            (3, "next split has no name"),
                            (5, "")]})  # TODO: figure out how to do it properly
@@ -122,7 +122,7 @@ class SplitsProfileSelectorDialog(QDialog):
                 self._splits_profile_editor.le_category.setText(file_content.get(profile_name + "_splits")[0].get("category"))
                 self._splits_profile_editor.le_author.setText(file_content.get(profile_name + "_splits")[0].get("author"))
                 self._splits_profile_editor.le_video.setText(file_content.get(profile_name + "_splits")[0].get("video"))
-                # TODO: add part for comment when implemented
+                self._splits_profile_editor.te_comment.setText(file_content.get(profile_name + "_splits")[0].get("comment"))
                 # TODO: change when split editor is properly implemented
                 splits_list = file_content.get(profile_name + "_splits")[0].get("splits")
                 self._splits_profile_editor.te_splits.setText(str(splits_list))

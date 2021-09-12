@@ -3,8 +3,6 @@ import json
 import os
 
 
-# TODO:  rework this to .json format
-
 def load_from_file(path: str):
     """
     Read content of splits file and load them into splits profile object.
