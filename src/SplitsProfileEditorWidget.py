@@ -1,8 +1,8 @@
 """(GUI) Graphical Menu for editing splits files. It has separate sections for editing metadata (game, category,
 author) and splits with split names. """
-
+from PySide6.QtSql import QSqlTableModel
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QSizePolicy, QLayout, \
-    QFormLayout, QPushButton
+    QFormLayout, QPushButton, QTableWidget, QTableWidgetItem, QAbstractScrollArea
 
 
 class SplitsProfileEditorWidget(QWidget):
@@ -15,8 +15,16 @@ class SplitsProfileEditorWidget(QWidget):
         self.le_author: QLineEdit = QLineEdit()
         self.le_video: QLineEdit = QLineEdit()
         self._btn_switch: QPushButton = QPushButton("Edit Comment")
-        self.te_splits: QTextEdit = QTextEdit()
-        self.te_splits.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+        self.tb_splits: QTableWidget = QTableWidget()
+        self.tb_splits.setAlternatingRowColors(True)
+        self.tb_splits.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+        self.tb_splits.setColumnCount(2)
+        self.tb_splits.setRowCount(5)
+        self.tb_splits.setHorizontalHeaderItem(0, QTableWidgetItem("split"))
+        self.tb_splits.setHorizontalHeaderItem(1, QTableWidgetItem("name"))
+        self.tb_splits.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.tb_splits.resizeColumnToContents(0)
+        self.tb_splits.horizontalHeader().setStretchLastSection(True)
         self.te_comment: QTextEdit = QTextEdit()
         self.te_comment.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
 
@@ -28,20 +36,20 @@ class SplitsProfileEditorWidget(QWidget):
         items_layout.addRow("Video:", self.le_video)
         self.layout.addLayout(items_layout)
         self.layout.addWidget(self._btn_switch)
-        self.layout.addWidget(self.te_splits)
+        self.layout.addWidget(self.tb_splits)
         self.layout.addWidget(self.te_comment)
         self.te_comment.setVisible(False)
 
         self._btn_switch.clicked.connect(self._btn_on_click_switch)
 
     def _btn_on_click_switch(self):
-        if self.te_splits.isVisible():
-            self.te_splits.setVisible(False)
+        if self.tb_splits.isVisible():
+            self.tb_splits.setVisible(False)
             self.te_comment.setVisible(True)
             self._btn_switch.setText("Edit Splits")
         else:
             self.te_comment.setVisible(False)
-            self.te_splits.setVisible(True)
+            self.tb_splits.setVisible(True)
             self._btn_switch.setText("Edit Comment")
 
     def get_game(self):

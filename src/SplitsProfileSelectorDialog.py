@@ -1,12 +1,14 @@
 """(GUI) Graphical Menu for selecting, creating and editing splits profiles."""
 
 from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
-from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton
+from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton, \
+    QTableWidgetItem
 import os
 from src import Config
 from src.NewFileDialog import NewFileDialog
 from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
 import json
+from pynput.keyboard import Listener as KeyboardListener
 
 # TODO: Save splits to new .json format
 # TODO: Columns for split and split name
@@ -67,10 +69,12 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory.setRootIndex(self._directory_model.index(splits_profiles_dir))
         self._tv_directory.clicked.connect(self._tv_directory_on_click)
         self._tv_directory.doubleClicked.connect(self._tv_directory_on_double_click)
+        self._table_resize_listener = KeyboardListener(on_press=self._on_table_resize_trigger)
+        self._table_resize_listener.start()
 
         self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
-        self._splits_profile_editor.te_splits.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
-        SplitsSyntaxHighlighter(self._splits_profile_editor.te_splits.document())
+        # self._splits_profile_editor.te_splits.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        # SplitsSyntaxHighlighter(self._splits_profile_editor.te_splits.document())
 
         self._btn_new_file: QPushButton = QPushButton("New Splits Profile")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
@@ -93,9 +97,13 @@ class SplitsProfileSelectorDialog(QDialog):
         new_file_dialog.exec()
 
     def _btn_save_file_on_click(self):
-        # TODO: save contents of SplitsProfileEditorWidget to corresponding .json file
         # TODO: change to currently selected filepath or auto-sort to fitting filepath
         profile_file_name = "yee"  # TODO: figure this out
+        splits_list = []
+        for i in range(0, self._splits_profile_editor.tb_splits.rowCount()):
+            splits_list.append(
+                (self._splits_profile_editor.tb_splits.item(i, 0).text(),
+                 self._splits_profile_editor.tb_splits.item(i, 1).text()))
         with open(profile_file_name + ".json", 'w') as config_file:
             settings = {profile_file_name + "_splits": [], profile_file_name + "_settings_override": []}
             settings[profile_file_name + "_splits"].append({
@@ -104,9 +112,7 @@ class SplitsProfileSelectorDialog(QDialog):
                 "author": self._splits_profile_editor.get_author(),
                 "video": self._splits_profile_editor.get_video(),
                 "comment": self._splits_profile_editor.get_comment(),
-                "splits": [(1, "very funny split name"),
-                           (3, "next split has no name"),
-                           (5, "")]})  # TODO: figure out how to do it properly
+                "splits": splits_list})
             json.dump(settings, config_file, indent=4)
         pass
 
@@ -123,9 +129,11 @@ class SplitsProfileSelectorDialog(QDialog):
                 self._splits_profile_editor.le_author.setText(file_content.get(profile_name + "_splits")[0].get("author"))
                 self._splits_profile_editor.le_video.setText(file_content.get(profile_name + "_splits")[0].get("video"))
                 self._splits_profile_editor.te_comment.setText(file_content.get(profile_name + "_splits")[0].get("comment"))
-                # TODO: change when split editor is properly implemented
                 splits_list = file_content.get(profile_name + "_splits")[0].get("splits")
-                self._splits_profile_editor.te_splits.setText(str(splits_list))
+                self._splits_profile_editor.tb_splits.setRowCount(len(splits_list))
+                for i in range(0, len(splits_list)):
+                    self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
+                    self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
 
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
@@ -135,3 +143,6 @@ class SplitsProfileSelectorDialog(QDialog):
             Config.path_to_current_splits_profile = "splits_profiles/" + path.split("/splits_profiles/")[1]
             Config.write_config_to_file()
             self.close()
+
+    def _on_table_resize_trigger(self):
+        pass
