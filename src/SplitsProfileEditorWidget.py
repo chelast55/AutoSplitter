@@ -1,7 +1,7 @@
 """(GUI) Graphical Menu for editing splits files. It has separate sections for editing metadata (game, category,
 author) and splits with split names. """
-from PySide6.QtSql import QSqlTableModel
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QSizePolicy, QLayout, \
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QTextEdit, QSizePolicy, \
     QFormLayout, QPushButton, QTableWidget, QTableWidgetItem, QAbstractScrollArea
 
 
@@ -41,6 +41,7 @@ class SplitsProfileEditorWidget(QWidget):
         self.te_comment.setVisible(False)
 
         self._btn_switch.clicked.connect(self._btn_on_click_switch)
+        self._btn_switch.setFocusPolicy(Qt.NoFocus)  # for better table editing
 
     def _btn_on_click_switch(self):
         if self.tb_splits.isVisible():
