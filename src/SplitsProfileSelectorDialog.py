@@ -155,23 +155,24 @@ class SplitsProfileSelectorDialog(QDialog):
             self.close()
 
     def _on_table_resize_trigger(self, key: Key):
-        if key == Key.tab and not self._shift_held:  # add new row at end
-            if (self._splits_profile_editor.tb_splits.currentRow() == (self._splits_profile_editor.tb_splits.rowCount() - 1)) \
-                    and (self._splits_profile_editor.tb_splits.currentColumn() == 1):
-                self._splits_profile_editor.tb_splits.insertRow(self._splits_profile_editor.tb_splits.rowCount())
-        elif key == Key.enter:  # add new row below currently selected row
-            self._splits_profile_editor.tb_splits.insertRow(self._splits_profile_editor.tb_splits.currentRow() + 1)
-            self._splits_profile_editor.tb_splits.selectRow(self._splits_profile_editor.tb_splits.currentRow() + 1)
-        elif key == Key.backspace or key == Key.delete:  # delete empty row
-            current_row_index = self._splits_profile_editor.tb_splits.currentRow()
-            if (self._splits_profile_editor.tb_splits.item(current_row_index, 0) is None
-                or self._splits_profile_editor.tb_splits.item(current_row_index, 0).text() == "") \
-                    and (self._splits_profile_editor.tb_splits.item(current_row_index, 1) is None
-                         or self._splits_profile_editor.tb_splits.item(current_row_index, 1).text() == ""):
-                self._splits_profile_editor.tb_splits.removeRow(current_row_index)
-                if self._splits_profile_editor.tb_splits.rowCount() == 0:
-                    self._splits_profile_editor.tb_splits.setRowCount(1)
-                self._splits_profile_editor.tb_splits.selectRow(max((current_row_index - 1), 1))
+        if self.isActiveWindow():
+            if key == Key.tab and not self._shift_held:  # add new row at end
+                if (self._splits_profile_editor.tb_splits.currentRow() == (self._splits_profile_editor.tb_splits.rowCount() - 1)) \
+                        and (self._splits_profile_editor.tb_splits.currentColumn() == 1):
+                    self._splits_profile_editor.tb_splits.insertRow(self._splits_profile_editor.tb_splits.rowCount())
+            elif key == Key.enter:  # add new row below currently selected row
+                self._splits_profile_editor.tb_splits.insertRow(self._splits_profile_editor.tb_splits.currentRow() + 1)
+                self._splits_profile_editor.tb_splits.selectRow(self._splits_profile_editor.tb_splits.currentRow() + 1)
+            elif key == Key.backspace or key == Key.delete:  # delete empty row
+                current_row_index = self._splits_profile_editor.tb_splits.currentRow()
+                if (self._splits_profile_editor.tb_splits.item(current_row_index, 0) is None
+                    or self._splits_profile_editor.tb_splits.item(current_row_index, 0).text() == "") \
+                        and (self._splits_profile_editor.tb_splits.item(current_row_index, 1) is None
+                             or self._splits_profile_editor.tb_splits.item(current_row_index, 1).text() == ""):
+                    self._splits_profile_editor.tb_splits.removeRow(current_row_index)
+                    if self._splits_profile_editor.tb_splits.rowCount() == 0:
+                        self._splits_profile_editor.tb_splits.setRowCount(1)
+                    self._splits_profile_editor.tb_splits.selectRow(max((current_row_index - 1), 1))
 
     def _on_held_toggle_press(self, key: Key):
         if key == Key.shift or key == Key.shift_r:

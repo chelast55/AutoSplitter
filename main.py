@@ -11,6 +11,7 @@ from pynput.mouse import Controller as MouseController
 mouse = MouseController()
 keyboard = KeyboardController()
 
+
 def on_press_set_split_key(key: Key):
     Config.split_key = key
     print(repr(key) + " was set as your Split key!")
