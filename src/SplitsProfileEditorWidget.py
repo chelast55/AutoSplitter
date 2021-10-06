@@ -28,6 +28,8 @@ class SplitsProfileEditorWidget(QWidget):
         self.te_comment: QTextEdit = QTextEdit()
         self.te_comment.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
 
+        self.opened_file_path: str = ""
+
         self.layout = QVBoxLayout(self)
         items_layout = QFormLayout()
         items_layout.addRow("Game: ", self.le_game)

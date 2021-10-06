@@ -59,11 +59,12 @@ class SplitsProfileSelectorDialog(QDialog):
         self._tv_directory: QTreeView = QTreeView()
         main_layout.addWidget(self._tv_directory)
         # TODO: Find a more robust way to get the splits_profiles directory (seriously, do that!)
-        splits_profiles_dir: str = os.path.join(os.getcwd(), "splits_profiles")
+        self._splits_profiles_dir: str = os.path.dirname(os.path.abspath(__file__))[:-3] + "splits_profiles"
+
         self._directory_model: QFileSystemModel = QFileSystemModel()
-        self._directory_model.setRootPath(splits_profiles_dir)
+        self._directory_model.setRootPath(self._splits_profiles_dir)
         self._tv_directory.setModel(self._directory_model)
-        self._tv_directory.setRootIndex(self._directory_model.index(splits_profiles_dir))
+        self._tv_directory.setRootIndex(self._directory_model.index(self._splits_profiles_dir))
         self._tv_directory.clicked.connect(self._tv_directory_on_click)
         self._tv_directory.doubleClicked.connect(self._tv_directory_on_double_click)
 
@@ -75,8 +76,6 @@ class SplitsProfileSelectorDialog(QDialog):
         self._shift_held: bool = False
 
         self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
-        # self._splits_profile_editor.te_splits.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
-        # SplitsSyntaxHighlighter(self._splits_profile_editor.te_splits.document())
 
         self._btn_new_file: QPushButton = QPushButton("New Splits Profile")
         self._btn_new_file.clicked.connect(self._btn_new_file_on_click)
@@ -102,14 +101,13 @@ class SplitsProfileSelectorDialog(QDialog):
         new_file_dialog.exec()
 
     def _btn_save_file_on_click(self):
-        # TODO: change to currently selected filepath or auto-sort to fitting filepath
         profile_file_name = "yee"  # TODO: figure this out
         splits_list = []
         for i in range(0, self._splits_profile_editor.tb_splits.rowCount()):
             splits_list.append(
                 (self._splits_profile_editor.tb_splits.item(i, 0).text(),
                  self._splits_profile_editor.tb_splits.item(i, 1).text()))
-        with open(profile_file_name + ".json", 'w') as config_file:
+        with open(self._splits_profiles_dir + profile_file_name + ".json", 'w') as config_file:
             settings = {profile_file_name + "_splits": [], profile_file_name + "_settings_override": []}
             settings[profile_file_name + "_splits"].append({
                 "game": self._splits_profile_editor.get_game(),
@@ -127,27 +125,31 @@ class SplitsProfileSelectorDialog(QDialog):
         profile_name = os.path.basename(path)[:-5]
 
         if os.path.exists(path) and os.path.isfile(path):
-            with open(path, 'r') as splits_file:
-                file_content = json.load(splits_file)
-                self._splits_profile_editor.le_game.setText(file_content.get(profile_name + "_splits")[0].get("game"))
-                self._splits_profile_editor.le_category.setText(
-                    file_content.get(profile_name + "_splits")[0].get("category"))
-                self._splits_profile_editor.le_author.setText(
-                    file_content.get(profile_name + "_splits")[0].get("author"))
-                self._splits_profile_editor.le_video.setText(file_content.get(profile_name + "_splits")[0].get("video"))
-                self._splits_profile_editor.te_comment.setText(
-                    file_content.get(profile_name + "_splits")[0].get("comment"))
-                splits_list = file_content.get(profile_name + "_splits")[0].get("splits")
-                self._splits_profile_editor.tb_splits.setRowCount(len(splits_list))
-                for i in range(0, len(splits_list)):
-                    self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
-                    self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
+            try:
+                with open(path, 'r') as splits_file:
+                    file_content = json.load(splits_file)
+                    self._splits_profile_editor.le_game.setText(file_content.get(profile_name + "_splits")[0].get("game"))
+                    self._splits_profile_editor.le_category.setText(
+                        file_content.get(profile_name + "_splits")[0].get("category"))
+                    self._splits_profile_editor.le_author.setText(
+                        file_content.get(profile_name + "_splits")[0].get("author"))
+                    self._splits_profile_editor.le_video.setText(file_content.get(profile_name + "_splits")[0].get("video"))
+                    self._splits_profile_editor.te_comment.setText(
+                        file_content.get(profile_name + "_splits")[0].get("comment"))
+                    splits_list = file_content.get(profile_name + "_splits")[0].get("splits")
+                    self._splits_profile_editor.tb_splits.setRowCount(len(splits_list))
+                    for i in range(0, len(splits_list)):
+                        self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
+                        self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
+                self._splits_profile_editor.opened_file_path = path  # only executed when no prior .json errors occurred
+            except json.decoder.JSONDecodeError:
+                pass  # TODO: add error dialog similar to "Invalid splits file format. Could not load splits."
 
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
         path = self._directory_model.filePath(selected_index)
 
-        if os.path.exists(path) and os.path.isfile(path):
+        if os.path.exists(path) and os.path.isfile(path) and path == self._splits_profile_editor.opened_file_path:
             Config.path_to_current_splits_profile = "splits_profiles/" + path.split("/splits_profiles/")[1]
             Config.write_config_to_file()
             self._table_resize_listener.stop()
