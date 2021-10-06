@@ -120,7 +120,7 @@ def restore_defaults():
     blackscreen_threshold = 9
     after_split_delay = 7
     max_capture_rate = 60
-    after_key_press_delay = 1
+    after_key_press_delay = 0.2
     automatic_threshold_overhead = 3
 
 

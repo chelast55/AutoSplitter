@@ -6,8 +6,7 @@ from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QLabel, \
-    QCheckBox, QPushButton, \
-    QGroupBox
+    QCheckBox, QPushButton, QGroupBox, QDoubleSpinBox
 
 from src import Config
 from src.KeyPickerWidget import KeyPickerWidget
@@ -54,24 +53,26 @@ class SetupWidget(QWidget):
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
         self._btn_automatic_threshold: QPushButton = QPushButton("Start Automatic Threshold Detection")
         self._btn_automatic_threshold.setCheckable(True)
-        self._sb_blackscreen_threshold.setMinimum(0.0)
-        self._sb_blackscreen_threshold.setMaximum(255.0)
-        self._sb_after_split_delay: QSpinBox = QSpinBox()
-        self._sb_after_split_delay.setMinimum(0)
-        self._sb_after_split_delay.setMaximum(999)
+        self._sb_blackscreen_threshold.setMinimum(0)
+        self._sb_blackscreen_threshold.setMaximum(255)
+        self._dsb_after_split_delay: QDoubleSpinBox = QDoubleSpinBox()
+        self._dsb_after_split_delay.setDecimals(2)
+        self._dsb_after_split_delay.setMinimum(0)
+        self._dsb_after_split_delay.setMaximum(999)
         self._cb_advanced_settings: QCheckBox = QCheckBox()
         self._lbl_max_capture_rate: QLabel = QLabel()
         self._sb_max_capture_rate: QSpinBox = QSpinBox()
         self._sb_max_capture_rate.setMinimum(1)
         self._sb_max_capture_rate.setMaximum(999)
         self._lbl_after_key_press_delay: QLabel = QLabel()
-        self._sb_after_key_press_delay: QSpinBox = QSpinBox()
-        self._sb_after_key_press_delay.setMinimum(0)
-        self._sb_after_key_press_delay.setMaximum(999)
+        self._dsb_after_key_press_delay: QDoubleSpinBox = QDoubleSpinBox()
+        self._dsb_after_key_press_delay.setDecimals(2)
+        self._dsb_after_key_press_delay.setMinimum(0)
+        self._dsb_after_key_press_delay.setMaximum(999)
         self._lbl_automatic_threshold_overhead: QLabel = QLabel()
         self._sb_automatic_threshold_overhead: QSpinBox = QSpinBox()
         self._sb_automatic_threshold_overhead.setMinimum(0)
-        self._sb_automatic_threshold_overhead.setMaximum(999)
+        self._sb_automatic_threshold_overhead.setMaximum(255)
         self._lbl_info: QLabel = QLabel()
         self._lbl_info.setWordWrap(True)
         self._info_box: QVBoxLayout = QVBoxLayout()
@@ -85,12 +86,12 @@ class SetupWidget(QWidget):
         self._key_picker_decrement.set_key(Config.decrement_key)
         self._key_picker_increment.set_key(Config.increment_key)
         self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
-        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._dsb_after_split_delay.setValue(Config.after_split_delay)
         self._lbl_max_capture_rate.setText("Max Capture Rate (1/s):")
         self._sb_max_capture_rate.setValue(Config.max_capture_rate)
         self._lbl_after_key_press_delay.setText("After Key Press Delay (s):")
-        self._sb_after_key_press_delay.setValue(Config.after_key_press_delay)
-        self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (s):")
+        self._dsb_after_key_press_delay.setValue(Config.after_key_press_delay)
+        self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (0-255):")
         self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
 
         if len(Config.video_preview_coords) == 4:
@@ -114,10 +115,10 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow("Increment Key:", self._key_picker_increment)
         button_settings_layout.addRow("Blackscreen Threshold (0-255):", self._sb_blackscreen_threshold)
         button_settings_layout.addWidget(self._btn_automatic_threshold)
-        button_settings_layout.addRow("After Split Delay (s):", self._sb_after_split_delay)
+        button_settings_layout.addRow("After Split Delay (s):", self._dsb_after_split_delay)
         button_settings_layout.addRow("Show Advanced Settings", self._cb_advanced_settings)
         button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
-        button_settings_layout.addRow(self._lbl_after_key_press_delay, self._sb_after_key_press_delay)
+        button_settings_layout.addRow(self._lbl_after_key_press_delay, self._dsb_after_key_press_delay)
         button_settings_layout.addRow(self._lbl_automatic_threshold_overhead, self._sb_automatic_threshold_overhead)
         settings_and_info_layout.addLayout(button_settings_layout)
         settings_and_info_layout.addStretch()
@@ -127,7 +128,7 @@ class SetupWidget(QWidget):
         self._lbl_max_capture_rate.setVisible(False)
         self._sb_max_capture_rate.setVisible(False)
         self._lbl_after_key_press_delay.setVisible(False)
-        self._sb_after_key_press_delay.setVisible(False)
+        self._dsb_after_key_press_delay.setVisible(False)
         self._lbl_automatic_threshold_overhead.setVisible(False)
         self._sb_automatic_threshold_overhead.setVisible(False)
 
@@ -174,7 +175,7 @@ class SetupWidget(QWidget):
             self._lbl_info.setText("Maximum Avg. Gray Value the selected area can have to still be\nconsidered a "
                                    "\"blackscreen\"")
             self._append_automatic_instructions()
-        elif self._sb_after_split_delay.underMouse():
+        elif self._dsb_after_split_delay.underMouse():
             self._lbl_info.setText("Delay after a blackscreen was successfully detected to\nprevent multiple splits "
                                    "per blackscreen")
             self._append_automatic_instructions()
@@ -184,7 +185,7 @@ class SetupWidget(QWidget):
         elif self._sb_max_capture_rate.underMouse():
             self._lbl_info.setText("Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)")
             self._append_automatic_instructions()
-        elif self._sb_after_key_press_delay.underMouse():
+        elif self._dsb_after_key_press_delay.underMouse():
             self._lbl_info.setText("Delay after any key press to prevent multiple registrations")
             self._append_automatic_instructions()
         elif self._sb_automatic_threshold_overhead.underMouse():
@@ -212,9 +213,9 @@ class SetupWidget(QWidget):
     def _btn_restore_defaults_on_click(self):
         Config.restore_defaults()
         self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
-        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._dsb_after_split_delay.setValue(Config.after_split_delay)
         self._sb_max_capture_rate.setValue(Config.max_capture_rate)
-        self._sb_after_split_delay.setValue(Config.after_split_delay)
+        self._dsb_after_split_delay.setValue(Config.after_split_delay)
         self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
 
     def _btn_automatic_threshold_on_toggle(self):
@@ -232,7 +233,7 @@ class SetupWidget(QWidget):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
         self._sb_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
         self._lbl_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
-        self._sb_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._dsb_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
         self._lbl_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
         self._sb_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
 
@@ -243,10 +244,10 @@ class SetupWidget(QWidget):
         Config.decrement_key = self._key_picker_decrement.key
         Config.increment_key = self._key_picker_increment.key
         Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
-        Config.after_split_delay = self._sb_after_split_delay.value()
+        Config.after_split_delay = self._dsb_after_split_delay.value()
         Config.video_preview_coords = self._gv_preview_image.get_rect()
         Config.max_capture_rate = self._sb_max_capture_rate.value()
-        Config.after_key_press_delay = self._sb_after_key_press_delay.value()
+        Config.after_key_press_delay = self._dsb_after_key_press_delay.value()
         Config.automatic_threshold_overhead = self._sb_automatic_threshold_overhead.value()
         Config.write_config_to_file()
         self.close()
