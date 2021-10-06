@@ -69,6 +69,8 @@ class SplitsProfileSelectorDialog(QDialog):
 
         self._table_resize_listener = KeyboardListener(on_press=self._on_table_resize_trigger)
         self._table_resize_listener.start()
+        # self._hotkey_listener = KeyboardListener(on_press=self._on_hotkey_press)
+        # self._hotkey_listener.start()
         self._held_toggle_listener = KeyboardListener(on_press=self._on_held_toggle_press,
                                                       on_release=self._on_held_toggle_release)
         self._held_toggle_listener.start()
@@ -96,19 +98,29 @@ class SplitsProfileSelectorDialog(QDialog):
             self._tv_directory.hideColumn(i)
 
     def _btn_new_file_on_click(self):
-        new_file_dialog = NewFileDialog()
+        try:
+            selected_index = self._tv_directory.selectedIndexes()[0]
+            path = self._directory_model.filePath(selected_index)
+        except IndexError:
+            path = self._splits_profiles_dir
+
+        new_file_dialog = NewFileDialog(path)
         new_file_dialog.exec()
 
     def _btn_save_file_on_click(self):
-        profile_file_name = "yee"  # TODO: figure this out
+        selected_index = self._tv_directory.selectedIndexes()[0]
+        path = self._directory_model.filePath(selected_index)
+        profile_name = os.path.basename(path)[:-5]
         splits_list = []
+
         for i in range(0, self._splits_profile_editor.tb_splits.rowCount()):
             splits_list.append(
                 (self._splits_profile_editor.tb_splits.item(i, 0).text(),
                  self._splits_profile_editor.tb_splits.item(i, 1).text()))
-        with open(self._splits_profiles_dir + "\\" + profile_file_name + ".json", 'w') as config_file:
-            settings = {profile_file_name + "_splits": [], profile_file_name + "_settings_override": []}
-            settings[profile_file_name + "_splits"].append({
+        with open(self._splits_profiles_dir + "\\" + profile_name + ".json", 'w') as config_file:
+            settings = {profile_name + "_splits": [],
+                        profile_name + "_settings_override": []}
+            settings[profile_name + "_splits"].append({
                 "game": self._splits_profile_editor.get_game(),
                 "category": self._splits_profile_editor.get_category(),
                 "author": self._splits_profile_editor.get_author(),
@@ -180,6 +192,27 @@ class SplitsProfileSelectorDialog(QDialog):
                     if self._splits_profile_editor.tb_splits.rowCount() == 0:
                         self._splits_profile_editor.tb_splits.setRowCount(1)
                     self._splits_profile_editor.tb_splits.selectRow(max((current_row_index - 1), 1))
+
+    """
+    def _on_hotkey_press(self, key: Key):
+        if self.isActiveWindow():
+            if key == Key.ctrl_l or Key.ctrl_r:
+                self._hotkey_currently_pressed.add(key)
+            elif repr(key) == 'n' and \
+                    (Key.ctrl_l in self._hotkey_currently_pressed) or (Key.ctrl_r in self._hotkey_currently_pressed):
+                print("Yee")
+                self._new_file()
+            elif repr(key) == 's' and \
+                    (Key.ctrl_l in self._hotkey_currently_pressed) or (Key.ctrl_r in self._hotkey_currently_pressed):
+                self._save_file()
+                print("Yee")
+
+    def _on_hotkey_release(self, key: Key):
+        try:
+            self._hotkey_currently_pressed.remove(key)
+        except KeyError:
+            pass
+    """
 
     def _on_held_toggle_press(self, key: Key):
         if key == Key.shift or key == Key.shift_r:

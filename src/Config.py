@@ -92,7 +92,7 @@ def read_config_from_file():
             after_key_press_delay = settings.get("after_key_press_delay")
             automatic_threshold_overhead = settings.get("automatic_threshold_overhead")
             path_to_current_splits_profile = settings.get("path_to_current_splits_profile")
-    except json.decoder.JSONDecodeError:
+    except (json.decoder.JSONDecodeError, AttributeError):
         msg_splits_file_format_error: QMessageBox = QMessageBox()
         msg_splits_file_format_error.setIcon(QMessageBox.Critical)
         msg_splits_file_format_error.setWindowTitle("config format error")
