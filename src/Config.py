@@ -5,7 +5,9 @@ Stores configuration parameters internally and publicly accessible.
 
 import os.path
 import json
+import time
 
+from PySide6.QtWidgets import QMessageBox
 from pynput.keyboard import Key, KeyCode
 
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key
@@ -34,6 +36,9 @@ automatic_threshold_overhead: float
 path_to_current_splits_profile: str = ""
 """Path to the currently selected splits profile config file"""
 
+_config_file_path: str = os.path.dirname(os.path.abspath(__file__))[:-3] + "config.json"
+"""Path to global config file"""
+
 
 def key_str_to_obj(s):
     """
@@ -54,6 +59,14 @@ def key_str_to_obj(s):
         return eval(s)
 
 
+def delete_config_file():
+    """
+    Deletes config.json.
+    """
+    if os.path.exists(_config_file_path):
+        os.remove(_config_file_path)
+
+
 def read_config_from_file():
     """
     Read all config parameters from file (config.json) and store them internally.
@@ -64,20 +77,34 @@ def read_config_from_file():
     global split_key, pause_key, reset_key, decrement_key, increment_key, blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
     global path_to_current_splits_profile
-    with open("config.json", 'r') as config_file:
-        settings = json.load(config_file).get("global")[0]
-        video_preview_coords = settings.get("video_preview_coords")
-        split_key = key_str_to_obj(settings.get("split_key"))
-        pause_key = key_str_to_obj(settings.get("pause_key"))
-        reset_key = key_str_to_obj(settings.get("reset_key"))
-        decrement_key = key_str_to_obj(settings.get("decrement_key"))
-        increment_key = key_str_to_obj(settings.get("increment_key"))
-        blackscreen_threshold = settings.get("blackscreen_threshold")
-        after_split_delay = settings.get("after_split_delay")
-        max_capture_rate = settings.get("max_capture_rate")
-        after_key_press_delay = settings.get("after_key_press_delay")
-        automatic_threshold_overhead = settings.get("automatic_threshold_overhead")
-        path_to_current_splits_profile = settings.get("path_to_current_splits_profile")
+    try:
+        with open(_config_file_path, 'r') as config_file:
+            settings = json.load(config_file).get("global")[0]
+            video_preview_coords = settings.get("video_preview_coords")
+            split_key = key_str_to_obj(settings.get("split_key"))
+            pause_key = key_str_to_obj(settings.get("pause_key"))
+            reset_key = key_str_to_obj(settings.get("reset_key"))
+            decrement_key = key_str_to_obj(settings.get("decrement_key"))
+            increment_key = key_str_to_obj(settings.get("increment_key"))
+            blackscreen_threshold = settings.get("blackscreen_threshold")
+            after_split_delay = settings.get("after_split_delay")
+            max_capture_rate = settings.get("max_capture_rate")
+            after_key_press_delay = settings.get("after_key_press_delay")
+            automatic_threshold_overhead = settings.get("automatic_threshold_overhead")
+            path_to_current_splits_profile = settings.get("path_to_current_splits_profile")
+    except json.decoder.JSONDecodeError:
+        msg_splits_file_format_error: QMessageBox = QMessageBox()
+        msg_splits_file_format_error.setIcon(QMessageBox.Critical)
+        msg_splits_file_format_error.setWindowTitle("config format error")
+        msg_splits_file_format_error.setText("Could not load config because config.json is invalid.\nDo you want to "
+                                             "delete config.json?")
+        msg_splits_file_format_error.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg_splits_file_format_error.button(QMessageBox.Yes).clicked.connect(delete_config_file)
+        msg_splits_file_format_error.button(QMessageBox.No).clicked.connect(read_config_from_file)
+        msg_splits_file_format_error.exec()
+        while msg_splits_file_format_error.isVisible():
+            time.sleep(1)
+        restore_defaults()
 
 
 def restore_defaults():
@@ -98,7 +125,7 @@ def restore_defaults():
 
 
 # Executed when importing
-if os.path.isfile("config.json"):
+if os.path.isfile(_config_file_path):
     read_config_from_file()
 else:
     restore_defaults()
@@ -110,7 +137,7 @@ def write_config_to_file():
 
     Whenever a new config parameter is introduced, a new line for it should be added to the end of settings.
     """
-    with open("config.json", 'w') as config_file:
+    with open(_config_file_path, 'w') as config_file:
         settings = {"global": []}
         settings["global"].append({
             "video_preview_coords": video_preview_coords,

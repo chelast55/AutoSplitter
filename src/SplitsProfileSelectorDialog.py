@@ -2,7 +2,7 @@
 
 from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
 from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton, \
-    QTableWidgetItem
+    QTableWidgetItem, QMessageBox
 import os
 from src import Config
 from src.NewFileDialog import NewFileDialog
@@ -58,7 +58,6 @@ class SplitsProfileSelectorDialog(QDialog):
         main_layout = QVBoxLayout()
         self._tv_directory: QTreeView = QTreeView()
         main_layout.addWidget(self._tv_directory)
-        # TODO: Find a more robust way to get the splits_profiles directory (seriously, do that!)
         self._splits_profiles_dir: str = os.path.dirname(os.path.abspath(__file__))[:-3] + "splits_profiles"
 
         self._directory_model: QFileSystemModel = QFileSystemModel()
@@ -107,7 +106,7 @@ class SplitsProfileSelectorDialog(QDialog):
             splits_list.append(
                 (self._splits_profile_editor.tb_splits.item(i, 0).text(),
                  self._splits_profile_editor.tb_splits.item(i, 1).text()))
-        with open(self._splits_profiles_dir + profile_file_name + ".json", 'w') as config_file:
+        with open(self._splits_profiles_dir + "\\" + profile_file_name + ".json", 'w') as config_file:
             settings = {profile_file_name + "_splits": [], profile_file_name + "_settings_override": []}
             settings[profile_file_name + "_splits"].append({
                 "game": self._splits_profile_editor.get_game(),
@@ -143,7 +142,13 @@ class SplitsProfileSelectorDialog(QDialog):
                         self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
                 self._splits_profile_editor.opened_file_path = path  # only executed when no prior .json errors occurred
             except json.decoder.JSONDecodeError:
-                pass  # TODO: add error dialog similar to "Invalid splits file format. Could not load splits."
+                msg_splits_file_format_error: QMessageBox = QMessageBox()
+                msg_splits_file_format_error.setIcon(QMessageBox.Critical)
+                msg_splits_file_format_error.setWindowTitle("splits file format error")
+                msg_splits_file_format_error.setText("Selected file does not contain a valid splits profile. Could "
+                                                     "not load splits.")
+                msg_splits_file_format_error.setStandardButtons(QMessageBox.Ok)
+                msg_splits_file_format_error.exec()
 
     def _tv_directory_on_double_click(self):
         selected_index = self._tv_directory.selectedIndexes()[0]
