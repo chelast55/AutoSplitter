@@ -1,7 +1,7 @@
 """(GUI) Graphical Menu for selecting, creating and editing splits profiles."""
 
-from PySide6.QtGui import QFontDatabase, QSyntaxHighlighter, Qt, QTextCharFormat
-from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QTextEdit, QPushButton, \
+from PySide6.QtGui import QSyntaxHighlighter, Qt, QTextCharFormat, QShortcut, QKeySequence
+from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QPushButton, \
     QTableWidgetItem, QMessageBox
 import os
 from src import Config
@@ -69,8 +69,6 @@ class SplitsProfileSelectorDialog(QDialog):
 
         self._table_resize_listener = KeyboardListener(on_press=self._on_table_resize_trigger)
         self._table_resize_listener.start()
-        # self._hotkey_listener = KeyboardListener(on_press=self._on_hotkey_press)
-        # self._hotkey_listener.start()
         self._held_toggle_listener = KeyboardListener(on_press=self._on_held_toggle_press,
                                                       on_release=self._on_held_toggle_release)
         self._held_toggle_listener.start()
@@ -83,6 +81,11 @@ class SplitsProfileSelectorDialog(QDialog):
         self._btn_save_file: QPushButton = QPushButton("Save Splits Profile")
         self._btn_save_file.clicked.connect(self._btn_save_file_on_click)
 
+        self._shortcut_new: QShortcut = QShortcut(QKeySequence("Ctrl+N"), self)
+        self._shortcut_new.activated.connect(self._btn_new_file_on_click)
+        self._shortcut_save: QShortcut = QShortcut(QKeySequence("Ctrl+S"), self)
+        self._shortcut_save.activated.connect(self._btn_save_file_on_click)
+
         file_button_layout = QHBoxLayout()
         file_button_layout.addWidget(self._btn_new_file)
         file_button_layout.addWidget(self._btn_save_file)
@@ -91,7 +94,6 @@ class SplitsProfileSelectorDialog(QDialog):
         self.layout.addWidget(self._splits_profile_editor)
         self._btn_new_file.setFocusPolicy(Qt.NoFocus)  # for better table editing
         self._btn_save_file.setFocusPolicy(Qt.NoFocus)  # for better table editing
-        # TODO: add hotkeys for STRG+N and STRG+S (and possible hotkey for switching splits/comment)
 
         # hide all columns except for "name"
         for i in range(1, self._directory_model.columnCount()):
@@ -192,27 +194,6 @@ class SplitsProfileSelectorDialog(QDialog):
                     if self._splits_profile_editor.tb_splits.rowCount() == 0:
                         self._splits_profile_editor.tb_splits.setRowCount(1)
                     self._splits_profile_editor.tb_splits.selectRow(max((current_row_index - 1), 1))
-
-    """
-    def _on_hotkey_press(self, key: Key):
-        if self.isActiveWindow():
-            if key == Key.ctrl_l or Key.ctrl_r:
-                self._hotkey_currently_pressed.add(key)
-            elif repr(key) == 'n' and \
-                    (Key.ctrl_l in self._hotkey_currently_pressed) or (Key.ctrl_r in self._hotkey_currently_pressed):
-                print("Yee")
-                self._new_file()
-            elif repr(key) == 's' and \
-                    (Key.ctrl_l in self._hotkey_currently_pressed) or (Key.ctrl_r in self._hotkey_currently_pressed):
-                self._save_file()
-                print("Yee")
-
-    def _on_hotkey_release(self, key: Key):
-        try:
-            self._hotkey_currently_pressed.remove(key)
-        except KeyError:
-            pass
-    """
 
     def _on_held_toggle_press(self, key: Key):
         if key == Key.shift or key == Key.shift_r:
