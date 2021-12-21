@@ -120,7 +120,7 @@ class SetupWidget(QWidget):
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
 
-        if Config.path_to_current_splits_profile == "":
+        if Config.current_splits_profile_path == "":
             self._btn_change_options_mode.setEnabled(False)
 
         settings_layout = QHBoxLayout()
@@ -177,12 +177,17 @@ class SetupWidget(QWidget):
         if self._btn_change_options_mode.underMouse():
             if self._global_options_mode_enabled:
                 self._lbl_info.setText("Switch to \"per-profile settings override mode\".\n"
-                                       "Changes are saved on top of global settings for each splits\nprofile individually.")
+                                       "Changes are saved on top of global settings for each splits\n"
+                                       "profile individually.")
             else:
                 self._lbl_info.setText("Switch to \"global settings mode\".\n"
                                        "Changes are saved to global settings.")
         elif self._btn_restore_defaults.underMouse():
-            self._lbl_info.setText("Restore default settings.\n(NOTE: Key bindings are NOT affected by this.)")
+            if self._global_options_mode_enabled:
+                self._lbl_info.setText("Restore default settings.\n(NOTE: Key bindings are NOT affected by this.)")
+            else:
+                self._lbl_info.setText("Clear settings overrides for current profile.\n"
+                                       "(NOTE: Key bindings ARE affected by this.)")
         elif self._lbl_split.underMouse() or self._key_picker_split.underMouse():
             self._lbl_info.setText("Key automatically pressed when a blackscreen is detected")
         elif self._lbl_pause.underMouse() or self._key_picker_pause.underMouse():
@@ -236,23 +241,39 @@ class SetupWidget(QWidget):
             self._global_options_mode_enabled = False
             self._btn_change_options_mode.setText("Edit Global Settings")
             self._lbl_options_mode_status.setText("Settings override for profile \""
-                                                  + os.path.basename(Config.path_to_current_splits_profile)[:-5]
+                                                  + os.path.basename(Config.current_splits_profile_path)[:-5]
                                                   + "\":")
             self._lbl_options_mode_status.setStyleSheet("color: green")
+            self._btn_restore_defaults.setText("Clear Overridden Settings")
+            self._key_picker_split.get_button().setStyleSheet("color: green")
+            self._key_picker_pause.get_button().setStyleSheet("color: green")
+            self._key_picker_reset.get_button().setStyleSheet("color: green")
+            self._key_picker_decrement.get_button().setStyleSheet("color: green")
+            self._key_picker_increment.get_button().setStyleSheet("color: green")
             # TODO: implement loading end editing of per-profile settings
+            # TODO: add color changes for loading overrides
         else:  # Switch to "global settings mode"
             self._global_options_mode_enabled = True
             self._btn_change_options_mode.setText("Edit Per-Profile Settings")
             self._lbl_options_mode_status.setText("Global settings:")
             self._lbl_options_mode_status.setStyleSheet("color: black")
+            self._btn_restore_defaults.setText("Restore Default Settings")
+            self._key_picker_split.get_button().setStyleSheet("color: black")
+            self._key_picker_pause.get_button().setStyleSheet("color: black")
+            self._key_picker_reset.get_button().setStyleSheet("color: black")
+            self._key_picker_decrement.get_button().setStyleSheet("color: black")
+            self._key_picker_increment.get_button().setStyleSheet("color: black")
 
     def _btn_restore_defaults_on_click(self):
-        Config.restore_defaults()
-        self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
-        self._dsb_after_split_delay.setValue(Config.after_split_delay)
-        self._sb_max_capture_rate.setValue(Config.max_capture_rate)
-        self._dsb_after_split_delay.setValue(Config.after_split_delay)
-        self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
+        if self._global_options_mode_enabled:
+            Config.restore_defaults()
+            self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
+            self._dsb_after_split_delay.setValue(Config.after_split_delay)
+            self._sb_max_capture_rate.setValue(Config.max_capture_rate)
+            self._dsb_after_split_delay.setValue(Config.after_split_delay)
+            self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
+        else:
+            pass # TODO: Implement clearing of settings override only
 
     def _btn_automatic_threshold_on_toggle(self):
         if self._btn_automatic_threshold.isChecked():

@@ -34,13 +34,18 @@ class KeyPickerWidget(QWidget):
         super(KeyPickerWidget, self).__init__()
 
         self.key: Key = None
-        self._lbl = QLabel("-")
+        self.key_override: Key = None
+        self._lbl_global = QLabel("-")
+        self._lbl_override = QLabel("-")
+        self._lbl_override.setStyleSheet("color: green")
+
         self._btn = QPushButton("Set")
         self._btn.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
         self._dialog = None
 
         self.layout = QHBoxLayout(self)
-        self.layout.addWidget(self._lbl)
+        self.layout.addWidget(self._lbl_global)
+        self.layout.addWidget(self._lbl_override)
         self.layout.addWidget(self._btn)
         self._btn.clicked.connect(self._btn_on_click)
 
@@ -52,7 +57,17 @@ class KeyPickerWidget(QWidget):
 
     def set_key(self, key):
         self.key = key
-        self._lbl.setText(StringHelper.format_key_name(repr(key)))
+        self._lbl_global.setText(StringHelper.format_key_name(repr(key)))
+
+    def set_key_override(self, key):
+        self.key = key
+        self._lbl_global.setText(StringHelper.format_key_name(repr(key)))
 
     def get_button(self):
         return self._btn
+
+    def get_key(self):
+        if self.key_override is not None:
+            return self.key_override
+        else:
+            return self.key

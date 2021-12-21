@@ -155,7 +155,7 @@ class SplitsProfileSelectorDialog(QDialog):
                         self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
                         self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
                 self._splits_profile_editor.opened_file_path = path  # only executed when no prior .json errors occurred
-            except json.decoder.JSONDecodeError:
+            except (json.decoder.JSONDecodeError, AttributeError):
                 msg_splits_file_format_error: QMessageBox = QMessageBox()
                 msg_splits_file_format_error.setIcon(QMessageBox.Critical)
                 msg_splits_file_format_error.setWindowTitle("splits file format error")
@@ -169,7 +169,8 @@ class SplitsProfileSelectorDialog(QDialog):
         path = self._directory_model.filePath(selected_index)
 
         if os.path.exists(path) and os.path.isfile(path) and path == self._splits_profile_editor.opened_file_path:
-            Config.path_to_current_splits_profile = "splits_profiles/" + path.split("/splits_profiles/")[1]
+            Config.current_splits_profile_path = "splits_profiles/" + path.split("/splits_profiles/")[1]
+            Config.read_per_profile_config_from_file()
             Config.write_config_to_file()
             self._table_resize_listener.stop()
             self._held_toggle_listener.stop()

@@ -33,7 +33,7 @@ after_key_press_delay: float
 """Delay after any key press to prevent multiple registrations"""
 automatic_threshold_overhead: float
 """Value added to automatically calculated threshold for better tolerance"""
-path_to_current_splits_profile: str = ""
+current_splits_profile_path: str = ""
 """Path to the currently selected splits profile config file"""
 
 _config_file_path: str = os.path.dirname(os.path.abspath(__file__))[:-3] + "config.json"
@@ -67,31 +67,31 @@ def delete_config_file():
         os.remove(_config_file_path)
 
 
-def read_config_from_file():
+def read_global_config_from_file():
     """
-    Read all config parameters from file (config.json) and store them internally.
+    Read all global config parameters from file (config.json) and store them internally.
 
     Whenever a new config paramter is introduced, a new line for it should be added to the end of this method.
     """
     global video_preview_coords
     global split_key, pause_key, reset_key, decrement_key, increment_key, blackscreen_threshold, after_split_delay
     global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
-    global path_to_current_splits_profile
+    global current_splits_profile_path
     try:
         with open(_config_file_path, 'r') as config_file:
-            settings = json.load(config_file).get("global")[0]
-            video_preview_coords = settings.get("video_preview_coords")
-            split_key = key_str_to_obj(settings.get("split_key"))
-            pause_key = key_str_to_obj(settings.get("pause_key"))
-            reset_key = key_str_to_obj(settings.get("reset_key"))
-            decrement_key = key_str_to_obj(settings.get("decrement_key"))
-            increment_key = key_str_to_obj(settings.get("increment_key"))
-            blackscreen_threshold = settings.get("blackscreen_threshold")
-            after_split_delay = settings.get("after_split_delay")
-            max_capture_rate = settings.get("max_capture_rate")
-            after_key_press_delay = settings.get("after_key_press_delay")
-            automatic_threshold_overhead = settings.get("automatic_threshold_overhead")
-            path_to_current_splits_profile = settings.get("path_to_current_splits_profile")
+            global_settings = json.load(config_file).get("global")[0]
+            video_preview_coords = global_settings.get("video_preview_coords")
+            split_key = key_str_to_obj(global_settings.get("split_key"))
+            pause_key = key_str_to_obj(global_settings.get("pause_key"))
+            reset_key = key_str_to_obj(global_settings.get("reset_key"))
+            decrement_key = key_str_to_obj(global_settings.get("decrement_key"))
+            increment_key = key_str_to_obj(global_settings.get("increment_key"))
+            blackscreen_threshold = global_settings.get("blackscreen_threshold")
+            after_split_delay = global_settings.get("after_split_delay")
+            max_capture_rate = global_settings.get("max_capture_rate")
+            after_key_press_delay = global_settings.get("after_key_press_delay")
+            automatic_threshold_overhead = global_settings.get("automatic_threshold_overhead")
+            current_splits_profile_path = global_settings.get("path_to_current_splits_profile")
     except (json.decoder.JSONDecodeError, AttributeError):
         msg_splits_file_format_error: QMessageBox = QMessageBox()
         msg_splits_file_format_error.setIcon(QMessageBox.Critical)
@@ -100,11 +100,61 @@ def read_config_from_file():
                                              "delete config.json?")
         msg_splits_file_format_error.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg_splits_file_format_error.button(QMessageBox.Yes).clicked.connect(delete_config_file)
-        msg_splits_file_format_error.button(QMessageBox.No).clicked.connect(read_config_from_file)
+        msg_splits_file_format_error.button(QMessageBox.No).clicked.connect(read_global_config_from_file)
         msg_splits_file_format_error.exec()
         while msg_splits_file_format_error.isVisible():
             time.sleep(1)
         restore_defaults()
+
+
+def read_per_profile_config_from_file():
+    """
+    Read all per-profile setting overrides from current splits profile and override the internal settings.
+
+    Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
+    """
+    global video_preview_coords
+    global split_key, pause_key, reset_key, decrement_key, increment_key, blackscreen_threshold, after_split_delay
+    global max_capture_rate, after_key_press_delay, automatic_threshold_overhead
+    global current_splits_profile_path
+    if not current_splits_profile_path == "":
+        try:
+            with open(current_splits_profile_path, 'r') as splits_profile:
+                per_profile_settings = json.load(splits_profile).get(
+                    os.path.basename(current_splits_profile_path)[:-5] + "_settings_override")
+                if "video_preview_coords" in per_profile_settings:
+                    video_preview_coords = per_profile_settings.get("video_preview_coords")
+                if "split_key" in per_profile_settings:
+                    split_key = key_str_to_obj(per_profile_settings.get("split_key"))
+                if "pause_key" in per_profile_settings:
+                    pause_key = key_str_to_obj(per_profile_settings.get("pause_key"))
+                if "reset_key" in per_profile_settings:
+                    reset_key = key_str_to_obj(per_profile_settings.get("reset_key"))
+                if "decrement_key" in per_profile_settings:
+                    decrement_key = key_str_to_obj(per_profile_settings.get("decrement_key"))
+                if "increment_key" in per_profile_settings:
+                    increment_key = key_str_to_obj(per_profile_settings.get("increment_key"))
+                if "blackscreen_threshold" in per_profile_settings:
+                    blackscreen_threshold = per_profile_settings.get("blackscreen_threshold")
+                if "after_split_delay" in per_profile_settings:
+                    after_split_delay = per_profile_settings.get("after_split_delay")
+                if "max_capture_rate" in per_profile_settings:
+                    max_capture_rate = per_profile_settings.get("max_capture_rate")
+                if "after_key_press_delay" in per_profile_settings:
+                    after_key_press_delay = per_profile_settings.get("after_key_press_delay")
+                if "automatic_threshold_overhead" in per_profile_settings:
+                    automatic_threshold_overhead = per_profile_settings.get("automatic_threshold_overhead")
+        except (json.decoder.JSONDecodeError, AttributeError):
+            msg_splits_file_format_error: QMessageBox = QMessageBox()
+            msg_splits_file_format_error.setIcon(QMessageBox.Critical)
+            msg_splits_file_format_error.setWindowTitle("config format error")
+            msg_splits_file_format_error.setText(
+                "Could not load config because"
+                + os.path.basename(current_splits_profile_path)
+                + " is invalid.")
+            msg_splits_file_format_error.exec()
+            current_splits_profile_path = ""
+            write_config_to_file()
 
 
 def restore_defaults():
@@ -126,7 +176,8 @@ def restore_defaults():
 
 # Executed when importing
 if os.path.isfile(_config_file_path):
-    read_config_from_file()
+    read_global_config_from_file()
+    read_per_profile_config_from_file()
 else:
     restore_defaults()
 
@@ -151,5 +202,5 @@ def write_config_to_file():
             "max_capture_rate": max_capture_rate,
             "after_key_press_delay": after_key_press_delay,
             "automatic_threshold_overhead": automatic_threshold_overhead,
-            "path_to_current_splits_profile": path_to_current_splits_profile})
+            "path_to_current_splits_profile": current_splits_profile_path})
         json.dump(settings, config_file, indent=4)
