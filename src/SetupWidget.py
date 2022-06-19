@@ -16,6 +16,8 @@ from src.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
 
 # TODO: Allow to somehow change between setting something globally and on a splits profile basis
+from src.TupleHBoxLayout import TupleHBoxLayout
+
 
 class SetupWidget(QWidget):
 
@@ -68,6 +70,9 @@ class SetupWidget(QWidget):
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
         self._sb_blackscreen_threshold.setMinimum(0)
         self._sb_blackscreen_threshold.setMaximum(255)
+        self._sb_blackscreen_threshold_override: QSpinBox = QSpinBox()
+        self._sb_blackscreen_threshold_override.setMinimum(0)
+        self._sb_blackscreen_threshold_override.setMaximum(255)
         self._btn_automatic_threshold: QPushButton = QPushButton("Start Automatic Threshold Detection")
         self._btn_automatic_threshold.setCheckable(True)
         self._lbl_after_split_delay: QLabel = QLabel("After Split Delay (s):")
@@ -75,21 +80,35 @@ class SetupWidget(QWidget):
         self._dsb_after_split_delay.setDecimals(2)
         self._dsb_after_split_delay.setMinimum(0)
         self._dsb_after_split_delay.setMaximum(999)
+        self._dsb_after_split_delay_override: QDoubleSpinBox = QDoubleSpinBox()
+        self._dsb_after_split_delay_override.setDecimals(2)
+        self._dsb_after_split_delay_override.setMinimum(0)
+        self._dsb_after_split_delay_override.setMaximum(999)
         self._lbl_advanced_settings: QLabel = QLabel("Show Advanced Settings")
         self._cb_advanced_settings: QCheckBox = QCheckBox()
         self._lbl_max_capture_rate: QLabel = QLabel()
         self._sb_max_capture_rate: QSpinBox = QSpinBox()
         self._sb_max_capture_rate.setMinimum(1)
         self._sb_max_capture_rate.setMaximum(999)
+        self._sb_max_capture_rate_override: QSpinBox = QSpinBox()
+        self._sb_max_capture_rate_override.setMinimum(1)
+        self._sb_max_capture_rate_override.setMaximum(999)
         self._lbl_after_key_press_delay: QLabel = QLabel()
         self._dsb_after_key_press_delay: QDoubleSpinBox = QDoubleSpinBox()
         self._dsb_after_key_press_delay.setDecimals(2)
         self._dsb_after_key_press_delay.setMinimum(0)
         self._dsb_after_key_press_delay.setMaximum(999)
+        self._dsb_after_key_press_delay_override: QDoubleSpinBox = QDoubleSpinBox()
+        self._dsb_after_key_press_delay_override.setDecimals(2)
+        self._dsb_after_key_press_delay_override.setMinimum(0)
+        self._dsb_after_key_press_delay_override.setMaximum(999)
         self._lbl_automatic_threshold_overhead: QLabel = QLabel()
         self._sb_automatic_threshold_overhead: QSpinBox = QSpinBox()
         self._sb_automatic_threshold_overhead.setMinimum(0)
         self._sb_automatic_threshold_overhead.setMaximum(255)
+        self._sb_automatic_threshold_overhead_override: QSpinBox = QSpinBox()
+        self._sb_automatic_threshold_overhead_override.setMinimum(0)
+        self._sb_automatic_threshold_overhead_override.setMaximum(255)
         self._lbl_info: QLabel = QLabel()
         self._lbl_info.setWordWrap(True)
         self._info_box: QVBoxLayout = QVBoxLayout()
@@ -135,24 +154,50 @@ class SetupWidget(QWidget):
         button_settings_layout.addRow(self._lbl_reset, self._key_picker_reset)
         button_settings_layout.addRow(self._lbl_decrement, self._key_picker_decrement)
         button_settings_layout.addRow(self._lbl_increment, self._key_picker_increment)
-        button_settings_layout.addRow(self._lbl_blackscreen_threshold, self._sb_blackscreen_threshold)
+        row_blackscreen_threshold = QHBoxLayout()
+        row_blackscreen_threshold.addWidget(self._sb_blackscreen_threshold)
+        row_blackscreen_threshold.addWidget(self._sb_blackscreen_threshold_override)
+        button_settings_layout.addRow(self._lbl_blackscreen_threshold,
+                                      TupleHBoxLayout(self._sb_blackscreen_threshold,
+                                                      self._sb_blackscreen_threshold_override))
         button_settings_layout.addWidget(self._btn_automatic_threshold)
-        button_settings_layout.addRow(self._lbl_after_split_delay, self._dsb_after_split_delay)
+        button_settings_layout.addRow(self._lbl_after_split_delay,
+                                      TupleHBoxLayout(self._dsb_after_split_delay,
+                                                      self._dsb_after_split_delay_override))
         button_settings_layout.addRow(self._lbl_advanced_settings, self._cb_advanced_settings)
-        button_settings_layout.addRow(self._lbl_max_capture_rate, self._sb_max_capture_rate)
-        button_settings_layout.addRow(self._lbl_after_key_press_delay, self._dsb_after_key_press_delay)
-        button_settings_layout.addRow(self._lbl_automatic_threshold_overhead, self._sb_automatic_threshold_overhead)
+        button_settings_layout.addRow(self._lbl_max_capture_rate,
+                                      TupleHBoxLayout(self._sb_max_capture_rate,
+                                                      self._sb_max_capture_rate_override))
+        button_settings_layout.addRow(self._lbl_after_key_press_delay,
+                                      TupleHBoxLayout(self._dsb_after_key_press_delay,
+                                                      self._dsb_after_key_press_delay_override))
+        button_settings_layout.addRow(self._lbl_automatic_threshold_overhead,
+                                      TupleHBoxLayout(self._sb_automatic_threshold_overhead,
+                                                      self._sb_automatic_threshold_overhead_override))
         settings_and_info_layout.addLayout(button_settings_layout)
         settings_and_info_layout.addStretch()
         settings_and_info_layout.addWidget(self._gb_info_highlight)
         settings_layout.addLayout(settings_and_info_layout)
 
+        # hide advanced settings initially
         self._lbl_max_capture_rate.setVisible(False)
         self._sb_max_capture_rate.setVisible(False)
+        self._sb_max_capture_rate_override.setVisible(False)
         self._lbl_after_key_press_delay.setVisible(False)
         self._dsb_after_key_press_delay.setVisible(False)
+        self._dsb_after_key_press_delay_override.setVisible(False)
         self._lbl_automatic_threshold_overhead.setVisible(False)
         self._sb_automatic_threshold_overhead.setVisible(False)
+        self._sb_automatic_threshold_overhead_override.setVisible(False)
+
+        # disable and hide all override spin boxes initially
+        self._sb_blackscreen_threshold_override.setEnabled(False)
+        self._sb_blackscreen_threshold_override.setVisible(False)
+        self._dsb_after_split_delay_override.setEnabled(False)
+        self._dsb_after_split_delay_override.setVisible(False)
+        self._sb_max_capture_rate_override.setEnabled(False)
+        self._dsb_after_key_press_delay_override.setEnabled(False)
+        self._sb_automatic_threshold_overhead_override.setEnabled(False)
 
         rect_select_layout: QVBoxLayout = QVBoxLayout()
         rect_select_layout.addWidget(QLabel("Drag on the preview image to select the region "
@@ -289,10 +334,13 @@ class SetupWidget(QWidget):
     def _cb_advanced_settings_state_changed(self):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
         self._sb_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_max_capture_rate_override.setVisible(self._cb_advanced_settings.isChecked())
         self._lbl_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
         self._dsb_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._dsb_after_key_press_delay_override.setVisible(self._cb_advanced_settings.isChecked())
         self._lbl_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
         self._sb_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_automatic_threshold_overhead_override.setVisible(self._cb_advanced_settings.isChecked())
 
     def _btn_box_accepted(self):
         Config.split_key = self._key_picker_split.key

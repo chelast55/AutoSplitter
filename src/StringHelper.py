@@ -16,7 +16,8 @@ key_name_format_dictionary = {"<Key.cmd: <91>>": "WIN_L",
                               "<104>": "NUM.8",
                               "<105>": "NUM.9",
                               "<110>": "NUM.DOT"}
-"""For reformatting string representations of certain key codes deemed unclear for the user to somethign more readable."""
+"""For reformatting string representations of certain key codes deemed unclear for the user to something more 
+readable. """
 
 
 def format_key_name(key_repr: str):
@@ -34,5 +35,7 @@ def format_key_name(key_repr: str):
         else:  # unrecognized scan code
             print(key_repr[1:-1])
             return "OEM." + key_repr[1:-1]
+    elif key_repr[0] == 'N':  # None
+        return "-"
     else:  # alphanumeric key
         return key_repr[1:-1].upper()
