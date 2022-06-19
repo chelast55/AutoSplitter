@@ -3,7 +3,6 @@ Contains ScreenWatchWorker class
 """
 
 from typing import Final
-
 from PySide6.QtCore import QObject, Signal
 from pynput.keyboard import Controller as KeyboardController, Listener as KeyboardListener
 from pynput.mouse import Controller as MouseController
@@ -50,43 +49,43 @@ class ScreenWatchWorker(QObject):
         return self._currently_paused
 
     def pause(self):
-        print("Worker paused.")
+        # print("Worker paused.")
         self._currently_paused = True
 
     def unpause(self):
-        print("Worker unpaused.")
+        # print("Worker unpaused.")
         self._currently_paused = False
 
     def on_key_press(self, key):
-        if repr(key) == repr(Config.decrement_key):
+        if repr(key) == repr(Config.get_decrement_key()):
             self._blackscreen_counter -= 1
-            print("Blackscreen counter was decremented")
-            print("New Blackscreen Count: " + str(self._blackscreen_counter))
+            # print("Blackscreen counter was decremented")
+            # print("New Blackscreen Count: " + str(self._blackscreen_counter))
             self.blackscreen_counter_updated.emit(self._blackscreen_counter)
-            time.sleep(Config.after_key_press_delay)
-        elif repr(key) == repr(Config.increment_key):
+            time.sleep(Config.get_after_key_press_delay())
+        elif repr(key) == repr(Config.get_increment_key()):
             self._blackscreen_counter += 1
-            print("Blackscreen counter was incremented")
-            print("New Blackscreen Count: " + str(self._blackscreen_counter))
+            # print("Blackscreen counter was incremented")
+            # print("New Blackscreen Count: " + str(self._blackscreen_counter))
             self.blackscreen_counter_updated.emit(self._blackscreen_counter)
-            time.sleep(Config.after_key_press_delay)
-        elif repr(key) == repr(Config.reset_key):
+            time.sleep(Config.get_after_key_press_delay())
+        elif repr(key) == repr(Config.get_reset_key()):
             self._reset_after_this_iteration = True
-            print("Reset!")
-            print("Wait for splitter to restart...")
-            time.sleep(Config.after_key_press_delay)
-        elif repr(key) == repr(Config.pause_key):
+            # print("Reset!")
+            # print("Wait for splitter to restart...")
+            time.sleep(Config.get_after_key_press_delay())
+        elif repr(key) == repr(Config.get_pause_key()):
             self.pause_status_updated.emit()
-            time.sleep(Config.after_key_press_delay)
+            time.sleep(Config.get_after_key_press_delay())
 
     def run(self):
-        print("Starting splitter worker for profile " + self._splits_profile.name)
+        # print("Starting splitter worker for profile " + self._splits_profile.name)
 
         # Enable Keys (Decrement, Increment, Reset, Pause)
         self._key_press_listener.start()
 
         # Main loop
-        # NOTE: this tool is HEAVILY inspired by this video by Code Bullet: https://www.youtube.com/watch?v=wHRubMACen0
+        # NOTE: this part is HEAVILY inspired by this video by Code Bullet: https://www.youtube.com/watch?v=wHRubMACen0
         while not self._finished:
             if not self._currently_paused:
                 start_time = time.time()
@@ -96,26 +95,26 @@ class ScreenWatchWorker(QObject):
                 # bbox – What region to copy. Default is the entire screen. Note that on Windows OS,
                 # the top-left point may be negative if all_screens=True is used.
                 img = ImageGrab.grab(all_screens=True)
-                img = img.crop(Config.video_preview_coords)
+                img = img.crop(Config.get_video_preview_coords())
 
                 current_average_gray_value = ImageAnalyzer.average_gray_value(img)
 
                 self.avg_grey_value_updated.emit(current_average_gray_value)
-                # print("Average Grey Value: " + str(current_average_gray_value))  # Uncomment this line to output avg grey value
+                # print("Average Grey Value: " + str(current_average_gray_value))  # Uncomment to output avg grey value
 
-                if current_average_gray_value <= Config.blackscreen_threshold:
+                if current_average_gray_value <= Config.get_blackscreen_threshold():
                     self._blackscreen_counter += 1
                     self.blackscreen_counter_updated.emit(self._blackscreen_counter)
-                    print("Blackscreen Count: " + str(self._blackscreen_counter))
+                    # print("Blackscreen Count: " + str(self._blackscreen_counter))
 
                     if self._blackscreen_counter in self._splits_profile.splits:
-                        print("Pressing " + repr(Config.split_key))
-                        self._keyboard.press(Config.split_key)
-                    time.sleep(Config.after_split_delay)
+                        # print("Pressing " + repr(Config.split_key()))
+                        self._keyboard.press(Config.get_split_key())
+                    time.sleep(Config.get_after_split_delay())
 
                     # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
-                    if (time.time() - start_time) < (1 / Config.max_capture_rate):
-                        time.sleep((1 / Config.max_capture_rate) - (time.time() - start_time))
+                    if (time.time() - start_time) < (1 / Config.get_max_capture_rate()):
+                        time.sleep((1 / Config.get_max_capture_rate()) - (time.time() - start_time))
 
             if self._reset_after_this_iteration:
                 self._blackscreen_counter = 0

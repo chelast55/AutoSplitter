@@ -58,10 +58,10 @@ class MainWidget(QWidget):
 
     def _update_lbl_current_splits_profile(self):
         splits_profile_text = "Current Splits Profile: "
-        if Config.current_splits_profile_path == "":
+        if Config.get_current_splits_profile_path() == "":
             splits_profile_text += "-"
         else:
-            splits_profile_text += SplitsProfile.load_from_file(Config.current_splits_profile_path).name
+            splits_profile_text += SplitsProfile.load_from_file(Config.get_current_splits_profile_path()).name
         self._lbl_current_splits_profile.setText(splits_profile_text)
 
     def _worker_on_blackscreen_counter_updated(self, blackscreen_counter: int):
@@ -119,7 +119,7 @@ class MainWidget(QWidget):
             self._stop_worker()
 
     def _start_worker(self):
-        if Config.current_splits_profile_path == "":
+        if Config.get_current_splits_profile_path == "":
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setText("You first have to select a splits profile before you can start the splitter!")
@@ -130,7 +130,7 @@ class MainWidget(QWidget):
         self._btn_start_stop.setText("Stop")
 
         self._workerThread = QtCore.QThread()
-        self._worker = ScreenWatchWorker(SplitsProfile.load_from_file(Config.current_splits_profile_path))
+        self._worker = ScreenWatchWorker(SplitsProfile.load_from_file(Config.get_current_splits_profile_path()))
         self._worker.moveToThread(self._workerThread)
         self._workerThread.started.connect(self._worker.run)
         self._workerThread.start()

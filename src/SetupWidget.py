@@ -2,7 +2,6 @@
 
 import math
 import os
-
 from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QCloseEvent
@@ -116,30 +115,30 @@ class SetupWidget(QWidget):
         self._gb_info_highlight.setLayout(self._info_box)
         self._info_box.addWidget(self._lbl_info)
 
-        self._key_picker_split.set_key(Config.split_key)
-        self._key_picker_pause.set_key(Config.pause_key)
-        self._key_picker_reset.set_key(Config.reset_key)
-        self._key_picker_decrement.set_key(Config.decrement_key)
-        self._key_picker_increment.set_key(Config.increment_key)
-        self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
-        self._dsb_after_split_delay.setValue(Config.after_split_delay)
+        self._key_picker_split.set_key(Config.get_split_key())
+        self._key_picker_pause.set_key(Config.get_pause_key())
+        self._key_picker_reset.set_key(Config.get_reset_key())
+        self._key_picker_decrement.set_key(Config.get_decrement_key())
+        self._key_picker_increment.set_key(Config.get_increment_key())
+        self._sb_blackscreen_threshold.setValue(Config.get_blackscreen_threshold())
+        self._dsb_after_split_delay.setValue(Config.get_after_split_delay())
         self._lbl_max_capture_rate.setText("Max Capture Rate (1/s):")
-        self._sb_max_capture_rate.setValue(Config.max_capture_rate)
+        self._sb_max_capture_rate.setValue(Config.get_max_capture_rate())
         self._lbl_after_key_press_delay.setText("After Key Press Delay (s):")
-        self._dsb_after_key_press_delay.setValue(Config.after_key_press_delay)
+        self._dsb_after_key_press_delay.setValue(Config.get_after_key_press_delay())
         self._lbl_automatic_threshold_overhead.setText("Automatic Threshold Overhead (0-255):")
-        self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
+        self._sb_automatic_threshold_overhead.setValue(Config.get_automatic_threshold_overhead())
 
-        if len(Config.video_preview_coords) == 4:
-            self._gv_preview_image.set_rect(Config.video_preview_coords[0],
-                                            Config.video_preview_coords[1],
-                                            Config.video_preview_coords[2],
-                                            Config.video_preview_coords[3])
+        if len(Config.get_video_preview_coords()) == 4:
+            self._gv_preview_image.set_rect(Config.get_video_preview_coords()[0],
+                                            Config.get_video_preview_coords()[1],
+                                            Config.get_video_preview_coords()[2],
+                                            Config.get_video_preview_coords()[3])
 
         self.setWindowModality(Qt.ApplicationModal)
         self.layout = QVBoxLayout(self)
 
-        if Config.current_splits_profile_path == "":
+        if Config.get_current_splits_profile_path() == "":
             self._btn_change_options_mode.setEnabled(False)
 
         settings_layout = QHBoxLayout()
@@ -272,8 +271,8 @@ class SetupWidget(QWidget):
         if self._gv_preview_image.has_area():
             self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
             if self._btn_automatic_threshold.isChecked():
-                new_gray_threshold = math.ceil(gray_value + Config.automatic_threshold_overhead)
-                if new_gray_threshold < self._sb_blackscreen_threshold.value() + Config.automatic_threshold_overhead:
+                new_gray_threshold = math.ceil(gray_value + Config.get_automatic_threshold_overhead())
+                if new_gray_threshold < self._sb_blackscreen_threshold.value() + Config.get_automatic_threshold_overhead():
                     self._sb_blackscreen_threshold.setValue(new_gray_threshold)
 
     def _preview_on_image_captured(self, img: Image):
@@ -286,7 +285,7 @@ class SetupWidget(QWidget):
             self._global_options_mode_enabled = False
             self._btn_change_options_mode.setText("Edit Global Settings")
             self._lbl_options_mode_status.setText("Settings override for profile \""
-                                                  + os.path.basename(Config.current_splits_profile_path)[:-5]
+                                                  + os.path.basename(Config.get_current_splits_profile_path())[:-5]
                                                   + "\":")
             self._lbl_options_mode_status.setStyleSheet("color: green")
             self._btn_restore_defaults.setText("Clear Overridden Settings")
@@ -312,11 +311,11 @@ class SetupWidget(QWidget):
     def _btn_restore_defaults_on_click(self):
         if self._global_options_mode_enabled:
             Config.restore_defaults()
-            self._sb_blackscreen_threshold.setValue(Config.blackscreen_threshold)
-            self._dsb_after_split_delay.setValue(Config.after_split_delay)
-            self._sb_max_capture_rate.setValue(Config.max_capture_rate)
-            self._dsb_after_split_delay.setValue(Config.after_split_delay)
-            self._sb_automatic_threshold_overhead.setValue(Config.automatic_threshold_overhead)
+            self._sb_blackscreen_threshold.setValue(Config.get_blackscreen_threshold())
+            self._dsb_after_split_delay.setValue(Config.get_after_split_delay())
+            self._sb_max_capture_rate.setValue(Config.get_max_capture_rate())
+            self._dsb_after_split_delay.setValue(Config.get_after_split_delay())
+            self._sb_automatic_threshold_overhead.setValue(Config.get_automatic_threshold_overhead())
         else:
             pass # TODO: Implement clearing of settings override only
 
@@ -342,18 +341,18 @@ class SetupWidget(QWidget):
         self._sb_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
         self._sb_automatic_threshold_overhead_override.setVisible(self._cb_advanced_settings.isChecked())
 
-    def _btn_box_accepted(self):
-        Config.split_key = self._key_picker_split.key
-        Config.pause_key = self._key_picker_pause.key
-        Config.reset_key = self._key_picker_reset.key
-        Config.decrement_key = self._key_picker_decrement.key
-        Config.increment_key = self._key_picker_increment.key
-        Config.blackscreen_threshold = self._sb_blackscreen_threshold.value()
-        Config.after_split_delay = self._dsb_after_split_delay.value()
-        Config.video_preview_coords = self._gv_preview_image.get_rect()
-        Config.max_capture_rate = self._sb_max_capture_rate.value()
-        Config.after_key_press_delay = self._dsb_after_key_press_delay.value()
-        Config.automatic_threshold_overhead = self._sb_automatic_threshold_overhead.value()
+    def _btn_box_accepted(self):   # TODO: rework for per-profile-settings
+        Config.set_split_key(self._key_picker_split.key)
+        Config.set_pause_key(self._key_picker_pause.key)
+        Config.set_reset_key(self._key_picker_reset.key)
+        Config.set_decrement_key(self._key_picker_decrement.key)
+        Config.set_increment_key(self._key_picker_increment.key)
+        Config.set_blackscreen_threshold(self._sb_blackscreen_threshold.value())
+        Config.set_after_split_delay(self._dsb_after_split_delay.value())
+        Config.set_video_preview_coords(self._gv_preview_image.get_rect())
+        Config.set_max_capture_rate(self._sb_max_capture_rate.value())
+        Config.set_after_key_press_delay(self._dsb_after_key_press_delay.value())
+        Config.set_automatic_threshold_overhead(self._sb_automatic_threshold_overhead.value())
         Config.write_config_to_file()
         self.close()
 

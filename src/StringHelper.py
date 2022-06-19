@@ -1,5 +1,6 @@
-"""Helper class with methods for (re)formatting strings"""
+"""Helper class with methods for (re)formatting strings and converting between strings and keyboard keys"""
 
+from pynput.keyboard import Key, KeyCode
 
 key_name_format_dictionary = {"<Key.cmd: <91>>": "WIN_L",
                               "<Key.cmd_r: <92>>": "WIN_R",
@@ -16,7 +17,7 @@ key_name_format_dictionary = {"<Key.cmd: <91>>": "WIN_L",
                               "<104>": "NUM.8",
                               "<105>": "NUM.9",
                               "<110>": "NUM.DOT"}
-"""For reformatting string representations of certain key codes deemed unclear for the user to something more 
+"""For reformatting string representations of certain key codes, deemed unclear for the user, to something more 
 readable. """
 
 
@@ -39,3 +40,22 @@ def format_key_name(key_repr: str):
         return "-"
     else:  # alphanumeric key
         return key_repr[1:-1].upper()
+
+
+def key_str_to_obj(s: str) -> Key:
+    """
+    Get key object from string representation.
+
+    Note, that this is NOT its string representation obtainable via repr(). Simply using repr() would not work,
+    because repr() of function keys (which intern are enum states) do not translate to key objects by themself.
+
+    :param s: (str) "string representation"
+    :return: (key) key object
+    """
+    if s.startswith('<'):
+        if s[1] == 'K':  # function key
+            return eval(s[1:].split(':')[0])
+        else:  # unrecognized scan code
+            return KeyCode.from_vk(int(s[1:-1]))
+    else:
+        return eval(s)

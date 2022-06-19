@@ -1,7 +1,7 @@
 """(GUI) Graphical Menu for creating new splits files. """
+
 import json
 import os
-
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
 
 

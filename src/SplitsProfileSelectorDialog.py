@@ -1,14 +1,15 @@
 """(GUI) Graphical Menu for selecting, creating and editing splits profiles."""
 
+import os
+import json
+from pynput.keyboard import Key, Listener as KeyboardListener
 from PySide6.QtGui import QSyntaxHighlighter, Qt, QTextCharFormat, QShortcut, QKeySequence
 from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QPushButton, \
     QTableWidgetItem, QMessageBox
-import os
+
 from src import Config
 from src.NewFileDialog import NewFileDialog
 from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
-import json
-from pynput.keyboard import Key, Listener as KeyboardListener
 
 
 # TODO: Consider sorting in directories automatically based on game tag
@@ -169,7 +170,7 @@ class SplitsProfileSelectorDialog(QDialog):
         path = self._directory_model.filePath(selected_index)
 
         if os.path.exists(path) and os.path.isfile(path) and path == self._splits_profile_editor.opened_file_path:
-            Config.current_splits_profile_path = "splits_profiles/" + path.split("/splits_profiles/")[1]
+            Config.set_current_splits_profile_path("splits_profiles/" + path.split("/splits_profiles/")[1])
             Config.read_per_profile_config_from_file()
             Config.write_config_to_file()
             self._table_resize_listener.stop()

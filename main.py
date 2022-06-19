@@ -4,42 +4,6 @@ from PySide6 import QtWidgets
 app = QtWidgets.QApplication([])
 
 from src.MainWidget import MainWidget
-from src import Config
-from pynput.keyboard import Key, Controller as KeyboardController
-from pynput.mouse import Controller as MouseController
-
-mouse = MouseController()
-keyboard = KeyboardController()
-
-
-def on_press_set_split_key(key: Key):
-    Config.split_key = key
-    print(repr(key) + " was set as your Split key!")
-    return False
-
-
-def on_press_set_decrement_key(key):
-    Config.decrement_key = repr(key)
-    print(repr(key) + " was set as your Decrement key!")
-    return False
-
-
-def on_press_set_increment_key(key):
-    Config.increment_key = repr(key)
-    print(repr(key) + " was set as your Increment key!")
-    return False
-
-
-def on_press_set_reset_key(key):
-    Config.reset_key = repr(key)
-    print(repr(key) + " was set as your Reset key!")
-    return False
-
-
-def on_press_set_pause_key(key):
-    Config.pause_key = repr(key)
-    print(repr(key) + " was set as your Pause key!")
-    return False
 
 
 if __name__ == '__main__':

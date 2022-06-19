@@ -1,5 +1,4 @@
 from typing import Optional
-
 from PIL import ImageDraw
 from PIL.Image import Image
 from PIL.ImageQt import ImageQt

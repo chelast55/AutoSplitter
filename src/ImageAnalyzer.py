@@ -7,7 +7,7 @@ import numpy as np
 from PIL.Image import Image
 
 
-def average_gray_value(img: Image):
+def average_gray_value(img: Image) -> float:
     """
     Calculates average gray value of all pixels of a (color) image.
 
