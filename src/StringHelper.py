@@ -52,7 +52,9 @@ def key_str_to_obj(s: str) -> Key:
     :param s: (str) "string representation"
     :return: (key) key object
     """
-    if s.startswith('<'):
+    if s is None:
+        return None
+    elif s.startswith('<'):
         if s[1] == 'K':  # function key
             return eval(s[1:].split(':')[0])
         else:  # unrecognized scan code

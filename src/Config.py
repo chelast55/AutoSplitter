@@ -42,7 +42,7 @@ def get_split_key() -> Key:
     if "split_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("split_key"))
     else:
-        return key_str_to_obj(_global_settings.get("global")[0].get("split_key"))
+        return _global_settings.get("global")[0].get("split_key")
 
 
 def get_pause_key() -> Key:
@@ -50,7 +50,7 @@ def get_pause_key() -> Key:
     if "pause_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("pause_key"))
     else:
-        return key_str_to_obj(_global_settings.get("global")[0].get("pause_key"))
+        return _global_settings.get("global")[0].get("pause_key")
 
 
 def get_reset_key() -> Key:
@@ -58,7 +58,7 @@ def get_reset_key() -> Key:
     if "reset_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("reset_key"))
     else:
-        return key_str_to_obj(_global_settings.get("global")[0].get("reset_key"))
+        return _global_settings.get("global")[0].get("reset_key")
 
 
 def get_decrement_key() -> Key:
@@ -66,7 +66,7 @@ def get_decrement_key() -> Key:
     if "decrement_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("decrement_key"))
     else:
-        return key_str_to_obj(_global_settings.get("global")[0].get("decrement_key"))
+        return _global_settings.get("global")[0].get("decrement_key")
 
 
 def get_increment_key() -> Key:
@@ -74,7 +74,7 @@ def get_increment_key() -> Key:
     if "increment_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("increment_key"))
     else:
-        return key_str_to_obj(_global_settings.get("global")[0].get("increment_key"))
+        return _global_settings.get("global")[0].get("increment_key")
 
 
 def get_blackscreen_threshold() -> float:
@@ -270,11 +270,11 @@ def restore_defaults():
     _global_settings = {"global": [], "path_to_current_splits_profile": ""}
     _global_settings["global"].append({
         "video_preview_coords": [1.0, 1.0, 100.0, 100.0],
-        "split_key": repr(None),
-        "pause_key": repr(None),
-        "reset_key": repr(None),
-        "decrement_key": repr(None),
-        "increment_key": repr(None),
+        "split_key": None,
+        "pause_key": None,
+        "reset_key": None,
+        "decrement_key": None,
+        "increment_key": None,
         "blackscreen_threshold": 9,
         "after_split_delay": 7,
         "max_capture_rate": 60,

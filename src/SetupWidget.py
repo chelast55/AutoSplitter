@@ -294,7 +294,7 @@ class SetupWidget(QWidget):
             self._key_picker_reset.get_button().setStyleSheet("color: green")
             self._key_picker_decrement.get_button().setStyleSheet("color: green")
             self._key_picker_increment.get_button().setStyleSheet("color: green")
-            # TODO: implement loading end editing of per-profile settings
+            # TODO: implement loading and editing of per-profile settings
             # TODO: add color changes for loading overrides
         else:  # Switch to "global settings mode"
             self._global_options_mode_enabled = True
@@ -317,7 +317,7 @@ class SetupWidget(QWidget):
             self._dsb_after_split_delay.setValue(Config.get_after_split_delay())
             self._sb_automatic_threshold_overhead.setValue(Config.get_automatic_threshold_overhead())
         else:
-            pass # TODO: Implement clearing of settings override only
+            pass  # TODO: Implement clearing of settings override only
 
     def _btn_automatic_threshold_on_toggle(self):
         if self._btn_automatic_threshold.isChecked():

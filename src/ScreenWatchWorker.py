@@ -112,7 +112,7 @@ class ScreenWatchWorker(QObject):
                         self._keyboard.press(Config.get_split_key())
                     time.sleep(Config.get_after_split_delay())
 
-                    # print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
+                    print("Time per Cycle: " + str(time.time() - start_time)) # Enable for Debug
                     if (time.time() - start_time) < (1 / Config.get_max_capture_rate()):
                         time.sleep((1 / Config.get_max_capture_rate()) - (time.time() - start_time))
 

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QSizePolicy, QApplication
 from pynput.keyboard import Key, Controller as KeyboardController, Listener as KeyboardListener
 
 from src import StringHelper
