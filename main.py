@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 # qt app needs to be constructed before we can do anything else with qt
 app: QApplication = QApplication([])
 
-from ui.MainWidget import MainWidget
+from src.ui.MainWidget import MainWidget
 
 
 if __name__ == '__main__':
