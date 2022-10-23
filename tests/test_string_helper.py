@@ -5,6 +5,10 @@ from pynput.keyboard import Key, KeyCode
 import src.string_helper as string_helper
 
 
+########################################################################################################################
+# test_format_key_name                                                                                                 #
+########################################################################################################################
+
 def test_format_key_name_case_alphanumeric():
     assert string_helper.format_key_name("\'a\'") == "A"
 
@@ -20,6 +24,10 @@ def test_format_key_name_case_unrecognized_code():
 def test_format_key_name_case_none():
     assert string_helper.format_key_name("None") == "-"
 
+
+########################################################################################################################
+# test_key_str_to_obj                                                                                                  #
+########################################################################################################################
 
 def test_key_str_to_obj_case_alphanumeric():
     assert string_helper.key_str_to_obj("\'a\'") == 'a'
