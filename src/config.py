@@ -30,22 +30,22 @@ _per_profile_settings: dict[str, any]
 ########################################################################################################################
 
 def get_config_file_path() -> str:
-    """Path to the config file"""
+    """:return: Path to the config file"""
     return _config_file_path
 
 
 def get_global_settings() -> dict[str, any]:
-    """Global Settings stored in .json format"""
+    """:return: Global Settings stored in .json format"""
     return _global_settings
 
 
 def get_per_profile_settings() -> dict[str, any]:
-    """Per-Profile Settings of currently loaded splits file stored in .json format"""
+    """:return: Per-Profile Settings of currently loaded splits file stored in .json format"""
     return _per_profile_settings
 
 
 def get_video_preview_coords() -> list[int]:
-    """Corners of area of the screen the program observes for blackscreens"""
+    """:return: Corners of area of the screen the program observes for blackscreens"""
     if "video_preview_coords" in _per_profile_settings:
         return _per_profile_settings.get("video_preview_coords")
     else:
@@ -53,7 +53,7 @@ def get_video_preview_coords() -> list[int]:
 
 
 def get_split_key() -> Key:
-    """Key automatically pressed when valid blackscreen is detected"""
+    """:return: Key automatically pressed when valid blackscreen is detected"""
     if "split_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("split_key"))
     else:
@@ -61,7 +61,7 @@ def get_split_key() -> Key:
 
 
 def get_pause_key() -> Key:
-    """Key to press once to pause and press again to unpause"""
+    """:return: Key to press once to pause and press again to unpause"""
     if "pause_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("pause_key"))
     else:
@@ -69,7 +69,7 @@ def get_pause_key() -> Key:
 
 
 def get_reset_key() -> Key:
-    """Key to press to restart program without actually restarting"""
+    """:return: Key to press to restart program without actually restarting"""
     if "reset_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("reset_key"))
     else:
@@ -77,7 +77,7 @@ def get_reset_key() -> Key:
 
 
 def get_decrement_key() -> Key:
-    """Key to press to decrement counter after "accidental" blackscreen (i. e. death)"""
+    """:return: Key to press to decrement counter after "accidental" blackscreen (i. e. death)"""
     if "decrement_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("decrement_key"))
     else:
@@ -85,7 +85,7 @@ def get_decrement_key() -> Key:
 
 
 def get_increment_key() -> Key:
-    """"Well, there's currently no cases where that's useful or important" (except for pause/decrement user error)"""
+    """:return: "Well, there's currently no cases where that's useful or important" (except for pause/decrement user error)"""
     if "increment_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("increment_key"))
     else:
@@ -93,7 +93,7 @@ def get_increment_key() -> Key:
 
 
 def get_blackscreen_threshold() -> float:
-    """Threshold for average gray value for a screen to count as blackscreen (default 15)"""
+    """:return: Threshold for average gray value for a screen to count as blackscreen (default 15)"""
     if "blackscreen_threshold" in _per_profile_settings:
         return _per_profile_settings.get("blackscreen_threshold")
     else:
@@ -101,7 +101,7 @@ def get_blackscreen_threshold() -> float:
 
 
 def get_after_split_delay() -> float:
-    """Delay to prevent multiple splits per blackscreen in seconds"""
+    """:return: Delay to prevent multiple splits per blackscreen in seconds"""
     if "after_split_delay" in _per_profile_settings:
         return _per_profile_settings.get("after_split_delay")
     else:
@@ -109,7 +109,7 @@ def get_after_split_delay() -> float:
 
 
 def get_max_capture_rate() -> float:
-    """Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)"""
+    """:return: Times/second a capture is taken (NOTE: this is a maximum and possibly unreachable)"""
     if "max_capture_rate" in _per_profile_settings:
         return _per_profile_settings.get("max_capture_rate")
     else:
@@ -117,7 +117,7 @@ def get_max_capture_rate() -> float:
 
 
 def get_after_key_press_delay() -> float:
-    """Delay after any key press to prevent multiple registrations"""
+    """:return: Delay after any key press to prevent multiple registrations"""
     if "after_key_press_delay" in _per_profile_settings:
         return _per_profile_settings.get("after_key_press_delay")
     else:
@@ -125,7 +125,7 @@ def get_after_key_press_delay() -> float:
 
 
 def get_automatic_threshold_overhead() -> float:
-    """Value added to automatically calculated threshold for better tolerance"""
+    """:return: Value added to automatically calculated threshold for better tolerance"""
     if "after_key_press_delay" in _per_profile_settings:
         return _per_profile_settings.get("automatic_threshold_overhead")
     else:
@@ -133,12 +133,12 @@ def get_automatic_threshold_overhead() -> float:
 
 
 def get_current_splits_profile_path() -> str:
-    """Path to the currently selected splits profile config file"""
+    """:return: Path to the currently selected splits profile config file"""
     return _global_settings.get("path_to_current_splits_profile")
 
 
 def get_default_settings() -> dict[str, any]:
-    """Settings considered "default" """
+    """:return: Settings considered "default" """
     return _DEFAULT_SETTINGS
 
 
@@ -232,6 +232,7 @@ def read_global_config_from_file():
         while msg_splits_file_format_error.isVisible():
             time.sleep(1)
         restore_defaults()
+    # TODO: add validity check
 
 
 def read_per_profile_config_from_file():
@@ -257,6 +258,7 @@ def read_per_profile_config_from_file():
             msg_splits_file_format_error.exec()
             current_splits_profile_path = ""
             write_config_to_file()
+    # TODO: add validity check
 
 
 def write_config_to_file():
@@ -316,4 +318,4 @@ def _on_import():
         restore_defaults()
 
 
-#_on_import()
+_on_import()

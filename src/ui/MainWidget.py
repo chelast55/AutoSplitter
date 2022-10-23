@@ -5,8 +5,8 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 
-#from src import Config
-#from src import SplitsProfile
+from src import config
+from src import splits_profile
 #from src.ScreenWatchWorker import ScreenWatchWorker
 #from src.SetupWidget import SetupWidget
 #from src.SplitsProfileSelectorDialog import SplitsProfileSelectorDialog
@@ -25,7 +25,7 @@ class MainWidget(QWidget):
 
         # misc visual
         self.setWindowTitle("Blackscreen Autosplitter")
-        #self._update_lbl_current_splits_profile()
+        self._update_lbl_current_splits_profile()
 
         # connect functionality to buttons
         #self._btn_select_splits_profile.clicked.connect(self._btn_select_splits_profile_on_click)
@@ -72,6 +72,18 @@ class MainWidget(QWidget):
         buttons_layout.addWidget(self._btn_start_stop)
 
         return buttons_layout
+
+    ################
+    # Misc. visual #
+    ################
+
+    def _update_lbl_current_splits_profile(self):
+        splits_profile_text = "Current Splits Profile: "
+        if config.get_current_splits_profile_path() == "":
+            splits_profile_text += "-"
+        else:
+            splits_profile_text += splits_profile.load_from_file(config.get_current_splits_profile_path()).name
+        self._lbl_current_splits_profile.setText(splits_profile_text)
 
     ########################
     # Button functionality #

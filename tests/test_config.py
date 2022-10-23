@@ -6,7 +6,7 @@ from pynput.keyboard import KeyCode
 import src.config as config
 
 
-SPLITS_PROFILE_PATH = path.join(r"test_data", r"example.json")
+SPLITS_PROFILE_PATH = path.join(path.dirname(path.abspath(__file__)), r"test_data", r"example.json")
 
 SOME_SETTINGS: dict[str, any] = {"global": [
     {
@@ -22,7 +22,7 @@ SOME_SETTINGS: dict[str, any] = {"global": [
         "after_key_press_delay": 0.2,
         "automatic_threshold_overhead": 3
     }
-], "path_to_current_splits_profile": path.join(path.dirname(path.abspath(__file__)), SPLITS_PROFILE_PATH)}
+], "path_to_current_splits_profile": SPLITS_PROFILE_PATH}
 
 
 ########################################################################################################################
@@ -59,7 +59,7 @@ def test_on_import_case_config_does_not_exist():
 
 
 ########################################################################################################################
-# test_read_global_config_from_file                                                                               #
+# test_read_global_config_from_file                                                                                    #
 ########################################################################################################################
 
 def read_global_config_from_file():
