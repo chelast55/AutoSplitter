@@ -42,6 +42,8 @@ def test_on_import_case_config_does_exist():
 
     config._global_settings = SOME_SETTINGS
     config.write_config_to_file()
+    config._global_settings = None
+    config._per_profile_settings = None
 
     config._on_import()
 
@@ -54,13 +56,11 @@ def test_on_import_case_config_does_exist():
 def test_on_import_case_config_does_not_exist():
     _store_config_file()
 
+    config._global_settings = None
+    config._per_profile_settings = None
+
     config._on_import()
 
     _restore_config_file()
 
     assert config.get_global_settings() == config.get_default_settings()
-
-
-def test_jgjgkjhgkjhgkjgh():
-    assert True
-
