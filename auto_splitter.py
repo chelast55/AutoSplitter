@@ -3,10 +3,11 @@ from PySide6.QtWidgets import QApplication, QWidget
 # qt app needs to be constructed before we can do anything else with qt
 app: QApplication = QApplication([])
 
+from sys import exit
 from src.ui.MainWidget import MainWidget
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     widget: QWidget = MainWidget()
     widget.resize(400, 150)
     widget.show()

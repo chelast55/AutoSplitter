@@ -1,1 +1,7 @@
 /venv/
+/build/
+/dist/
+/.pytest_cache/
+/tests/.pytest_cache/
+/main.spec
+/auto_splitter.spec
