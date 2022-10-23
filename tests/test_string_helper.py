@@ -30,7 +30,7 @@ def test_key_str_to_obj_case_function():
 
 
 def test_key_str_to_obj_case_unrecognized_code():
-    assert string_helper.key_str_to_obj("<42>") ==  KeyCode.from_vk(42)
+    assert string_helper.key_str_to_obj("<42>") == KeyCode.from_vk(42)
 
 
 def test_key_str_to_obj_case_none():
