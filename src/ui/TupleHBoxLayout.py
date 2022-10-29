@@ -1,3 +1,7 @@
+"""
+Child of QHBoxLayout containing exactly 2 QWidgets
+"""
+
 from PySide6.QtWidgets import QHBoxLayout, QWidget
 
 

@@ -26,43 +26,10 @@ SOME_SETTINGS: dict[str, any] = {"global": [
 
 
 ########################################################################################################################
-# test_on_import                                                                                                       #
-########################################################################################################################
-
-def test_on_import_case_config_does_exist():
-    _store_config_file()
-
-    config._global_settings = SOME_SETTINGS
-    config.write_config_to_file()
-    config._global_settings = None
-    config._per_profile_settings = None
-
-    config._on_import()
-
-    _restore_config_file()
-
-    assert config.get_global_settings() == SOME_SETTINGS
-    assert config.get_per_profile_settings()[0]["split_key"] == "Key.space"
-
-
-def test_on_import_case_config_does_not_exist():
-    _store_config_file()
-
-    config._global_settings = None
-    config._per_profile_settings = None
-
-    config._on_import()
-
-    _restore_config_file()
-
-    assert config.get_global_settings() == config.get_default_settings()
-
-
-########################################################################################################################
 # test_read_global_config_from_file                                                                                    #
 ########################################################################################################################
 
-def read_global_config_from_file():
+def test_read_global_config_from_file():
     _store_config_file()
 
     config._global_settings = SOME_SETTINGS
@@ -80,7 +47,7 @@ def read_global_config_from_file():
 # test_read_per_profile_config_from_file                                                                               #
 ########################################################################################################################
 
-def read_per_profile_config_from_file_case_splits_profile_selected():
+def test_read_per_profile_config_from_file_case_splits_profile_selected():
     config._global_settings["path_to_current_splits_profile"] = SOME_SETTINGS["path_to_current_splits_profile"]
     config._per_profile_settings = None
 
@@ -89,7 +56,7 @@ def read_per_profile_config_from_file_case_splits_profile_selected():
     assert config.get_per_profile_settings()[0]["split_key"] == "Key.space"
 
 
-def read_per_profile_config_from_file_case_no_splits_profile_selected():
+def test_read_per_profile_config_from_file_case_no_splits_profile_selected():
     config.read_per_profile_config_from_file()
 
     assert True
@@ -147,6 +114,39 @@ def test_restore_defaults():
     config._global_settings = None
 
     config.restore_defaults()
+
+    assert config.get_global_settings() == config.get_default_settings()
+
+
+########################################################################################################################
+# test_on_import                                                                                                       #
+########################################################################################################################
+
+def test_on_import_case_config_does_exist():
+    _store_config_file()
+
+    config._global_settings = SOME_SETTINGS
+    config.write_config_to_file()
+    config._global_settings = None
+    config._per_profile_settings = None
+
+    config._on_import()
+
+    _restore_config_file()
+
+    assert config.get_global_settings() == SOME_SETTINGS
+    assert config.get_per_profile_settings()[0]["split_key"] == "Key.space"
+
+
+def test_on_import_case_config_does_not_exist():
+    _store_config_file()
+
+    config._global_settings = None
+    config._per_profile_settings = None
+
+    config._on_import()
+
+    _restore_config_file()
 
     assert config.get_global_settings() == config.get_default_settings()
 

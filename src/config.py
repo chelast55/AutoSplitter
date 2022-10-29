@@ -16,10 +16,10 @@ from src.string_helper import key_str_to_obj
 _config_file_path: str = path.dirname(path.abspath(__file__))[:-3] + "config.json"
 """Path to global config file"""
 
-_global_settings: dict[str, any]
+_global_settings: dict[str, any] = {}
 """Global Settings stored in .json format"""
 
-_per_profile_settings: dict[str, any]
+_per_profile_settings: dict[str, any] = {}
 """Per-Profile Settings of currently loaded splits file stored in .json format"""
 
 
@@ -85,7 +85,8 @@ def get_decrement_key() -> Key:
 
 
 def get_increment_key() -> Key:
-    """:return: "Well, there's currently no cases where that's useful or important" (except for pause/decrement user error)"""
+    """:return: "Well, there's currently no cases where that's useful or important" (except for pause/decrement user
+    error) """
     if "increment_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("increment_key"))
     else:

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QD
     QCheckBox, QPushButton, QGroupBox, QDoubleSpinBox
 
 from src import config
-#from src.ui.KeyPickerWidget import KeyPickerWidget
+from src.ui.KeyPickerWidget import KeyPickerWidget
 #from src.ui.QRectSelectGraphicsView import QRectSelectGraphicsView
 #from src.ui.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
@@ -56,15 +56,15 @@ class SettingsWidget(QWidget):
         self._btn_restore_defaults: QPushButton = QPushButton("Restore Default Settings")
         self._lbl_options_mode_status: QLabel = QLabel("Global settings:")
         self._lbl_split: QLabel = QLabel("Split Key:")
-        #self._key_picker_split: KeyPickerWidget = KeyPickerWidget()
+        self._key_picker_split: KeyPickerWidget = KeyPickerWidget()
         self._lbl_pause: QLabel = QLabel("Pause Key:")
-        #self._key_picker_pause: KeyPickerWidget = KeyPickerWidget()
+        self._key_picker_pause: KeyPickerWidget = KeyPickerWidget()
         self._lbl_reset: QLabel = QLabel("Reset Key:")
-        #self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
+        self._key_picker_reset: KeyPickerWidget = KeyPickerWidget()
         self._lbl_decrement: QLabel = QLabel("Decrement Key:")
-        #self._key_picker_decrement: KeyPickerWidget = KeyPickerWidget()
+        self._key_picker_decrement: KeyPickerWidget = KeyPickerWidget()
         self._lbl_increment: QLabel = QLabel("Increment Key:")
-        #self._key_picker_increment: KeyPickerWidget = KeyPickerWidget()
+        self._key_picker_increment: KeyPickerWidget = KeyPickerWidget()
         self._lbl_blackscreen_threshold: QLabel = QLabel("Blackscreen Threshold (0-255):")
         self._sb_blackscreen_threshold: QSpinBox = QSpinBox()
         self._sb_blackscreen_threshold.setMinimum(0)
@@ -115,11 +115,11 @@ class SettingsWidget(QWidget):
         self._gb_info_highlight.setLayout(self._info_box)
         self._info_box.addWidget(self._lbl_info)
 
-        #self._key_picker_split.set_key(config.get_split_key())
-        #self._key_picker_pause.set_key(config.get_pause_key())
-        #self._key_picker_reset.set_key(config.get_reset_key())
-        #self._key_picker_decrement.set_key(config.get_decrement_key())
-        #self._key_picker_increment.set_key(config.get_increment_key())
+        self._key_picker_split.set_key(config.get_split_key())
+        self._key_picker_pause.set_key(config.get_pause_key())
+        self._key_picker_reset.set_key(config.get_reset_key())
+        self._key_picker_decrement.set_key(config.get_decrement_key())
+        self._key_picker_increment.set_key(config.get_increment_key())
         self._sb_blackscreen_threshold.setValue(config.get_blackscreen_threshold())
         self._dsb_after_split_delay.setValue(config.get_after_split_delay())
         self._lbl_max_capture_rate.setText("Max Capture Rate (1/s):")
@@ -148,11 +148,11 @@ class SettingsWidget(QWidget):
         settings_and_info_layout.addWidget(self._btn_restore_defaults)
         settings_and_info_layout.addWidget(self._lbl_options_mode_status)
         button_settings_layout = QFormLayout()
-        #button_settings_layout.addRow(self._lbl_split, self._key_picker_split)
-        #button_settings_layout.addRow(self._lbl_pause, self._key_picker_pause)
-        #button_settings_layout.addRow(self._lbl_reset, self._key_picker_reset)
-        #button_settings_layout.addRow(self._lbl_decrement, self._key_picker_decrement)
-        #button_settings_layout.addRow(self._lbl_increment, self._key_picker_increment)
+        button_settings_layout.addRow(self._lbl_split, self._key_picker_split)
+        button_settings_layout.addRow(self._lbl_pause, self._key_picker_pause)
+        button_settings_layout.addRow(self._lbl_reset, self._key_picker_reset)
+        button_settings_layout.addRow(self._lbl_decrement, self._key_picker_decrement)
+        button_settings_layout.addRow(self._lbl_increment, self._key_picker_increment)
         row_blackscreen_threshold = QHBoxLayout()
         row_blackscreen_threshold.addWidget(self._sb_blackscreen_threshold)
         row_blackscreen_threshold.addWidget(self._sb_blackscreen_threshold_override)
