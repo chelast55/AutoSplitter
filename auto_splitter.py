@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QApplication, QWidget
+from sys import exit
 
 # qt app needs to be constructed before we can do anything else with qt
 app: QApplication = QApplication([])
 
-from sys import exit
 from src.ui.MainWidget import MainWidget
 
 
