@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLa
 from src import config
 from src import splits_profile
 #from src.ScreenWatchWorker import ScreenWatchWorker
-#from src.SetupWidget import SetupWidget
+from src.ui.SettingsWidget import SettingsWidget
 #from src.SplitsProfileSelectorDialog import SplitsProfileSelectorDialog
 
 
@@ -29,7 +29,7 @@ class MainWidget(QWidget):
 
         # connect functionality to buttons
         #self._btn_select_splits_profile.clicked.connect(self._btn_select_splits_profile_on_click)
-        #self._btn_settings.clicked.connect(self._btn_settings_on_click)
+        self._btn_settings.clicked.connect(self._btn_settings_on_click)
         #self._btn_pause.clicked.connect(self._worker_on_pause_status_updated)
         #self._btn_start_stop.clicked.connect(self._btn_start_stop_on_click)
 
@@ -88,3 +88,8 @@ class MainWidget(QWidget):
     ########################
     # Button functionality #
     ########################
+
+    def _btn_settings_on_click(self):
+        self._setup_widget = SettingsWidget()
+        self._setup_widget.show()
+
