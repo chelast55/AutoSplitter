@@ -344,7 +344,7 @@ class SettingsWidget(QWidget):
         config.set_increment_key(self._key_picker_increment.get_global_key())
         config.set_blackscreen_threshold(self._sb_blackscreen_threshold.value())
         config.set_after_split_delay(self._dsb_after_split_delay.value())
-        # config.set_video_preview_coords(self._gv_preview_image.get_rect())
+        config.set_video_preview_coords(self._gv_preview_image.get_rect())
         config.set_max_capture_rate(self._sb_max_capture_rate.value())
         config.set_after_key_press_delay(self._dsb_after_key_press_delay.value())
         config.set_automatic_threshold_overhead(self._sb_automatic_threshold_overhead.value())

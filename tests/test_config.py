@@ -10,7 +10,7 @@ SPLITS_PROFILE_PATH = path.join(path.dirname(path.abspath(__file__)), r"test_dat
 
 SOME_SETTINGS: dict[str, any] = {"global": [
     {
-        "video_preview_coords": [1.0, 1.0, 100.0, 100.0],
+        "video_preview_coords": (1.0, 1.0, 100.0, 100.0),
         "split_key": 'a',
         "pause_key": 'Key.space',
         "reset_key": 'b',
@@ -53,13 +53,17 @@ def test_read_per_profile_config_from_file_case_splits_profile_selected():
 
     config.read_per_profile_config_from_file()
 
-    assert config.get_per_profile_settings()[0]["split_key"] == "Key.space"
+    assert config.get_per_profile_settings()["video_preview_coords"] == (42, 42, 99, 99)
+    assert config.get_per_profile_settings()["split_key"] == "Key.space"
+
+    assert config.get_video_preview_coords() == (42, 42, 99, 99)
+    # config.get_split_key() is not tested to remove dependency on string_helper.py
 
 
 def test_read_per_profile_config_from_file_case_no_splits_profile_selected():
     config.read_per_profile_config_from_file()
 
-    assert True
+    assert True # no errors
 
 
 ########################################################################################################################
@@ -135,7 +139,7 @@ def test_on_import_case_config_does_exist():
     _restore_config_file()
 
     assert config.get_global_settings() == SOME_SETTINGS
-    assert config.get_per_profile_settings()[0]["split_key"] == "Key.space"
+    assert config.get_per_profile_settings()["split_key"] == "Key.space"
 
 
 def test_on_import_case_config_does_not_exist():

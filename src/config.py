@@ -44,12 +44,12 @@ def get_per_profile_settings() -> dict[str, any]:
     return _per_profile_settings
 
 
-def get_video_preview_coords() -> list[int]:
+def get_video_preview_coords() -> tuple[int, int, int, int]:
     """:return: Corners of area of the screen the program observes for blackscreens"""
     if "video_preview_coords" in _per_profile_settings:
-        return _per_profile_settings.get("video_preview_coords")
+        return tuple(_per_profile_settings.get("video_preview_coords"))
     else:
-        return _global_settings.get("global")[0].get("video_preview_coords")
+        return tuple(_global_settings.get("global")[0].get("video_preview_coords"))
 
 
 def get_split_key() -> Key:
@@ -147,7 +147,7 @@ def get_default_settings() -> dict[str, any]:
 # Setters for global settings                                                                                          #
 ########################################################################################################################
 
-def set_video_preview_coords(coords: list[int]):
+def set_video_preview_coords(coords: tuple[int, int, int, int]):
     """Corners of area of the screen the program observes for blackscreens"""
     _global_settings.get("global")[0]["video_preview_coords"] = coords
 
@@ -158,7 +158,6 @@ def set_split_key(split_key: Key):
         _global_settings.get("global")[0]["split_key"] = split_key
     else:
         _global_settings.get("global")[0]["split_key"] = format_key_name(repr(split_key))
-
 
 
 def set_pause_key(pause_key: Key):
@@ -235,6 +234,8 @@ def read_global_config_from_file():
     try:
         with open(_config_file_path, 'r') as config_file:
             _global_settings = json.load(config_file)
+            _global_settings["global"][0]["video_preview_coords"] \
+                = tuple(_global_settings.get("global")[0].get("video_preview_coords"))
     except (json.decoder.JSONDecodeError, AttributeError):
         msg_splits_file_format_error: QMessageBox = QMessageBox()
         msg_splits_file_format_error.setIcon(QMessageBox.Critical)
@@ -253,7 +254,7 @@ def read_global_config_from_file():
 
 def read_per_profile_config_from_file():
     """
-    Read all per-profile setting overrides from current splits profile and override the internal settings.
+    Read all per-profile setting overrides from current splits profile and store them separately from global settings.
     Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
     """
     global _per_profile_settings
@@ -262,7 +263,9 @@ def read_per_profile_config_from_file():
             print(get_current_splits_profile_path())
             with open(get_current_splits_profile_path(), 'r') as splits_profile:
                 _per_profile_settings = json.load(splits_profile).get(
-                    path.basename(get_current_splits_profile_path())[:-5] + "_settings_override")
+                    path.basename(get_current_splits_profile_path())[:-5] + "_settings_override")[0]
+                _per_profile_settings["video_preview_coords"] \
+                    = tuple(_per_profile_settings.get("video_preview_coords"))
         except (json.decoder.JSONDecodeError, AttributeError):
             msg_splits_file_format_error: QMessageBox = QMessageBox()
             msg_splits_file_format_error.setIcon(QMessageBox.Critical)
@@ -272,7 +275,7 @@ def read_per_profile_config_from_file():
                 + path.basename(get_current_splits_profile_path())
                 + " is invalid.")
             msg_splits_file_format_error.exec()
-            current_splits_profile_path = ""
+            set_current_splits_profile_path("")
             write_config_to_file()
     # TODO: add validity check
 
@@ -306,7 +309,7 @@ def restore_defaults():
 
 _DEFAULT_SETTINGS: dict[str, any] = {"global": [
     {
-        "video_preview_coords": [1.0, 1.0, 100.0, 100.0],
+        "video_preview_coords": (1.0, 1.0, 100.0, 100.0),
         "split_key": None,
         "pause_key": None,
         "reset_key": None,
