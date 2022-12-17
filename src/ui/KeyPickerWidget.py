@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog
     QPushButton
 from pynput.keyboard import Key, Listener as KeyboardListener
 
-from src import string_helper
+from src.string_helper import format_key_name
 
 
 class KeyPickerDialog(QDialog):
@@ -95,11 +95,11 @@ class KeyPickerWidget(QWidget):
 
     def set_key(self, key):
         self._global_key = key
-        self._lbl_global.setText(string_helper.format_key_name(repr(key)))
+        self._lbl_global.setText(format_key_name(repr(key)))
 
     def set_key_override(self, key):
         self._override_key = key
-        self._lbl_global.setText(string_helper.format_key_name(repr(key)))
+        self._lbl_global.setText(format_key_name(repr(key)))
 
     ########################
     # Button functionality #

@@ -13,7 +13,7 @@ SOME_SETTINGS: dict[str, any] = {"global": [
         "video_preview_coords": (1.0, 1.0, 100.0, 100.0),
         "split_key": 'a',
         "pause_key": 'Key.space',
-        "reset_key": 'b',
+        "reset_key": "'b'",
         "decrement_key": repr(KeyCode.from_vk(42)),
         "increment_key": None,
         "blackscreen_threshold": 9,
@@ -140,6 +140,7 @@ def test_on_import_case_config_does_exist():
 
     assert config.get_global_settings() == SOME_SETTINGS
     assert config.get_per_profile_settings()["split_key"] == "Key.space"
+    assert config.get_per_profile_settings()["decrement_key"] in ["a", "'a'"]
 
 
 def test_on_import_case_config_does_not_exist():

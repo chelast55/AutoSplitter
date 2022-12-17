@@ -11,6 +11,7 @@ from pynput.keyboard import Key
 from os import path, remove
 
 from src.string_helper import key_str_to_obj, format_key_name
+from src.splits_profile import SplitsProfile
 
 
 _config_file_path: str = path.dirname(path.abspath(__file__))[:-3] + "config.json"
@@ -21,6 +22,9 @@ _global_settings: dict[str, any] = {}
 
 _per_profile_settings: dict[str, any] = {}
 """Per-Profile Settings of currently loaded splits file stored in .json format"""
+
+_current_splits_profile: SplitsProfile = SplitsProfile()
+"""Class representation of currently selected splits profile"""
 
 
 ########################################################################################################################
@@ -44,6 +48,11 @@ def get_per_profile_settings() -> dict[str, any]:
     return _per_profile_settings
 
 
+def get_current_splits_profile() -> SplitsProfile:
+    """:return: Path to the currently selected splits profile config file"""
+    return _current_splits_profile
+
+
 def get_video_preview_coords() -> tuple[int, int, int, int]:
     """:return: Corners of area of the screen the program observes for blackscreens"""
     if "video_preview_coords" in _per_profile_settings:
@@ -52,12 +61,13 @@ def get_video_preview_coords() -> tuple[int, int, int, int]:
         return tuple(_global_settings.get("global")[0].get("video_preview_coords"))
 
 
+
 def get_split_key() -> Key:
     """:return: Key automatically pressed when valid blackscreen is detected"""
     if "split_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("split_key"))
     else:
-        return _global_settings.get("global")[0].get("split_key")
+        return key_str_to_obj(_global_settings.get("global")[0].get("split_key"))
 
 
 def get_pause_key() -> Key:
@@ -65,7 +75,7 @@ def get_pause_key() -> Key:
     if "pause_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("pause_key"))
     else:
-        return _global_settings.get("global")[0].get("pause_key")
+        return key_str_to_obj(_global_settings.get("global")[0].get("pause_key"))
 
 
 def get_reset_key() -> Key:
@@ -73,7 +83,7 @@ def get_reset_key() -> Key:
     if "reset_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("reset_key"))
     else:
-        return _global_settings.get("global")[0].get("reset_key")
+        return key_str_to_obj(_global_settings.get("global")[0].get("reset_key"))
 
 
 def get_decrement_key() -> Key:
@@ -81,7 +91,7 @@ def get_decrement_key() -> Key:
     if "decrement_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("decrement_key"))
     else:
-        return _global_settings.get("global")[0].get("decrement_key")
+        return key_str_to_obj(_global_settings.get("global")[0].get("decrement_key"))
 
 
 def get_increment_key() -> Key:
@@ -90,7 +100,7 @@ def get_increment_key() -> Key:
     if "increment_key" in _per_profile_settings:
         return key_str_to_obj(_per_profile_settings.get("increment_key"))
     else:
-        return _global_settings.get("global")[0].get("increment_key")
+        return key_str_to_obj(_global_settings.get("global")[0].get("increment_key"))
 
 
 def get_blackscreen_threshold() -> float:
@@ -157,14 +167,14 @@ def set_split_key(split_key: Key):
     if split_key is None or type(split_key) == str:
         _global_settings.get("global")[0]["split_key"] = split_key
     else:
-        _global_settings.get("global")[0]["split_key"] = format_key_name(repr(split_key))
+        _global_settings.get("global")[0]["split_key"] = repr(split_key)
 
 
 def set_pause_key(pause_key: Key):
     if pause_key is None or type(pause_key) == str:
         _global_settings.get("global")[0]["pause_key"] = pause_key
     else:
-        _global_settings.get("global")[0]["pause_key"] = format_key_name(repr(pause_key))
+        _global_settings.get("global")[0]["pause_key"] = repr(pause_key)
 
 
 def set_reset_key(reset_key: Key):
@@ -172,7 +182,7 @@ def set_reset_key(reset_key: Key):
     if reset_key is None or type(reset_key) == str:
         _global_settings.get("global")[0]["reset_key"] = reset_key
     else:
-        _global_settings.get("global")[0]["reset_key"] = format_key_name(repr(reset_key))
+        _global_settings.get("global")[0]["reset_key"] = repr(reset_key)
 
 
 def set_decrement_key(decrement_key: Key):
@@ -180,7 +190,7 @@ def set_decrement_key(decrement_key: Key):
     if decrement_key is None or type(decrement_key) == str:
         _global_settings.get("global")[0]["decrement_key"] = decrement_key
     else:
-        _global_settings.get("global")[0]["decrement_key"] = format_key_name(repr(decrement_key))
+        _global_settings.get("global")[0]["decrement_key"] = repr(decrement_key)
 
 
 def set_increment_key(increment_key: Key):
@@ -188,7 +198,7 @@ def set_increment_key(increment_key: Key):
     if increment_key is None or type(increment_key) == str:
         _global_settings.get("global")[0]["increment_key"] = increment_key
     else:
-        _global_settings.get("global")[0]["increment_key"] = format_key_name(repr(increment_key))
+        _global_settings.get("global")[0]["increment_key"] = repr(increment_key)
 
 
 def set_blackscreen_threshold(blackscreen_threshold: float):
@@ -260,7 +270,6 @@ def read_per_profile_config_from_file():
     global _per_profile_settings
     if not get_current_splits_profile_path() == "":
         try:
-            print(get_current_splits_profile_path())
             with open(get_current_splits_profile_path(), 'r') as splits_profile:
                 _per_profile_settings = json.load(splits_profile).get(
                     path.basename(get_current_splits_profile_path())[:-5] + "_settings_override")[0]
@@ -296,6 +305,13 @@ def delete_config_file():
     """
     if path.exists(_config_file_path):
         remove(_config_file_path)
+
+
+def read_current_splits_profile():
+    """
+    Read splits profile at current splits profile path and store it internally.
+    """
+    _current_splits_profile.load_from_file(get_current_splits_profile_path())
 
 
 def restore_defaults():
@@ -335,6 +351,7 @@ def _on_import():
         read_per_profile_config_from_file()
     else:
         restore_defaults()
+    read_current_splits_profile()
 
 
 _on_import()

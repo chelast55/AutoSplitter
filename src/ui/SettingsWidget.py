@@ -69,7 +69,7 @@ class SettingsWidget(QWidget):
 
         # connect functionality to buttons
         # self._btn_change_options_mode.clicked.connect(self._btn_switch_options_mode_on_click)
-        # self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
+        self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
         # self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
         self._btn_box.accepted.connect(self._btn_box_accepted)
@@ -324,6 +324,17 @@ class SettingsWidget(QWidget):
         if self._btn_automatic_threshold.isChecked():
             self._lbl_info.setText("Select preview area, wait for a blackscreen to occur, disable automatic\nmode "
                                    "again\n\n" + self._lbl_info.text())
+
+    def _btn_restore_defaults_on_click(self):
+        if self._global_options_mode_enabled:
+            config.restore_defaults()
+            self._sb_blackscreen_threshold.setValue(config.get_blackscreen_threshold())
+            self._dsb_after_split_delay.setValue(config.get_after_split_delay())
+            self._sb_max_capture_rate.setValue(config.get_max_capture_rate())
+            self._dsb_after_split_delay.setValue(config.get_after_split_delay())
+            self._sb_automatic_threshold_overhead.setValue(config.get_automatic_threshold_overhead())
+        else:
+            pass  # TODO: Implement clearing of settings override only
 
     def _cb_advanced_settings_state_changed(self):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())

@@ -33,12 +33,14 @@ def format_key_name(key_repr: str):
         if key_repr[1] == 'K':  # function key
             return key_repr[1:].split(':')[0].split('.')[1].upper()
         else:  # unrecognized scan code
-            print(key_repr[1:-1])
             return "OEM." + key_repr[1:-1]
     elif key_repr[0] == 'N':  # None
         return "-"
     else:  # alphanumeric key
-        return key_repr[1:-1].upper()
+        if len(key_repr) == 1:
+            return key_repr.upper()
+        elif len(key_repr) == 3:
+            return key_repr[1:-1].upper()
 
 
 def key_str_to_obj(s: any) -> Key:
@@ -51,10 +53,15 @@ def key_str_to_obj(s: any) -> Key:
     """
     if s is None:
         return None
-    elif s.startswith('<'):
-        if s[1] == 'K':  # function key
-            return eval(s[1:].split(':')[0])
-        else:  # unrecognized scan code
-            return KeyCode.from_vk(int(s[1:-1]))
+    elif type(s) == str:
+        if len(s) == 1:  # alphanumeric key
+            return s
+        elif len(s) == 3:  # alphanumeric key
+            return s[1:-1]
+        elif s.startswith('<'):
+            if s[1] == 'K':  # function key
+                return eval(s[1:].split(':')[0])
+            else:  # unrecognized scan code
+                return KeyCode.from_vk(int(s[1:-1]))
     else:
-        return eval(s)
+        return s

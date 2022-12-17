@@ -30,7 +30,8 @@
                 99,
                 99
             ],
-            "split_key": "Key.space"
+            "split_key": "Key.space",
+            "decrement_key": "'a'"
         }
     ]
 }

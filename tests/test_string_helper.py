@@ -9,7 +9,11 @@ import src.string_helper as string_helper
 # test_format_key_name                                                                                                 #
 ########################################################################################################################
 
-def test_format_key_name_case_alphanumeric():
+def test_format_key_name_case_alphanumeric_l1():
+    assert string_helper.format_key_name("a") == "A"
+
+
+def test_format_key_name_case_alphanumeric_l3():
     assert string_helper.format_key_name("\'a\'") == "A"
 
 
