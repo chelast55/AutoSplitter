@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMessageBox
 from pynput.keyboard import Key
 from os import path, remove
 
-from src.string_helper import key_str_to_obj
+from src.string_helper import key_str_to_obj, format_key_name
 
 
 _config_file_path: str = path.dirname(path.abspath(__file__))[:-3] + "config.json"
@@ -154,27 +154,42 @@ def set_video_preview_coords(coords: list[int]):
 
 def set_split_key(split_key: Key):
     """Key automatically pressed when valid blackscreen is detected"""
-    _global_settings.get("global")[0]["split_key"] = split_key
+    if split_key is None or type(split_key) == str:
+        _global_settings.get("global")[0]["split_key"] = split_key
+    else:
+        _global_settings.get("global")[0]["split_key"] = format_key_name(repr(split_key))
+
 
 
 def set_pause_key(pause_key: Key):
-    """Key to press once to pause and press again to unpause"""
-    _global_settings.get("global")[0]["pause_key"] = pause_key
+    if pause_key is None or type(pause_key) == str:
+        _global_settings.get("global")[0]["pause_key"] = pause_key
+    else:
+        _global_settings.get("global")[0]["pause_key"] = format_key_name(repr(pause_key))
 
 
 def set_reset_key(reset_key: Key):
     """Key to press to restart program without actually restarting"""
-    _global_settings.get("global")[0]["reset_key"] = reset_key
+    if reset_key is None or type(reset_key) == str:
+        _global_settings.get("global")[0]["reset_key"] = reset_key
+    else:
+        _global_settings.get("global")[0]["reset_key"] = format_key_name(repr(reset_key))
 
 
 def set_decrement_key(decrement_key: Key):
     """Key to press to decrement counter after "accidental" blackscreen (i. e. death)"""
-    _global_settings.get("global")[0]["decrement_key"] = decrement_key
+    if decrement_key is None or type(decrement_key) == str:
+        _global_settings.get("global")[0]["decrement_key"] = decrement_key
+    else:
+        _global_settings.get("global")[0]["decrement_key"] = format_key_name(repr(decrement_key))
 
 
 def set_increment_key(increment_key: Key):
     """"Well, there's currently no cases where that's useful or important" (except for pause/decrement user error)"""
-    _global_settings.get("global")[0]["increment_key"] = increment_key
+    if increment_key is None or type(increment_key) == str:
+        _global_settings.get("global")[0]["increment_key"] = increment_key
+    else:
+        _global_settings.get("global")[0]["increment_key"] = format_key_name(repr(increment_key))
 
 
 def set_blackscreen_threshold(blackscreen_threshold: float):

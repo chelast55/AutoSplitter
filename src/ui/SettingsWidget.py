@@ -71,9 +71,9 @@ class SettingsWidget(QWidget):
         # self._btn_change_options_mode.clicked.connect(self._btn_switch_options_mode_on_click)
         # self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
         # self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
-        # self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
-        # self._btn_box.accepted.connect(self._btn_box_accepted)
-        # self._btn_box.rejected.connect(self._btn_box_rejected)
+        self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
+        self._btn_box.accepted.connect(self._btn_box_accepted)
+        self._btn_box.rejected.connect(self._btn_box_rejected)
 
     #########################
     # Construct sub-layouts #
@@ -218,7 +218,7 @@ class SettingsWidget(QWidget):
     def _init_info_timer(self):
         self._tmr_info: QTimer = QTimer(self)
         self._tmr_info.setInterval(200)
-        # self._tmr_info.timeout.connect(self._on_info_timeout)
+        self._tmr_info.timeout.connect(self._on_info_timeout)
         self._tmr_info.start()
 
     def _load_from_config(self): # TODO: support for overrides
@@ -270,3 +270,99 @@ class SettingsWidget(QWidget):
         self._sb_max_capture_rate_override.setEnabled(True)
         self._dsb_after_key_press_delay_override.setEnabled(True)
         self._sb_automatic_threshold_overhead_override.setEnabled(True)
+
+    #################################
+    # Button-/Tooltip functionality #
+    #################################
+
+    def _on_info_timeout(self):
+        if self._btn_change_options_mode.underMouse():
+            if self._global_options_mode_enabled:
+                self._lbl_info.setText("Switch to \"per-profile settings override mode\".\n"
+                                       "Changes are saved on top of global settings for each splits\n"
+                                       "profile individually.")
+            else:
+                self._lbl_info.setText("Switch to \"global settings mode\".\n"
+                                       "Changes are saved to global settings.")
+        elif self._btn_restore_defaults.underMouse():
+            if self._global_options_mode_enabled:
+                self._lbl_info.setText("Restore default settings.\n(NOTE: Key bindings are NOT affected by this.)")
+            else:
+                self._lbl_info.setText("Clear settings overrides for current profile.\n"
+                                       "(NOTE: Key bindings ARE affected by this.)")
+        elif self._lbl_split.underMouse() or self._key_picker_split.underMouse():
+            self._lbl_info.setText("Key automatically pressed when a blackscreen is detected")
+        elif self._lbl_pause.underMouse() or self._key_picker_pause.underMouse():
+            self._lbl_info.setText("Key to pause/unpause the blackscreen detection")
+        elif self._lbl_reset.underMouse() or self._key_picker_reset.underMouse():
+            self._lbl_info.setText("Key to reset the blackscreen counter")
+        elif self._lbl_decrement.underMouse() or self._key_picker_decrement.underMouse():
+            self._lbl_info.setText("Key to subtract 1 from the blackscreen counter")
+        elif self._lbl_increment.underMouse() or self._key_picker_increment.underMouse():
+            self._lbl_info.setText("Key to add 1 to the blackscreen counter")
+        elif self._btn_automatic_threshold.underMouse():
+            self._lbl_info.setText("Enter automatic blackscreen detection mode.")
+        elif self._lbl_blackscreen_threshold.underMouse() or self._sb_blackscreen_threshold.underMouse():
+            self._lbl_info.setText("Maximum Avg. Gray Value the selected area can have to still be\nconsidered a "
+                                   "\"blackscreen\"")
+        elif self._lbl_after_split_delay.underMouse() or self._dsb_after_split_delay.underMouse():
+            self._lbl_info.setText("Delay after a blackscreen was successfully detected to\nprevent multiple splits "
+                                   "per blackscreen")
+        elif self._lbl_advanced_settings.underMouse() or self._cb_advanced_settings.underMouse():
+            self._lbl_info.setText("The default values for these should work in most cases")
+        elif self._lbl_max_capture_rate.underMouse() or self._sb_max_capture_rate.underMouse():
+            self._lbl_info.setText(
+                "Times/second a capture is taken\n(NOTE: this is a maximum and possibly unreachable)")
+        elif self._lbl_after_key_press_delay.underMouse() or self._dsb_after_key_press_delay.underMouse():
+            self._lbl_info.setText("Delay after any key press to prevent multiple registrations")
+        elif self._lbl_automatic_threshold_overhead.underMouse() or self._sb_automatic_threshold_overhead.underMouse():
+            self._lbl_info.setText("Value added to automatically calculated threshold for better tolerance")
+        else:
+            self._lbl_info.setText("")
+
+        # append instructions for automatic thresholding
+        if self._btn_automatic_threshold.isChecked():
+            self._lbl_info.setText("Select preview area, wait for a blackscreen to occur, disable automatic\nmode "
+                                   "again\n\n" + self._lbl_info.text())
+
+    def _cb_advanced_settings_state_changed(self):
+        self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_max_capture_rate_override.setVisible(self._cb_advanced_settings.isChecked())
+        self._lbl_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._dsb_after_key_press_delay.setVisible(self._cb_advanced_settings.isChecked())
+        self._dsb_after_key_press_delay_override.setVisible(self._cb_advanced_settings.isChecked())
+        self._lbl_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_automatic_threshold_overhead.setVisible(self._cb_advanced_settings.isChecked())
+        self._sb_automatic_threshold_overhead_override.setVisible(self._cb_advanced_settings.isChecked())
+
+    def _btn_box_accepted(self):  # TODO: rework for per-profile-settings
+        config.set_split_key(self._key_picker_split.get_global_key())
+        config.set_pause_key(self._key_picker_pause.get_global_key())
+        config.set_reset_key(self._key_picker_reset.get_global_key())
+        config.set_decrement_key(self._key_picker_decrement.get_global_key())
+        config.set_increment_key(self._key_picker_increment.get_global_key())
+        config.set_blackscreen_threshold(self._sb_blackscreen_threshold.value())
+        config.set_after_split_delay(self._dsb_after_split_delay.value())
+        # config.set_video_preview_coords(self._gv_preview_image.get_rect())
+        config.set_max_capture_rate(self._sb_max_capture_rate.value())
+        config.set_after_key_press_delay(self._dsb_after_key_press_delay.value())
+        config.set_automatic_threshold_overhead(self._sb_automatic_threshold_overhead.value())
+        config.write_config_to_file()
+        self.close()
+
+    def _btn_box_rejected(self):
+        self.close()
+
+    ###################
+    # Event overrides #
+    ###################
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._tmr_preview_image.stop()
+        self._tmr_preview_image.stop()
+        self._tmr_info.stop()
+
+        self._video_preview_thread.quit()
+        self._video_preview_thread.wait()
+        self._video_preview_thread = None
