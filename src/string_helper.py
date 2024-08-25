@@ -43,7 +43,7 @@ def format_key_name(key_repr: str):
             return key_repr[1:-1].upper()
 
 
-def key_str_to_obj(s: any) -> Key:
+def key_str_to_obj(s: any) -> Key | KeyCode | None:
     """
     Get key object from string representation.
     Note, that this is NOT its string representation obtainable via repr(). Simply using repr() would not work,
@@ -53,7 +53,7 @@ def key_str_to_obj(s: any) -> Key:
     """
     if s is None:
         return None
-    elif type(s) == str:
+    elif type(s) is str:
         if len(s) == 1:  # alphanumeric key
             return s
         elif len(s) == 3:  # alphanumeric key

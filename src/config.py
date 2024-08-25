@@ -61,7 +61,6 @@ def get_video_preview_coords() -> tuple[int, int, int, int]:
         return tuple(_global_settings.get("global")[0].get("video_preview_coords"))
 
 
-
 def get_split_key() -> Key:
     """:return: Key automatically pressed when valid blackscreen is detected"""
     if "split_key" in _per_profile_settings:

@@ -7,11 +7,12 @@ from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QDialogButtonBox, QSpinBox, QLabel, \
     QCheckBox, QPushButton, QGroupBox, QDoubleSpinBox
+from typing import Optional
 
 from src import config
 from src.ui.KeyPickerWidget import KeyPickerWidget
 from src.ui.RectSelectGraphicsView import RectSelectGraphicsView
-# from src.ui.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
+from src.ui.SettingsVideoPreviewWorker import SettingsVideoPreviewWorker
 
 
 # TODO: Allow to somehow change between setting something globally and on a splits profile basis
@@ -205,14 +206,14 @@ class SettingsWidget(QWidget):
     def _init_video_preview_thread(self):
         self._tmr_preview_image: QTimer = QTimer(self)
         self._tmr_preview_image.setInterval(200)
-        self._video_preview_thread: QThread = QThread()
-        # self._video_preview_worker: SettingsVideoPreviewWorker = SettingsVideoPreviewWorker()
-        # self._video_preview_worker.moveToThread(self._video_preview_thread)
+        self._video_preview_thread: Optional[QThread] = QThread()
+        self._video_preview_worker: SettingsVideoPreviewWorker = SettingsVideoPreviewWorker()
+        self._video_preview_worker.moveToThread(self._video_preview_thread)
         self._tmr_preview_image.moveToThread(self._video_preview_thread)
-        # self._tmr_preview_image.timeout.connect(self._video_preview_worker.run)
-        # self._video_preview_thread.started.connect(self._tmr_preview_image.start)
-        # self._video_preview_worker.gray_value_updated.connect(self._preview_on_gray_value_updated)
-        # self._video_preview_worker.image_captured.connect(self._preview_on_image_captured)
+        self._tmr_preview_image.timeout.connect(self._video_preview_worker.run)
+        self._video_preview_thread.started.connect(self._tmr_preview_image.start)
+        self._video_preview_worker.gray_value_updated.connect(self._preview_on_gray_value_updated)
+        self._video_preview_worker.image_captured.connect(self._preview_on_image_captured)
         self._video_preview_thread.start()
 
     def _init_info_timer(self):
@@ -364,6 +365,23 @@ class SettingsWidget(QWidget):
 
     def _btn_box_rejected(self):
         self.close()
+
+    #################
+    # Video Preview #
+    #################
+
+    def _preview_on_gray_value_updated(self, gray_value: float):
+        if self._gv_preview_image.has_area():
+            self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
+            if self._btn_automatic_threshold.isChecked():
+                new_gray_threshold = math.ceil(gray_value + config.get_automatic_threshold_overhead())
+                if new_gray_threshold < self._sb_blackscreen_threshold.value() + config.get_automatic_threshold_overhead():
+                    self._sb_blackscreen_threshold.setValue(new_gray_threshold)
+
+    def _preview_on_image_captured(self, img: Image):
+        self._gv_preview_image.set_image(img)
+        if self._gv_preview_image.has_area():
+            self._video_preview_worker.set_crop_coords(self._gv_preview_image.get_rect())
 
     ###################
     # Event overrides #

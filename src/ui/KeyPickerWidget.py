@@ -1,8 +1,8 @@
 """Widget containing a button that opens a dialog for registering keyboard keys and two labels to display these keys"""
 
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QDialog, QVBoxLayout, QSizePolicy, \
-    QPushButton
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QDialog, QVBoxLayout, QSizePolicy, QPushButton
 from pynput.keyboard import Key, Listener as KeyboardListener
+from typing import Optional
 
 from src.string_helper import format_key_name
 
@@ -15,7 +15,7 @@ class KeyPickerDialog(QDialog):
 
         self.setWindowTitle("Set Key")
 
-        self._selected_key: Key = None
+        self._selected_key: Optional[Key] = None
 
         # make window as small as possible
         self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
@@ -57,8 +57,8 @@ class KeyPickerWidget(QWidget):
     def __init__(self):
         super(KeyPickerWidget, self).__init__()
 
-        self._global_key: Key = None
-        self._override_key: Key = None
+        self._global_key: Optional[Key] = None
+        self._override_key: Optional[Key] = None
 
         # layout
         self._lbl_global: QLabel = QLabel("-")
