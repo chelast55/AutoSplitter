@@ -1,7 +1,6 @@
 """(GUI) Graphical Settings Menu for setting coordinates for area to observe and various other config parameters"""
 
-import math
-import os
+from math import ceil
 from PIL.Image import Image
 from PySide6.QtCore import Qt, QTimer, QThread
 from PySide6.QtGui import QCloseEvent
@@ -64,10 +63,6 @@ class SettingsWidget(QWidget):
         self._disable_override_spin_boxes()
         self._load_from_config()
 
-        # Background tasks
-        self._init_video_preview_thread()
-        self._init_info_timer()
-
         # connect functionality to buttons
         # self._btn_change_options_mode.clicked.connect(self._btn_switch_options_mode_on_click)
         self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
@@ -75,6 +70,10 @@ class SettingsWidget(QWidget):
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
         self._btn_box.accepted.connect(self._btn_box_accepted)
         self._btn_box.rejected.connect(self._btn_box_rejected)
+
+        # Background tasks
+        self._init_video_preview_thread()
+        self._init_info_timer()
 
     #########################
     # Construct sub-layouts #
@@ -388,7 +387,7 @@ class SettingsWidget(QWidget):
         if self._gv_preview_image.has_area():
             self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
             if self._btn_automatic_threshold.isChecked():
-                new_gray_threshold = math.ceil(gray_value + config.get_automatic_threshold_overhead())
+                new_gray_threshold = ceil(gray_value + config.get_automatic_threshold_overhead())
                 if new_gray_threshold < self._sb_blackscreen_threshold.value() + config.get_automatic_threshold_overhead():
                     self._sb_blackscreen_threshold.setValue(new_gray_threshold)
 
