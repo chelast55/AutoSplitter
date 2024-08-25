@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog,
 from pathlib import Path
 from json import dump as json_dump, load as json_load
 from json.decoder import JSONDecodeError
-from typing import Any
+from typing import Any, Optional
 
 
 from src import config
@@ -94,7 +94,7 @@ class SplitsProfileSelectorDialog(QDialog):
 
         # misc. visual setup
         for i in range(1, self._directory_model.columnCount()):
-            self._tv_directory.hideColumn(i)  # hide all columns except for "name"
+            self._tv_directory.hideColumn(i)  # hide all columns (name, size, file format, etc.) except for "name"
 
         # connect functionality to buttons
         self._tv_directory.clicked.connect(self._tv_directory_on_click)
@@ -128,13 +128,33 @@ class SplitsProfileSelectorDialog(QDialog):
         selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
         path: Path = Path(self._directory_model.filePath(selected_index))
         profile_name: str = path.stem.split(".json")[0]
-        splits_list = []
+        splits_list: list[tuple[int, str]] = []
 
         for i in range(0, self._splits_profile_editor.tb_splits.rowCount()):
-            splits_list.append(
-                (self._splits_profile_editor.tb_splits.item(i, 0).text(),
-                 self._splits_profile_editor.tb_splits.item(i, 1).text()))
-        with open(self._splits_profiles_dir + "\\" + profile_name + ".json", 'w') as config_file:
+
+            row_blackscreen_count: Optional[int] = None
+            if self._splits_profile_editor.tb_splits.item(i, 0) is not None:
+                row_blackscreen_count_str = self._splits_profile_editor.tb_splits.item(i, 0).text()
+                try:
+                    row_blackscreen_count = int(row_blackscreen_count_str)
+                except ValueError:
+                    blackscreen_count_value_error: QMessageBox = QMessageBox()
+                    blackscreen_count_value_error.setIcon(QMessageBox.Critical)
+                    blackscreen_count_value_error.setWindowTitle("Value Error in blacksreens column")
+                    blackscreen_count_value_error.setText(
+                        f"Saving splits failed :/\n"
+                        f"blackscreen count in row {i+1} is not a number:"
+                        f"\n{row_blackscreen_count_str if not row_blackscreen_count_str in [None, ""] else "<empty>"}")
+                    blackscreen_count_value_error.setStandardButtons(QMessageBox.Ok)
+                    blackscreen_count_value_error.exec()
+
+            row_split_name: str = ""
+            if self._splits_profile_editor.tb_splits.item(i, 1) is not None:
+                row_split_name: Optional[str] = self._splits_profile_editor.tb_splits.item(i, 1).text()
+
+            splits_list.append((row_blackscreen_count, row_split_name))
+
+        with open(self._splits_profiles_dir / Path(profile_name + ".json"), 'w') as config_file:
             settings = {profile_name + "_splits": [],
                         profile_name + "_settings_override": []}
             settings[profile_name + "_splits"].append({
@@ -145,7 +165,6 @@ class SplitsProfileSelectorDialog(QDialog):
                 "comment": self._splits_profile_editor.get_comment(),
                 "splits": splits_list})
             json_dump(settings, config_file, indent=4)
-        pass
 
     def _tv_directory_on_click(self):
         selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]

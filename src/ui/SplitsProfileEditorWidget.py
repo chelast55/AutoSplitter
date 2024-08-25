@@ -21,7 +21,7 @@ class SplitsProfileEditorWidget(QWidget):
         self.tb_splits.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
         self.tb_splits.setColumnCount(2)
         self.tb_splits.setRowCount(5)
-        self.tb_splits.setHorizontalHeaderItem(0, QTableWidgetItem("split"))
+        self.tb_splits.setHorizontalHeaderItem(0, QTableWidgetItem("blackscreens"))
         self.tb_splits.setHorizontalHeaderItem(1, QTableWidgetItem("name"))
         self.tb_splits.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.tb_splits.resizeColumnToContents(0)
