@@ -15,7 +15,6 @@ from time import sleep
 from src.string_helper import key_str_to_obj, format_key_name
 from src.splits_profile import SplitsProfile
 
-
 _config_file_path: Path = Path(__file__).parent.parent / Path("config.json")
 """Path to global config file"""
 
@@ -260,6 +259,23 @@ def read_global_config_from_file():
         while msg_splits_file_format_error.isVisible():
             sleep(1)
         restore_defaults()
+
+    # update splits profile path
+    if (
+            Path(_global_settings["path_to_current_splits_profile"]).is_file() or
+            Path(_global_settings["path_to_current_splits_profile"]) == Path("")  # defaults already restored
+    ):
+        set_current_splits_profile_path(Path(_global_settings["path_to_current_splits_profile"]))
+    else:
+        splits_profile_path_error: QMessageBox = QMessageBox()
+        splits_profile_path_error.setIcon(QMessageBox.Critical)
+        splits_profile_path_error.setWindowTitle("splits file path error")
+        splits_profile_path_error.setText(f"Splits file at {_global_settings["path_to_current_splits_profile"]} "
+                                          f"is not a file\nCurrently selected splits file is cleared from config.")
+        splits_profile_path_error.setStandardButtons(QMessageBox.Ok)
+        splits_profile_path_error.exec()
+        set_current_splits_profile_path(Path(""))
+        write_config_to_file()
     # TODO: add validity check
 
 
