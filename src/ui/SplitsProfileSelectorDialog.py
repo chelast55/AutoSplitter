@@ -12,7 +12,7 @@ from typing import Any
 
 
 from src import config
-#from src.NewFileDialog import NewFileDialog
+from src.ui.NewFileDialog import NewFileDialog
 #from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
 
 
@@ -115,12 +115,14 @@ class SplitsProfileSelectorDialog(QDialog):
     def _btn_new_file_on_click(self):
         try:
             selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
-            path: Path = Path(self._directory_model.filePath(selected_index))
+            new_file_parent_path: Path = Path(self._directory_model.filePath(selected_index))
+            if new_file_parent_path.is_file():
+                new_file_parent_path = new_file_parent_path.parent
         except IndexError:
-            path: Path = self._splits_profiles_dir
+            new_file_parent_path: Path = self._splits_profiles_dir
 
-        #new_file_dialog = NewFileDialog(path)
-        #new_file_dialog.exec()
+        new_file_dialog: NewFileDialog = NewFileDialog(new_file_parent_path)
+        new_file_dialog.exec()
 
     def _btn_save_file_on_click(self):
         selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
