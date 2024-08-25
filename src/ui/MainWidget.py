@@ -4,6 +4,7 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 from pathlib import Path
+from time import sleep
 
 from src import config
 #from src.ScreenWatchWorker import ScreenWatchWorker
@@ -77,7 +78,7 @@ class MainWidget(QWidget):
     ################
 
     def _update_lbl_current_splits_profile(self):
-        splits_profile_text = "Splits Profile: "
+        splits_profile_text: str = "Splits Profile: "
         if config.get_current_splits_profile_path() == Path(""):
             splits_profile_text += "-"
         else:

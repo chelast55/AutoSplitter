@@ -184,9 +184,10 @@ class SplitsProfileSelectorDialog(QDialog):
         path: Path = Path(self._directory_model.filePath(selected_index))
 
         if path.exists() and path.is_file() and path == self._splits_profile_editor.opened_file_path:
-            config.set_current_splits_profile_path(str(path))
+            config.set_current_splits_profile_path(path)
             config.read_per_profile_config_from_file()
             config.write_config_to_file()
+            config.read_current_splits_profile()
             self._table_resize_listener.stop()
             self._held_toggle_listener.stop()
             self.close()
@@ -218,12 +219,3 @@ class SplitsProfileSelectorDialog(QDialog):
     def _on_held_toggle_release(self, key: Key):
         if key == Key.shift or key == Key.shift_r:
             self._shift_held = False
-
-    def closeEvent(self, event: QCloseEvent) -> None:
-        self._tmr_preview_image.stop()
-        self._tmr_preview_image.stop()
-        self._tmr_info.stop()
-
-        self._video_preview_thread.quit()
-        self._video_preview_thread.wait()
-        self._video_preview_thread = None
