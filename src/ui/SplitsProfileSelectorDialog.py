@@ -118,7 +118,7 @@ class SplitsProfileSelectorDialog(QDialog):
         settings: dict = {}
         if len(self._tv_directory.selectedIndexes()) > 0:
             selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
-            path: Path = Path(self._directory_model.filePath(selected_index))
+            path: Path = self._splits_profile_editor.opened_file_path
             profile_name: str = path.stem.split(".json")[0]
             splits_list: list[tuple[str, str]] = []
 
@@ -154,9 +154,8 @@ class SplitsProfileSelectorDialog(QDialog):
         new_file_dialog.exec()
 
     def _btn_save_file_on_click(self):
-        if len(self._tv_directory.selectedIndexes()) > 0 and self.get_current_settings() is not {}:
-            selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
-            path: Path = Path(self._directory_model.filePath(selected_index))
+        if self._splits_profile_editor.opened_file_path not in [None, Path("")]:
+            path: Path = self._splits_profile_editor.opened_file_path
             profile_name: str = path.stem.split(".json")[0]
 
             # check if all blackscreen count values are integers
@@ -179,7 +178,7 @@ class SplitsProfileSelectorDialog(QDialog):
 
             with open(self._splits_profiles_dir / Path(profile_name + ".json"), 'w') as config_file:
                 json_dump(settings, config_file, indent=4)
-                self._unchanged_settings = settings
+                self._unchanged_settings = self.get_current_settings()
 
     def _tv_directory_on_click(self):
         selected_index: QModelIndex = self._tv_directory.selectedIndexes()[0]
@@ -187,6 +186,21 @@ class SplitsProfileSelectorDialog(QDialog):
         profile_name: str = path.stem.split(".json")[0]
 
         if path.exists() and path.is_file():
+
+            # check if there are any pending changes
+            if (
+                    self._splits_profile_editor.opened_file_path != Path("")
+                    and self.get_current_settings() != self._unchanged_settings
+            ):
+                splits_profile_save_reminder: QMessageBox = QMessageBox()
+                splits_profile_save_reminder.setIcon(QMessageBox.Question)
+                splits_profile_save_reminder.setWindowTitle("Save splits profile changes?")
+                splits_profile_save_reminder.setText("Do you want to save the changes to your current splits profile?")
+                splits_profile_save_reminder.setStandardButtons(QMessageBox.Save | QMessageBox.Discard)
+                splits_profile_save_reminder.setDefaultButton(QMessageBox.Save)
+                splits_profile_save_reminder.button(QMessageBox.Save).clicked.connect(self._btn_save_file_on_click)
+                splits_profile_save_reminder.exec()
+
             try:
                 with open(path, 'r') as splits_file:
                     file_content: dict[Any] = json_load(splits_file)
@@ -203,13 +217,16 @@ class SplitsProfileSelectorDialog(QDialog):
                     for i in range(0, len(splits_list)):
                         self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
                         self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
-                self._splits_profile_editor.opened_file_path = path  # only executed when no prior .json errors occurred
-            except (JSONDecodeError, AttributeError):
+
+                # only executed when no prior .json errors occurred
+                self._splits_profile_editor.opened_file_path = path
+                self._unchanged_settings = self.get_current_settings()
+            except (JSONDecodeError, AttributeError, TypeError):
                 msg_splits_file_format_error: QMessageBox = QMessageBox()
                 msg_splits_file_format_error.setIcon(QMessageBox.Critical)
                 msg_splits_file_format_error.setWindowTitle("Format Error in splits file")
-                msg_splits_file_format_error.setText("Selected file does not contain a valid splits profile. Could "
-                                                     "not load splits.")
+                msg_splits_file_format_error.setText(f"Selected file at \"{path}\" does not contain a valid splits "
+                                                     f"profile. Could not load splits.")
                 msg_splits_file_format_error.setStandardButtons(QMessageBox.Ok)
                 msg_splits_file_format_error.exec()
 
@@ -218,6 +235,7 @@ class SplitsProfileSelectorDialog(QDialog):
         path: Path = Path(self._directory_model.filePath(selected_index))
 
         if path.exists() and path.is_file() and path == self._splits_profile_editor.opened_file_path:
+
             config.set_current_splits_profile_path(path)
             config.read_per_profile_config_from_file()
             config.write_config_to_file()
@@ -253,14 +271,3 @@ class SplitsProfileSelectorDialog(QDialog):
     def _on_held_toggle_release(self, key: Key):
         if key == Key.shift or key == Key.shift_r:
             self._shift_held = False
-
-    def _show_splits_profile_save_reminder_dialog(self, exit_condition: str):
-        splits_profile_save_reminder: QMessageBox = QMessageBox()
-        splits_profile_save_reminder.setIcon(QMessageBox.Question)
-        splits_profile_save_reminder.setWindowTitle("Save splits profile changes?")
-        splits_profile_save_reminder.setText(f"Do you want to save the changes to your current splits profile before "
-                                             f"{exit_condition}?")
-        splits_profile_save_reminder.setStandardButtons(QMessageBox.Save | QMessageBox.Discard)
-        splits_profile_save_reminder.setDefaultButton(QMessageBox.Save)
-        splits_profile_save_reminder.button(QMessageBox.Yes).clicked.connect(self._btn_save_file_on_click())
-        splits_profile_save_reminder.exec()

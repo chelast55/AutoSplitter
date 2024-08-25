@@ -44,7 +44,7 @@ class SplitsProfileEditorWidget(QWidget):
         self._btn_switch.clicked.connect(self._btn_on_click_switch)
         self._btn_switch.setFocusPolicy(Qt.NoFocus)  # for better table editing
 
-        self.opened_file_path: Path = Path()
+        self.opened_file_path: Path = Path("")
 
     def _btn_on_click_switch(self):
         if self.tb_splits.isVisible():
