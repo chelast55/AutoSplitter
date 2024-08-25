@@ -1,6 +1,6 @@
 """Contains class representation of splits files and methods surrounding it"""
-import json
-import os
+from pathlib import Path
+from json import load
 
 from PySide6.QtWidgets import QMessageBox
 
@@ -68,7 +68,7 @@ class SplitsProfile:
     # Other #
     #########
 
-    def load_from_file(self, path: str):
+    def load_from_file(self, path: Path):
         """
         Read content of splits file and load them into splits profile object.
         Each valid (non-comment) line in the file is turned into an element of the splits list in the generated splits profile object.
@@ -76,10 +76,10 @@ class SplitsProfile:
         :param path: (str) file path to splits file
         :return: (SplitsProfile) object representation of read in splits file
         """
-        self._name = os.path.basename(path)[:-5]
+        self._name = path.stem.split(".json")[0]
 
-        if os.path.exists(path) and os.path.isfile(path):
+        if path.exists() and path.is_file():
             with open(path, 'r') as splits_file:
-                self._profile = json.load(splits_file)
+                self._profile = load(splits_file)
         # TODO: message box when JSONDecodeError
         # TODO: add validity check

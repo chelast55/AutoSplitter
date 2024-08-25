@@ -2,18 +2,18 @@
 
 from pynput.keyboard import Key, Listener as KeyboardListener
 from PySide6.QtCore import QModelIndex
-from PySide6.QtGui import QSyntaxHighlighter, Qt, QTextCharFormat, QShortcut, QKeySequence
+from PySide6.QtGui import QSyntaxHighlighter, Qt, QTextCharFormat, QShortcut, QKeySequence, QCloseEvent
 from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QPushButton, \
     QTableWidgetItem, QMessageBox
 from pathlib import Path
-from json import dump as json_dump, loads as json_loads
+from json import dump as json_dump, load as json_load
 from json.decoder import JSONDecodeError
 from typing import Any
 
 
 from src import config
 from src.ui.NewFileDialog import NewFileDialog
-#from src.SplitsProfileEditorWidget import SplitsProfileEditorWidget
+from src.ui.SplitsProfileEditorWidget import SplitsProfileEditorWidget
 
 
 # TODO: Consider sorting in directories automatically based on game tag
@@ -89,8 +89,8 @@ class SplitsProfileSelectorDialog(QDialog):
         self._btn_new_file.setFocusPolicy(Qt.NoFocus)  # for better table editing
         self._btn_save_file.setFocusPolicy(Qt.NoFocus)  # for better table editing
 
-        # self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
-        # self.layout.addWidget(self._splits_profile_editor)
+        self._splits_profile_editor: SplitsProfileEditorWidget = SplitsProfileEditorWidget()
+        self._layout.addWidget(self._splits_profile_editor)
 
         # misc. visual setup
         for i in range(1, self._directory_model.columnCount()):
@@ -155,7 +155,7 @@ class SplitsProfileSelectorDialog(QDialog):
         if path.exists() and path.is_file():
             try:
                 with open(path, 'r') as splits_file:
-                    file_content: dict[Any] = json_loads(str(splits_file))
+                    file_content: dict[Any] = json_load(splits_file)
                     self._splits_profile_editor.le_game.setText(file_content.get(profile_name + "_splits")[0].get("game"))
                     self._splits_profile_editor.le_category.setText(
                         file_content.get(profile_name + "_splits")[0].get("category"))
@@ -169,11 +169,11 @@ class SplitsProfileSelectorDialog(QDialog):
                     for i in range(0, len(splits_list)):
                         self._splits_profile_editor.tb_splits.setItem(i, 0, QTableWidgetItem(str(splits_list[i][0])))
                         self._splits_profile_editor.tb_splits.setItem(i, 1, QTableWidgetItem(splits_list[i][1]))
-                self._splits_profile_editor.opened_file_path: Path = path  # only executed when no prior .json errors occurred
+                self._splits_profile_editor.opened_file_path = path  # only executed when no prior .json errors occurred
             except (JSONDecodeError, AttributeError):
                 msg_splits_file_format_error: QMessageBox = QMessageBox()
                 msg_splits_file_format_error.setIcon(QMessageBox.Critical)
-                msg_splits_file_format_error.setWindowTitle("splits file format error")
+                msg_splits_file_format_error.setWindowTitle("Format Error in splits file")
                 msg_splits_file_format_error.setText("Selected file does not contain a valid splits profile. Could "
                                                      "not load splits.")
                 msg_splits_file_format_error.setStandardButtons(QMessageBox.Ok)
@@ -184,7 +184,7 @@ class SplitsProfileSelectorDialog(QDialog):
         path: Path = Path(self._directory_model.filePath(selected_index))
 
         if path.exists() and path.is_file() and path == self._splits_profile_editor.opened_file_path:
-            config.set_current_splits_profile_path("splits_profiles/" + path.split("/splits_profiles/")[1])
+            config.set_current_splits_profile_path(str(path))
             config.read_per_profile_config_from_file()
             config.write_config_to_file()
             self._table_resize_listener.stop()
@@ -218,3 +218,12 @@ class SplitsProfileSelectorDialog(QDialog):
     def _on_held_toggle_release(self, key: Key):
         if key == Key.shift or key == Key.shift_r:
             self._shift_held = False
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._tmr_preview_image.stop()
+        self._tmr_preview_image.stop()
+        self._tmr_info.stop()
+
+        self._video_preview_thread.quit()
+        self._video_preview_thread.wait()
+        self._video_preview_thread = None

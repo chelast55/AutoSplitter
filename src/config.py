@@ -3,18 +3,20 @@ Handles reading from and writing to the config file (config.json).
 Stores configuration parameters internally and publicly accessible.
 """
 
-import json
-import time
-
 from PySide6.QtWidgets import QMessageBox
 from pynput.keyboard import Key
-from os import path, remove
+from os import remove
+from pathlib import Path
+from json import load as json_load, dump as json_dump
+from json.decoder import JSONDecodeError
+from typing import Any
+from time import sleep
 
 from src.string_helper import key_str_to_obj, format_key_name
 from src.splits_profile import SplitsProfile
 
 
-_config_file_path: str = path.dirname(path.abspath(__file__))[:-3] + "config.json"
+_config_file_path: Path = Path(__file__).parent.parent / Path("config.json")
 """Path to global config file"""
 
 _global_settings: dict[str, any] = {}
@@ -33,7 +35,7 @@ _current_splits_profile: SplitsProfile = SplitsProfile()
 # For key codes see https://pynput.readthedocs.io/en/latest/keyboard.html#pynput.keyboard.Key                          #
 ########################################################################################################################
 
-def get_config_file_path() -> str:
+def get_config_file_path() -> Path:
     """:return: Path to the config file"""
     return _config_file_path
 
@@ -56,9 +58,9 @@ def get_current_splits_profile() -> SplitsProfile:
 def get_video_preview_coords() -> tuple[int, int, int, int]:
     """:return: Corners of area of the screen the program observes for blackscreens"""
     if "video_preview_coords" in _per_profile_settings:
-        return tuple(_per_profile_settings.get("video_preview_coords"))
+        return tuple[int, int, int, int](_per_profile_settings.get("video_preview_coords"))
     else:
-        return tuple(_global_settings.get("global")[0].get("video_preview_coords"))
+        return tuple[int, int, int, int](_global_settings.get("global")[0].get("video_preview_coords"))
 
 
 def get_split_key() -> Key:
@@ -142,12 +144,12 @@ def get_automatic_threshold_overhead() -> float:
         return _global_settings.get("global")[0].get("automatic_threshold_overhead")
 
 
-def get_current_splits_profile_path() -> str:
+def get_current_splits_profile_path() -> Path:
     """:return: Path to the currently selected splits profile config file"""
-    return _global_settings.get("path_to_current_splits_profile")
+    return Path(_global_settings.get("path_to_current_splits_profile"))
 
 
-def get_default_settings() -> dict[str, any]:
+def get_default_settings() -> dict[str, Any]:
     """:return: Settings considered "default" """
     return _DEFAULT_SETTINGS
 
@@ -225,9 +227,9 @@ def set_automatic_threshold_overhead(automatic_threshold_overhead: float):
     _global_settings.get("global")[0]["automatic_threshold_overhead"] = automatic_threshold_overhead
 
 
-def set_current_splits_profile_path(path: str):
+def set_current_splits_profile_path(path: Path):
     """Path to the currently selected splits profile config file"""
-    _global_settings["path_to_current_splits_profile"] = path
+    _global_settings["path_to_current_splits_profile"] = str(path)
 
 
 ########################################################################################################################
@@ -242,10 +244,10 @@ def read_global_config_from_file():
     global _global_settings
     try:
         with open(_config_file_path, 'r') as config_file:
-            _global_settings = json.load(config_file)
+            _global_settings = json_load(config_file)
             _global_settings["global"][0]["video_preview_coords"] \
                 = tuple(_global_settings.get("global")[0].get("video_preview_coords"))
-    except (json.decoder.JSONDecodeError, AttributeError):
+    except (JSONDecodeError, AttributeError):
         msg_splits_file_format_error: QMessageBox = QMessageBox()
         msg_splits_file_format_error.setIcon(QMessageBox.Critical)
         msg_splits_file_format_error.setWindowTitle("config format error")
@@ -256,7 +258,7 @@ def read_global_config_from_file():
         msg_splits_file_format_error.button(QMessageBox.No).clicked.connect(read_global_config_from_file)
         msg_splits_file_format_error.exec()
         while msg_splits_file_format_error.isVisible():
-            time.sleep(1)
+            sleep(1)
         restore_defaults()
     # TODO: add validity check
 
@@ -267,23 +269,25 @@ def read_per_profile_config_from_file():
     Whenever a new config parameter is introduced, a new line for it should be added to the end of this method.
     """
     global _per_profile_settings
-    if not get_current_splits_profile_path() == "":
+    if not get_current_splits_profile_path() == Path(""):
         try:
             with open(get_current_splits_profile_path(), 'r') as splits_profile:
-                _per_profile_settings = json.load(splits_profile).get(
-                    path.basename(get_current_splits_profile_path())[:-5] + "_settings_override")[0]
-                _per_profile_settings["video_preview_coords"] \
-                    = tuple(_per_profile_settings.get("video_preview_coords"))
-        except (json.decoder.JSONDecodeError, AttributeError):
+                _per_profile_settings = json_load(splits_profile).get(
+                    get_current_splits_profile_path().stem.split(".json")[0] + "_settings_override"
+                )
+                if False:  # not implemented yet
+                    _per_profile_settings["video_preview_coords"] \
+                        = tuple(_per_profile_settings.get("video_preview_coords"))
+        except (JSONDecodeError, AttributeError):
             msg_splits_file_format_error: QMessageBox = QMessageBox()
             msg_splits_file_format_error.setIcon(QMessageBox.Critical)
             msg_splits_file_format_error.setWindowTitle("config format error")
             msg_splits_file_format_error.setText(
                 "Could not load config because"
-                + path.basename(get_current_splits_profile_path())
+                + get_current_splits_profile_path().stem.split(".json")[0]
                 + " is invalid.")
             msg_splits_file_format_error.exec()
-            set_current_splits_profile_path("")
+            set_current_splits_profile_path(Path(""))
             write_config_to_file()
     # TODO: add validity check
 
@@ -295,14 +299,14 @@ def write_config_to_file():
     """
     with open(_config_file_path, 'w+') as config_file:
         global _global_settings
-        json.dump(_global_settings, config_file, indent=4)
+        json_dump(_global_settings, config_file, indent=4)
 
 
 def delete_config_file():
     """
     Deletes config.json.
     """
-    if path.exists(_config_file_path):
+    if _config_file_path.exists():
         remove(_config_file_path)
 
 
@@ -345,7 +349,7 @@ _DEFAULT_SETTINGS: dict[str, any] = {"global": [
 ########################################################################################################################
 
 def _on_import():
-    if path.isfile(_config_file_path):
+    if _config_file_path.is_file():
         read_global_config_from_file()
         read_per_profile_config_from_file()
     else:
