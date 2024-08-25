@@ -71,7 +71,7 @@ class SettingsWidget(QWidget):
         # connect functionality to buttons
         # self._btn_change_options_mode.clicked.connect(self._btn_switch_options_mode_on_click)
         self._btn_restore_defaults.clicked.connect(self._btn_restore_defaults_on_click)
-        # self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
+        self._btn_automatic_threshold.toggled.connect(self._btn_automatic_threshold_on_toggle)
         self._cb_advanced_settings.stateChanged.connect(self._cb_advanced_settings_state_changed)
         self._btn_box.accepted.connect(self._btn_box_accepted)
         self._btn_box.rejected.connect(self._btn_box_rejected)
@@ -279,9 +279,12 @@ class SettingsWidget(QWidget):
     def _on_info_timeout(self):
         if self._btn_change_options_mode.underMouse():
             if self._global_options_mode_enabled:
-                self._lbl_info.setText("Switch to \"per-profile settings override mode\".\n"
-                                       "Changes are saved on top of global settings for each splits\n"
-                                       "profile individually.")
+                self._lbl_info.setText(
+                    "NOT IMPLEMENTED YET\n"
+                    "Switch to \"per-profile settings override mode\".\n"
+                    "Changes are saved on top of global settings for each splits\n"
+                    "profile individually."
+                )
             else:
                 self._lbl_info.setText("Switch to \"global settings mode\".\n"
                                        "Changes are saved to global settings.")
@@ -336,6 +339,17 @@ class SettingsWidget(QWidget):
             self._sb_automatic_threshold_overhead.setValue(config.get_automatic_threshold_overhead())
         else:
             pass  # TODO: Implement clearing of settings override only
+
+    def _btn_automatic_threshold_on_toggle(self):
+        if self._btn_automatic_threshold.isChecked():
+            self._btn_automatic_threshold.setText("Stop Automatic Threshold Detection")
+            self._btn_box.button(QDialogButtonBox.Ok).setEnabled(False)
+            self._sb_blackscreen_threshold.setEnabled(False)
+            self._sb_blackscreen_threshold.setValue(255)
+        else:
+            self._btn_box.button(QDialogButtonBox.Ok).setEnabled(True)
+            self._sb_blackscreen_threshold.setEnabled(True)
+            self._btn_automatic_threshold.setText("Start Automatic Threshold Detection")
 
     def _cb_advanced_settings_state_changed(self):
         self._lbl_max_capture_rate.setVisible(self._cb_advanced_settings.isChecked())
