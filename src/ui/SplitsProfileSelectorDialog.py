@@ -61,6 +61,44 @@ class SplitsProfileSelectorDialog(QDialog):
     def __init__(self):
         super().__init__()
 
+        # Workaround until handled properly for .exe
+        internal_path: Path = Path(__file__).parent.parent.parent.parent.resolve() / "_internal"
+        if internal_path.is_dir():
+            splits_profiles_new_path: Path = internal_path.parent / "splits_profiles"
+            splits_profiles_new_path.mkdir(exist_ok=True)
+            with open(splits_profiles_new_path / "example.json", "w+") as example_file:
+                example_file.write(
+                    """
+                    {
+                        \"example_splits\": [
+                            {
+                                \"game\": \"example.exe\",
+                                \"category\": \"whatever%\",
+                                \"author\": \"chelast55\",
+                                \"video\": \"https://www.youtube.com/watch?v=o-YBDTqX_ZU\",
+                                \"comment\": \"Shoutouts to simplefilps! Money goes to \\\"Kill the animals!\\\"\",
+                                \"splits\": [
+                                    [
+                                        1,
+                                        \"very funny split name\"
+                                    ],
+                                    [
+                                        3,
+                                        \"next split has no name\"
+                                    ],
+                                    [
+                                        5,
+                                        \"\"
+                                    ]
+                                ]
+                            }
+                        ],
+                        \"example_settings_override\": []
+                    }
+                    """
+                )
+
+
         # Window Setup
         self.setWindowTitle("Splits Profile")
         self.resize(720, 480)
@@ -70,7 +108,7 @@ class SplitsProfileSelectorDialog(QDialog):
         _main_layout: QVBoxLayout = QVBoxLayout()
         self._tv_directory: QTreeView = QTreeView()
         _main_layout.addWidget(self._tv_directory)
-        self._splits_profiles_dir: Path = Path(__file__).parent.parent.parent.resolve() / Path("splits_profiles")
+        self._splits_profiles_dir: Path = splits_profiles_new_path # Path(__file__).parent.parent.parent.resolve() / Path("splits_profiles")
 
         self._directory_model: QFileSystemModel = QFileSystemModel()
         self._directory_model.setRootPath(str(self._splits_profiles_dir))
