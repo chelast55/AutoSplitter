@@ -3,11 +3,10 @@ Contains method(s) for analyzing images.
 """
 
 from cv2 import cvtColor, COLOR_BGR2GRAY
-from numpy import array, average
-from PIL.Image import Image
+from numpy import average, ndarray
 
 
-def average_gray_value(img: Image) -> float:
+def average_gray_value(img: ndarray) -> float:
     """
     Calculates average gray value of all pixels of a (color) image.
 
@@ -16,6 +15,5 @@ def average_gray_value(img: Image) -> float:
     :param img: (Image) color image
     :return: (float) average gray value
     """
-    screen = array(img)
-    screen = cvtColor(screen, COLOR_BGR2GRAY)
+    screen: ndarray = cvtColor(img, COLOR_BGR2GRAY)
     return float(average(screen))

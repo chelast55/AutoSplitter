@@ -4,6 +4,7 @@ from PySide6.QtCore import QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 from pathlib import Path
+from time import sleep
 
 from src import config
 from src.ScreenWatchWorker import ScreenWatchWorker
@@ -100,7 +101,16 @@ class MainWidget(QWidget):
     def _btn_start_stop_on_click(self):
         # if worker is not started, start it, otherwise stop it
         if self._worker is None:
-            self._start_worker()
+            if config.get_split_key() is None:
+                msg_no_split_key: QMessageBox = QMessageBox()
+                msg_no_split_key.setIcon(QMessageBox.Information)
+                msg_no_split_key.setWindowTitle("No split key set")
+                msg_no_split_key.setText(f"You have to set the split key first, before starting the splitter.\n"
+                                         f"(otherwise the splitter won't know, which key to press when splitting)")
+                msg_no_split_key.setStandardButtons(QMessageBox.Ok)
+                msg_no_split_key.exec()
+            else:
+                self._start_worker()
         else:
             self._stop_worker()
 
@@ -126,11 +136,14 @@ class MainWidget(QWidget):
         self._workerThread.start()
 
         self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
-        self._lbl_worker_status.setText(f"Worker running with profile\n{self._worker.get_splits_profile().get_name()}.")
+        self._lbl_worker_status.setText(self._get_worker_state_string("running"))
 
         self._worker.blackscreen_counter_updated.connect(self._worker_on_blackscreen_counter_updated)
         self._worker_on_blackscreen_counter_updated(0)
         self._worker.pause_status_updated.connect(self._worker_on_pause_status_updated)
+
+        sleep(0.5)  # primarily to update capture rate
+        self._lbl_worker_status.setText(self._get_worker_state_string("running"))
 
     def _stop_worker(self):
         self._btn_select_splits_profile.setEnabled(True)
@@ -163,9 +176,11 @@ class MainWidget(QWidget):
                 next_split_index not in self._worker.get_splits_profile().get_splits()):
             next_split_index += 1
 
-        s: str = (f"Blackscreen Counter: {blackscreen_counter}\n"
-                  f"Next Split: {min(next_split_index, final_split_index)} - "
-                  f"{self._worker.get_splits_profile().get_splits().get(min(next_split_index, final_split_index))}")
+        s: str = (
+                    f"Blackscreen Counter: {blackscreen_counter}\n"
+                    f"Next Split: {min(next_split_index, final_split_index)} - "
+                    f"{self._worker.get_splits_profile().get_splits().get(min(next_split_index, final_split_index))}"
+        )
         self._lbl_detailed_status.setText(s)
 
     def _worker_on_pause_status_updated(self):
@@ -176,14 +191,23 @@ class MainWidget(QWidget):
             self._worker.unpause()
             self._btn_pause.setText("Pause")
             self._lbl_worker_status.setStyleSheet("QLabel { color:green; }")
-            self._lbl_worker_status.setText(
-                "Worker running with profile\n" + self._worker.get_splits_profile().get_name() + ".")
+            self._lbl_worker_status.setText(self._get_worker_state_string("running"))
         else:
             self._worker.pause()
             self._btn_pause.setText("Unpause")
             self._lbl_worker_status.setStyleSheet("QLabel { color:orange; }")
-            self._lbl_worker_status.setText(
-                "Worker paused with profile\n" + self._worker.get_splits_profile().get_name() + ".")
+            self._lbl_worker_status.setText(self._get_worker_state_string("paused"))
 
     def closeEvent(self, event: QCloseEvent):
         self._stop_worker()
+
+    ###########
+    # Helpers #
+    ###########
+
+    def _get_worker_state_string(self, worker_status: str) -> str:
+        return (
+            f"Worker {worker_status}.\n"
+            f"Capture rate: {str(1 / self._worker.get_per_cycle_time())[:6]} Hz\n"
+            f"({str(self._worker.get_per_cycle_time() * 1000)[:6]} ms per cycle)"
+        )

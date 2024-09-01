@@ -2,6 +2,7 @@ from typing import Optional
 from PIL import ImageGrab
 from PIL.Image import Image
 from PySide6.QtCore import QObject, Signal
+from numpy import array
 
 from src.image_analyzer import average_gray_value
 
@@ -23,4 +24,4 @@ class SettingsVideoPreviewWorker(QObject):
         self.image_captured.emit(img)
         if self._crop_coords is not None:
             cropped_img = img.crop(self._crop_coords)
-            self.gray_value_updated.emit(average_gray_value(cropped_img))
+            self.gray_value_updated.emit(average_gray_value(array(cropped_img)))

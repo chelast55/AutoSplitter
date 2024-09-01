@@ -385,7 +385,7 @@ class SettingsWidget(QWidget):
 
     def _preview_on_gray_value_updated(self, gray_value: float):
         if self._gv_preview_image.has_area():
-            self._lbl_gray_value.setText("Avg. Gray Value: " + str(gray_value))
+            self._lbl_gray_value.setText(f"Avg. Gray Value: {gray_value}")
             if self._btn_automatic_threshold.isChecked():
                 new_gray_threshold = ceil(gray_value + config.get_automatic_threshold_overhead())
                 if new_gray_threshold < self._sb_blackscreen_threshold.value() + config.get_automatic_threshold_overhead():
