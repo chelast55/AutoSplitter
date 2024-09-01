@@ -13,7 +13,7 @@ from typing import Any
 from time import sleep
 
 from src.string_helper import key_str_to_obj, format_key_name
-from src.splits_profile import SplitsProfile
+from src.SplitsProfile import SplitsProfile
 
 _config_file_path: Path = Path(__file__).parent.parent / Path("config.json")
 """Path to global config file"""
@@ -352,7 +352,7 @@ _DEFAULT_SETTINGS: dict[str, any] = {"global": [
         "increment_key": None,
         "blackscreen_threshold": 9,
         "after_split_delay": 7,
-        "max_capture_rate": 60,
+        "max_capture_rate": 30,
         "after_key_press_delay": 0.2,
         "automatic_threshold_overhead": 3
     }
