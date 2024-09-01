@@ -6,3 +6,4 @@
 /main.spec
 /auto_splitter.spec
 /AutoSplitter.lnk
+**/__pycache__/

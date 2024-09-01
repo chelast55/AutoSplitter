@@ -214,7 +214,7 @@ class SplitsProfileSelectorDialog(QDialog):
                     blackscreen_count_value_error.exec()
                     return
 
-            with open(self._splits_profiles_dir / Path(profile_name + ".json"), 'w') as config_file:
+            with open(self._splits_profiles_dir / Path(profile_name + ".json"), 'w+') as config_file:
                 json_dump(settings, config_file, indent=4)
                 self._unchanged_settings = self.get_current_settings()
 

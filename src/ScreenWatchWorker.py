@@ -153,5 +153,5 @@ class ScreenWatchWorker(QObject):
         if DEBUG_PRINTS:
             print("Worker stopped.")
         self._key_press_listener.stop()
-        self._camera = None
+        self._camera.stop()
         self._finished = True

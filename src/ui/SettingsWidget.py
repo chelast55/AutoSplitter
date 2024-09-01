@@ -184,11 +184,10 @@ class SettingsWidget(QWidget):
         self._gv_preview_image: RectSelectGraphicsView = RectSelectGraphicsView()
 
         # Setup
-        if len(config.get_video_preview_coords()) == 4:
-            self._gv_preview_image.set_rect(config.get_video_preview_coords()[0],
-                                            config.get_video_preview_coords()[1],
-                                            config.get_video_preview_coords()[2],
-                                            config.get_video_preview_coords()[3])
+        self._gv_preview_image.set_rect(config.get_video_preview_coords()[0],
+                                        config.get_video_preview_coords()[1],
+                                        config.get_video_preview_coords()[2],
+                                        config.get_video_preview_coords()[3])
 
         # Add to layout
         rect_select_layout: QVBoxLayout = QVBoxLayout()
@@ -336,6 +335,10 @@ class SettingsWidget(QWidget):
             self._sb_max_capture_rate.setValue(config.get_max_capture_rate())
             self._dsb_after_split_delay.setValue(config.get_after_split_delay())
             self._sb_automatic_threshold_overhead.setValue(config.get_automatic_threshold_overhead())
+            self._gv_preview_image.set_rect(config.get_video_preview_coords()[0],
+                                            config.get_video_preview_coords()[1],
+                                            config.get_video_preview_coords()[2],
+                                            config.get_video_preview_coords()[3])
         else:
             pass  # TODO: Implement clearing of settings override only
 

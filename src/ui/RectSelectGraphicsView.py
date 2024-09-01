@@ -29,10 +29,10 @@ class RectSelectGraphicsView(QGraphicsView):
         self._draw_overlay()
 
     def get_rect(self) -> tuple[int, int, int, int]:
-        return (min(self._pos1.x(), self._pos2.x()),
-                min(self._pos1.y(), self._pos2.y()),
-                max(self._pos1.x(), self._pos2.x()),
-                max(self._pos1.y(), self._pos2.y()))
+        return (int(min(self._pos1.x(), self._pos2.x())),
+                int(min(self._pos1.y(), self._pos2.y())),
+                int(max(self._pos1.x(), self._pos2.x())),
+                int(max(self._pos1.y(), self._pos2.y())))
 
     def has_area(self) -> bool:
         """

@@ -344,7 +344,7 @@ def restore_defaults():
 
 _DEFAULT_SETTINGS: dict[str, any] = {"global": [
     {
-        "video_preview_coords": (1.0, 1.0, 100.0, 100.0),
+        "video_preview_coords": (1, 1, 100, 100),
         "split_key": None,
         "pause_key": None,
         "reset_key": None,

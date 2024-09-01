@@ -5,6 +5,7 @@ from PySide6.QtCore import QObject, Signal
 from numpy import array
 
 from src.image_analyzer import average_gray_value
+from src.config import get_video_preview_coords
 
 
 class SettingsVideoPreviewWorker(QObject):
