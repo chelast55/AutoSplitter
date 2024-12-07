@@ -176,10 +176,11 @@ class MainWidget(QWidget):
                 next_split_index not in self._worker.get_splits_profile().get_splits()):
             next_split_index += 1
 
+        next_relevant_split_index: int = min(next_split_index, final_split_index)
         s: str = (
-                    f"Blackscreen Counter: {blackscreen_counter}\n"
-                    f"Next Split: {min(next_split_index, final_split_index)} - "
-                    f"{self._worker.get_splits_profile().get_splits().get(min(next_split_index, final_split_index))}"
+                    f"Blackscreen Count: {blackscreen_counter}\n"
+                    f"Next Split Count:     {next_relevant_split_index}\n"
+                    f"Next Split: \"{self._worker.get_splits_profile().get_splits().get(next_relevant_split_index)}\""
         )
         self._lbl_detailed_status.setText(s)
 

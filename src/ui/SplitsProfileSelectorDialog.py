@@ -5,7 +5,7 @@ from PySide6.QtCore import QModelIndex
 from PySide6.QtGui import QSyntaxHighlighter, Qt, QTextCharFormat, QShortcut, QKeySequence, QCloseEvent
 from PySide6.QtWidgets import QTreeView, QFileSystemModel, QVBoxLayout, QDialog, QHBoxLayout, QPushButton, \
     QTableWidgetItem, QMessageBox
-from pathlib import Path
+from pathlib import Path, PurePath
 from json import dump as json_dump, load as json_load
 from json.decoder import JSONDecodeError
 from typing import Any, Optional
@@ -61,43 +61,10 @@ class SplitsProfileSelectorDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        # Workaround until handled properly for .exe
-        internal_path: Path = Path(__file__).parent.parent.parent.parent.resolve() / "_internal"
-        if internal_path.is_dir():
-            splits_profiles_new_path: Path = internal_path.parent / "splits_profiles"
-            splits_profiles_new_path.mkdir(exist_ok=True)
-            with open(splits_profiles_new_path / "example.json", "w+") as example_file:
-                example_file.write(
-                    """
-                    {
-                        \"example_splits\": [
-                            {
-                                \"game\": \"example.exe\",
-                                \"category\": \"whatever%\",
-                                \"author\": \"chelast55\",
-                                \"video\": \"https://www.youtube.com/watch?v=o-YBDTqX_ZU\",
-                                \"comment\": \"Shoutouts to simplefilps! Money goes to \\\"Kill the animals!\\\"\",
-                                \"splits\": [
-                                    [
-                                        1,
-                                        \"very funny split name\"
-                                    ],
-                                    [
-                                        3,
-                                        \"next split has no name\"
-                                    ],
-                                    [
-                                        5,
-                                        \"\"
-                                    ]
-                                ]
-                            }
-                        ],
-                        \"example_settings_override\": []
-                    }
-                    """
-                )
-
+        # check if file structure is that of a dispatched build
+        splits_profiles_parent_dir: Path = Path(__file__).parent.parent.parent.resolve()
+        if PurePath(splits_profiles_parent_dir).name == "_internal":
+            splits_profiles_parent_dir = splits_profiles_parent_dir.parent.resolve()
 
         # Window Setup
         self.setWindowTitle("Splits Profile")
@@ -108,7 +75,7 @@ class SplitsProfileSelectorDialog(QDialog):
         _main_layout: QVBoxLayout = QVBoxLayout()
         self._tv_directory: QTreeView = QTreeView()
         _main_layout.addWidget(self._tv_directory)
-        self._splits_profiles_dir: Path = splits_profiles_new_path # Path(__file__).parent.parent.parent.resolve() / Path("splits_profiles")
+        self._splits_profiles_dir: Path = splits_profiles_parent_dir / Path("splits_profiles")
 
         self._directory_model: QFileSystemModel = QFileSystemModel()
         self._directory_model.setRootPath(str(self._splits_profiles_dir))

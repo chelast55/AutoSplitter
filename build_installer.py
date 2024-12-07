@@ -1,36 +1,26 @@
-from os import system, path, makedirs
-from shutil import rmtree
-from platform import system as identify_os
+from os import system
+from shutil import rmtree, copytree
+from pathlib import Path
 
-if identify_os() == "Windows":
-    from win32com.client import Dispatch
+REPO_ROOT_PATH: Path = Path(__file__).parent.resolve()
+BUILD_PATH: Path = REPO_ROOT_PATH / "build"
+DIST_PATH: Path = REPO_ROOT_PATH / "dist"
+MAIN_PATH: Path = REPO_ROOT_PATH / "auto_splitter.py"
+SPLITS_PROFILE_SRC_PATH: Path = REPO_ROOT_PATH / "splits_profiles"
+SPLITS_PROFILE_DEST_PATH: Path = DIST_PATH / "auto_splitter" / "splits_profiles"
 
-BUILD_PATH: str = path.join(path.dirname(path.abspath(__file__)), r"build")
-DIST_PATH: str = path.join(path.dirname(path.abspath(__file__)), r"dist")
-MAIN_PATH: str = path.join(path.dirname(path.abspath(__file__)), r"auto_splitter.py")
-EXECUTABLE_PATH: str = path.join(DIST_PATH, r"auto_splitter", "auto_splitter.exe")
 
 if __name__ == "__main__":
     # cleenup
-    if path.exists(BUILD_PATH):
+    if BUILD_PATH.exists():
         rmtree(BUILD_PATH)
-    if path.exists(DIST_PATH):
+    if DIST_PATH.exists():
         rmtree(DIST_PATH)
 
     # build executable
-    makedirs(BUILD_PATH)
+    BUILD_PATH.mkdir()
     system("cd build")
-    system("pyinstaller " + MAIN_PATH)
+    system("pyinstaller " + str(MAIN_PATH))
 
-    # create link to executable
-    if identify_os() == "Windows":
-        shell = Dispatch('WScript.Shell')
-        shortcut = shell.CreateShortCut(path.join(path.dirname(path.abspath(__file__)), "AutoSplitter.lnk"))
-        shortcut.Targetpath = EXECUTABLE_PATH
-        shortcut.WorkingDirectory = path.join(path.dirname(path.abspath(__file__)))
-        shortcut.IconLocation = EXECUTABLE_PATH
-        shortcut.save()
-    elif identify_os() == "Darwin":  # MacOS
-        pass  # TODO: implement
-    elif identify_os() == "Linux":
-        pass  # TODO: implement
+    # copy splits_profiles dir
+    copytree(SPLITS_PROFILE_SRC_PATH, SPLITS_PROFILE_DEST_PATH)

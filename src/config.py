@@ -2,7 +2,6 @@
 Handles reading from and writing to the config file (config.json).
 Stores configuration parameters internally and publicly accessible.
 """
-
 from PySide6.QtWidgets import QMessageBox
 from pynput.keyboard import Key
 from os import remove
